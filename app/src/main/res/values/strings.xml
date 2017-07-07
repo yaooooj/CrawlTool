@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">CoustomToolbar</string>
+    <string name="toolbar_title">CoustomToolbar</string>
+    <string name="coo">Custom_Create</string>
+    <string name="sys_coo">System_Create</string>
+    <string name="title_activity_base">BaseActivity</string>
+    <string name="tab_item_1">Home</string>
+    <string name="tab_item_2">Classify</string>
+    <string name="tab_item_3">Setting</string>
+    <string name="button_cardview_test">Button_CardView_Test</string>
+    <string name="task_operator">Operator:</string>
+    <string name="task_time">Time:</string>
+</resources>

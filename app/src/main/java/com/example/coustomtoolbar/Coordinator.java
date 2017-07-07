@@ -1,0 +1,133 @@
+package com.example.coustomtoolbar;
+
+import android.content.Context;
+import android.graphics.Color;
+import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.coustomtoolbar.Adapter.MyAdapter;
+import com.example.coustomtoolbar.Fragment.Fragment1;
+import com.example.coustomtoolbar.Fragment.Fragment2;
+import com.example.coustomtoolbar.Fragment.Fragment3;
+import com.example.coustomtoolbar.Observer.Subject;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observer;
+import java.util.TooManyListenersException;
+
+public class Coordinator extends AppCompatActivity {
+    private String TAG = "Coordinator";
+    private List<String> mData;
+    private List<Fragment> mFragment;
+    private ScreenUtil screenUtil = new ScreenUtil();
+    private List<Observer> observers;
+    private Toolbar toolbar;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_coordinator);
+
+        screenUtil.setColor(Color.parseColor("#f19388"));
+        screenUtil.StatusView(getWindow());
+
+        toolbar = (Toolbar)findViewById(R.id.toolbar_coordinator);
+        toolbar.setTitle("CustomCreate");
+
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        initData();
+
+        findViewById(R.id.float_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Snackbar.make(v,"I'm a SnackBar",Snackbar.LENGTH_SHORT)
+                        .setAction("cancel", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                finish();
+                            }
+                        }).show();
+            }
+        });
+
+
+        //ViewPager
+        ViewPager viewPager = (ViewPager)findViewById(R.id.view_pager_coordinator);
+        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(),mFragment);
+        viewPager.setAdapter(viewPagerAdapter);
+
+        TabLayout mTab = (TabLayout)findViewById(R.id.tab_layout_coordinator);
+        mTab.setupWithViewPager(viewPager);
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.main,menu);
+        return true;
+    }
+
+
+
+
+    public void initData(){
+        mFragment = new ArrayList<>();
+        mFragment.add(new Fragment1());
+        mFragment.add(new Fragment2());
+        mFragment.add(new Fragment3());
+    }
+
+
+    private class ViewPagerAdapter extends FragmentPagerAdapter{
+        private List<Fragment> fragments;
+        private  final String[] mTitles= new String[]{"Home","Classify","Setting"};
+        ViewPagerAdapter(FragmentManager fm,List<Fragment> fragment) {
+            super(fm);
+            fragments =fragment;
+        }
+        @Override
+        public Fragment getItem(int position) {
+            return fragments.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return fragments.size();
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mTitles[position];
+        }
+    }
+
+
+
+}
