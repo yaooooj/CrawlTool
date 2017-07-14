@@ -30,6 +30,7 @@
                     app:popupTheme="@style/BaseTheme.PopupOverlay" />
         </android.support.design.widget.AppBarLayout>
 
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/view_recycler_base"
             android:layout_width="match_parent"

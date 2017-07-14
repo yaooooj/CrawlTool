@@ -3,7 +3,6 @@ package com.example.coustomtoolbar;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,10 +21,12 @@ import android.widget.TextView;
 import com.bigkoo.pickerview.TimePickerView;
 import com.example.coustomtoolbar.Adapter.AddTaskAdapter;
 import com.example.coustomtoolbar.Bean.CardViewBean;
-import com.example.coustomtoolbar.Bean.TaskBean;
 import com.example.coustomtoolbar.Bean.TaskModel;
 import com.example.coustomtoolbar.DataBaseUtil.DBManager;
 import com.example.coustomtoolbar.Util.DividerItemDecoration;
+import com.example.coustomtoolbar.Util.ScreenUtil;
+import com.example.coustomtoolbar.Util.SystemTime;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -49,6 +50,7 @@ public class AddTaskActivity extends AppCompatActivity implements View.OnClickLi
     private DBManager dbManager;
     private TaskModel taskModel;
     private List<String> mTaskModelList;
+    private SystemTime systemTime;
     private int itemCount;
     private String[] edit;
     private List<TaskModel> taskModelList;
@@ -117,7 +119,7 @@ public class AddTaskActivity extends AppCompatActivity implements View.OnClickLi
         pvTime = new TimePickerView.Builder(this, new TimePickerView.OnTimeSelectListener() {
             @Override
             public void onTimeSelect(Date date, View v) {
-
+               // String textView = addTaskAdapter.getTextView();
                 addTaskAdapter.updata(getTime(date));
                 addTaskAdapter.setDataAfterChang(getTime(date),AddTaskAdapter.DATA_TYPE,getPosition());
 
@@ -135,14 +137,16 @@ public class AddTaskActivity extends AppCompatActivity implements View.OnClickLi
         taskModelList = new ArrayList<>();
     }
     public void initData(){
+        systemTime = SystemTime.getInstance();
         mData = new ArrayList<>();
-
+        //给输入栏中设置默认的值
         String[] text = new String[]{"TaskName:","Creator:","Operator:","StartTime:","EndTime:"};
-        edit = new String[]{"Create a new task","Jobs","Tom",getSystemTime(true),getSystemTime(false)};
+        edit = new String[]{"Create a new task","Jobs","Tom",systemTime.getTimeWithFormat(),systemTime.getAfterDay()};
         for (int i = 0; i < 5;i++){
             cardViewBean = new CardViewBean();
             cardViewBean.setTextName(text[i]);
             cardViewBean.setEditName(edit[i]);
+            //设置默认的值传递给列表中，传给recycler
             mData.add(cardViewBean);
             //db.addWithSQL();
         }
@@ -168,21 +172,9 @@ public class AddTaskActivity extends AppCompatActivity implements View.OnClickLi
         rv_add_task.setAdapter(addTaskAdapter);
 
     }
-    public String getSystemTime(boolean isStart){
-        Calendar c = Calendar.getInstance();
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH)+1;
-        int day = c.get(Calendar.DAY_OF_MONTH);
-        int hour = c.get(Calendar.HOUR);
-        int minute = c.get(Calendar.MINUTE);
-        int second = c.get(Calendar.SECOND);
-        if (isStart){
-            return year+"-"+month+"-"+day+"  "+hour+":"+minute+":"+second+"";
-        }
-        return year+1+"-"+month+"-"+day+"  "+hour+":"+minute+":"+second+"";
-    }
+
     private String getTime(Date data){
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd  HH:mm:ss");
         return format.format(data);
     }
     public void setPosition(int position){
@@ -197,16 +189,16 @@ public class AddTaskActivity extends AppCompatActivity implements View.OnClickLi
         taskModel = new TaskModel();
         //自动改变任务名的名字，避免重复
         if (mTaskModelList.get(0).equals(edit[0])){
-            taskModel.setTask_name(mTaskModelList.get(0)+"  "+getSystemTime(true));
+            taskModel.setTask_name(mTaskModelList.get(0)+"  "+  systemTime.getTimeWithFormat());
         }else {
-            taskModel.setTask_name(mTaskModelList.get(0)+"  "+getSystemTime(true));
+            taskModel.setTask_name(mTaskModelList.get(0)+"  "+ systemTime.getTimeWithFormat());
         }
         taskModel.setCreator(mTaskModelList.get(1));
         taskModel.setOperator(mTaskModelList.get(2));
         taskModel.setStart_time(mTaskModelList.get(3));
         taskModel.setEnd_time(mTaskModelList.get(4));
         taskModel.setTask_num(itemCount);
-        taskModel.setCreate_time(getSystemTime(true));
+        taskModel.setCreate_time(systemTime.getTimeWithFormat());
     }
     public TaskModel getTaskModel(){
         if (taskModel != null){
@@ -221,12 +213,6 @@ public class AddTaskActivity extends AppCompatActivity implements View.OnClickLi
         switch (v.getId()){
             case R.id.confirm:
                 setTaskModel();
-                /*Intent intent = new Intent();
-                 Bundle bundle = new Bundle();
-                bundle.putString("header",taskModel.getEnd_time());
-                bundle.putParcelable("task_model", taskModel);
-                intent.putExtras(bundle);
-                setResult(2,intent);*/
                 Intent intent = new Intent(AddTaskActivity.this,BaseActivity.class);
                 startActivity(intent);
                 if (taskModel != null){

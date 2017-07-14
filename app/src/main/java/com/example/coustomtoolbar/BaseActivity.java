@@ -10,16 +10,16 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.Toast;
 import com.example.coustomtoolbar.Adapter.BaseTaskAdapter;
 import com.example.coustomtoolbar.Bean.TaskModel;
 import com.example.coustomtoolbar.DataBaseUtil.DBManager;
+import com.example.coustomtoolbar.Util.ScreenUtil;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +28,6 @@ public class BaseActivity extends AppCompatActivity {
     public static final String TAG = "BaseActivity";
     private List<TaskModel> mData;
     private ScreenUtil screenUtil = new ScreenUtil();
-    private int count = 0;
     private Toolbar toolbar;
     private RecyclerView rv1;
     private BaseTaskAdapter adapter;
@@ -36,10 +35,6 @@ public class BaseActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager layoutManager;
     private Menu mMenu;
     private FloatingActionButton float_btu;
-    private CheckBox checkBox;
-    private SparseArray checkList;
-    private int size;
-    private List<Integer> mBoxPositionList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +46,14 @@ public class BaseActivity extends AppCompatActivity {
         initData();
         initDatabase();
         initRecyclerView();
+        initService();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.e(TAG, "onStart: " );
+        adapter.updata();
     }
 
     public void initStatusColor(){
@@ -80,17 +83,18 @@ public class BaseActivity extends AppCompatActivity {
 
     public void initDatabase(){
         dbManager = DBManager.Instence(BaseActivity.this);
-        mData = new ArrayList<>();
-        mData = dbManager.queryWithSQL();
-        for (int i =1; i< mData.size();i++){
-            Log.e(TAG, "initDatabase: "+mData.get(i).getTask_name()+"this is: = " +i );
+
+        if (dbManager.queryWithSQL() == null){
+            mData = new ArrayList<>();
+        }else {
+            mData = dbManager.queryWithSQL();
         }
+
 
     }
     public void initRecyclerView(){
         rv1 = (RecyclerView)findViewById(R.id.view_recycler_base);
         adapter = new BaseTaskAdapter(BaseActivity.this,mData,rv1);
-
         layoutManager = new LinearLayoutManager(BaseActivity.this,
                 LinearLayoutManager.VERTICAL,false);
         rv1.setLayoutManager(layoutManager);
@@ -109,41 +113,18 @@ public class BaseActivity extends AppCompatActivity {
                 hideNavigation();
                 hideMenu();
                 visibleFloatButton();
-                setCheckList();
-                visibleCheckBox();
-                //adapter.countRadioButton();
+                adapter.setCheckVisible(true);
                 Toast.makeText(BaseActivity.this,"Long Click",Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "itemLongClick: "+position );
             }
         });
     }
-    public void setCheckList(){
-        if ( adapter.getCheckList() != null){
-            checkList = adapter.getCheckList();
-            size = adapter.getCheckList().size();
-
-        }
+    private void initService(){
+        Intent intent = new Intent(this,MyService.class);
+        startService(intent);
     }
 
-    public void setCheckBoxPosition(){
 
-        for (int i =0;i < size;i++){
-            mBoxPositionList = new ArrayList<>();
-            mBoxPositionList.add(checkList.keyAt(i));
-        }
-    }
-    public void hideCheckBox(){
-        for (int i =0;i < size;i++){
-            checkBox = (CheckBox) checkList.valueAt(i);
-            checkBox.setVisibility(View.GONE);
-        }
-    }
-    public void visibleCheckBox(){
-        for (int i =0;i < size;i++){
-            checkBox = (CheckBox) checkList.valueAt(i);
-            checkBox.setVisibility(View.VISIBLE);
-        }
-    }
     public void hideFloatButton(){
         float_btu.setVisibility(View.GONE);
     }
@@ -157,8 +138,8 @@ public class BaseActivity extends AppCompatActivity {
                 visibleNavigation();            //显示标题栏返回键
                 setMenuVisible();               //显示标题栏添加按钮
                 hideFloatButton();              //隐藏FLOAT ACTION BUTTON
-                hideCheckBox();                 //隐藏ITEM 中的CHECKBOX按钮
-                adapter.removeItem(mBoxPositionList);           //移除选中的标题栏
+                adapter.setCheckVisible(false); //隐藏ITEM 中的CHECKBOX按钮
+                adapter.removeItem();           //移除选中的标题栏
                 Toast.makeText(BaseActivity.this,"delete success",Toast.LENGTH_SHORT).show();
             }
         });
@@ -179,7 +160,8 @@ public class BaseActivity extends AppCompatActivity {
                 visibleNavigation();
                 setMenuVisible();
                 hideFloatButton();
-                hideCheckBox();
+               // hideCheckBox();
+                adapter.setCheckVisible(false);
             }
         });
        // toolbar.setNavigationContentDescription("SelectAll");

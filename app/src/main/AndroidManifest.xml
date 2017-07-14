@@ -30,12 +30,26 @@
         <activity
             android:name=".BaseActivity"
             android:label="@string/title_activity_base"
-            android:theme="@style/BaseTheme"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:theme="@style/BaseTheme" />
         <activity
             android:name=".AddTaskActivity"
-            android:theme="@style/BaseTheme">
-        </activity>
+            android:theme="@style/BaseTheme" />
+
+        <service
+            android:name=".MyService"
+            android:enabled="true"
+            android:exported="true">
+
+        </service>
+
+        <receiver
+            android:name=".BroadcastManager.AlarmReceiver"
+            android:enabled="true"
+            android:exported="true"
+            >
+
+        </receiver>
     </application>
 
 </manifest>

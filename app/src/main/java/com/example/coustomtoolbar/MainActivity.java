@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.example.coustomtoolbar.Bean.TaskModel;
 import com.example.coustomtoolbar.DataBaseUtil.DBManager;
+import com.example.coustomtoolbar.Util.ScreenUtil;
 import com.example.coustomtoolbar.Util.SystemTime;
 import com.facebook.stetho.Stetho;
 
@@ -63,16 +64,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         preference = getSharedPreferences("count",MODE_PRIVATE);
         count = preference.getInt("count",0);
         if (count == 0){
-            TaskModel taskModel;
-            SystemTime systemTime;
-            List<TaskModel> taskModelList;
-            systemTime = new SystemTime();
-            taskModel = new TaskModel();
-            taskModelList = new ArrayList<>();
-            taskModel.setStart_time(systemTime.getTimeWithCalender(SystemTime.MIN_TIME));
-            taskModel.setEnd_time(systemTime.getTimeWithCalender(SystemTime.MAX_TIME));
-            taskModelList.add(taskModel);
-            dbManager.addWithSQL(taskModelList);
             writeInitParamsToSharePreferences();
             Log.e(TAG, "firstTimeInit: "+ "first init database" );
         }

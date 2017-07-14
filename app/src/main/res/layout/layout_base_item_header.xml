@@ -3,8 +3,10 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="0dp"
+    android:layout_marginStart="@dimen/dp_8"
+    android:layout_marginEnd="@dimen/dp_8"
     android:layout_marginBottom="0dp"
+    android:layout_marginTop="@dimen/dp_8"
     >
     <LinearLayout
         android:layout_width="0dp"
@@ -20,15 +22,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:layout_marginBottom="0dp"
+            android:gravity="center"
             android:padding="1dp"
-            android:text="Select ALL"/>
-        <CheckBox
-            android:id="@+id/base_check_box"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="0dp"
-            />
+            android:text="Total"/>
     </LinearLayout>
     <RelativeLayout
         android:layout_width="0dp"
@@ -45,10 +41,11 @@
             android:layout_marginTop="2dp"
             android:layout_marginBottom="0dp"
             android:padding="1dp"
+            android:gravity="end"
             android:layout_alignParentEnd="true"
             android:background="@android:color/transparent"
-            android:textColor="@color/colorRed"
-            android:text="delete"/>
+            android:textColor="@color/colorPrimary"
+            android:text="Sort"/>
     </RelativeLayout>
 
 

@@ -61,7 +61,7 @@ public class DBManager {
         List<TaskModel> mTaskModelList = new ArrayList<>();
         db.beginTransaction();
         try {
-            Cursor cursor = db.rawQuery("select distinct * from Task  order by create_time desc",null);
+            Cursor cursor = db.rawQuery("select distinct * from Task",null);
             while (cursor.moveToNext()){
                 ta = new TaskModel();
                 ta.setTask_num(cursor.getInt(cursor.getColumnIndex("task_num")));
@@ -86,13 +86,13 @@ public class DBManager {
     }
 
 
-    public void delete(int id){
+    public void delete(String task_name){
         SQLiteDatabase db = new SQLiteDbHelper(context).getReadableDatabase();
         db.beginTransaction();
         try {
-            db.execSQL("delete from Task where id = ?",new Object[] {id});
+            db.execSQL("delete from Task where task_name = ?",new Object[] {task_name});
             db.setTransactionSuccessful();
-            Log.e(TAG, "delete: "+ id +"success" );
+            Log.e(TAG, "delete: "+ task_name +"success" );
         }finally {
             db.endTransaction();
         }
