@@ -1,7 +1,7 @@
 package com.example.coustomtoolbar.Bean;
 
 /**
- * Created by yaojian on 2017/6/28.
+ * Created by yaojian on 2017/7/21.
  */
 
 public class CardViewBean {

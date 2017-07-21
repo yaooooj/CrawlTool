@@ -1,12 +1,10 @@
 package com.example.coustomtoolbar.DataBaseUtil;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.example.coustomtoolbar.Bean.TaskBean;
 import com.example.coustomtoolbar.Bean.TaskModel;
 
 import java.util.ArrayList;

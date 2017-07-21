@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.coustomtoolbar.Bean.TaskModel;
@@ -28,6 +30,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int  isFirstTimeInit = 0;
     private SharedPreferences preference;
     private int count;
+    private CardView cardView_1;
+    private CardView cardView_2;
+    private CardView cardView_3;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,12 +57,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //setToolbarPaddingTop();
     }
     public void initButton(){
-        Button button = (Button)findViewById(R.id.button);
-        Button button_coo = (Button)findViewById(R.id.button_coo);
-        Button button_card = (Button)findViewById(R.id.button_card_view);
-        button.setOnClickListener(this);
-        button_coo.setOnClickListener(this);
-        button_card.setOnClickListener(this);
+        TextView textView_1 = (TextView) findViewById(R.id.textView_1);
+        TextView textView_2 = (TextView) findViewById(R.id.button_coo);
+        TextView textView_3 = (TextView) findViewById(R.id.button_card_view);
+        cardView_1 = (CardView)findViewById(R.id.card_view_1);
+        cardView_1.setOnClickListener(this);
+
+        cardView_2 = (CardView)findViewById(R.id.card_view_2);
+        cardView_2.setOnClickListener(this);
+
+        cardView_3 = (CardView)findViewById(R.id.card_view_3);
+        cardView_3.setOnClickListener(this);
+
     }
 
     public void firstTimeInit(){
@@ -95,20 +106,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.button:
+            case R.id.card_view_1:
                 Intent intent = new Intent(MainActivity.this,BaseActivity.class);
                 startActivity(intent);
-                Toast.makeText(MainActivity.this,"hit the text_view",Toast.LENGTH_SHORT).show();
                 break;
-            case R.id.button_coo:
+            case R.id.card_view_2:
                 Intent intent_coo = new Intent(MainActivity.this,Coordinator.class);
                 startActivity(intent_coo);
-                Toast.makeText(MainActivity.this,"hit the button_coo",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this,"hit the button_coo",Toast.LENGTH_SHORT).show();
                 break;
-            case R.id.button_card_view:
+            case R.id.card_view_3:
                 Intent intent_card_view = new Intent(MainActivity.this,AddTaskActivity.class);
                 startActivity(intent_card_view);
-                Toast.makeText(MainActivity.this,"hit the button_coo",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this,"hit the button_coo",Toast.LENGTH_SHORT).show();
                 break;
             default:
                 break;

@@ -9,7 +9,7 @@
         android:id="@+id/toolbar"
         android:fitsSystemWindows="true"
         android:paddingTop="25dp"
-        android:background="@color/colorRed">
+        android:background="@color/colorPrimary">
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

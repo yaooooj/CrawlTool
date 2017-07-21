@@ -1,8 +1,6 @@
 package com.example.coustomtoolbar.Adapter;
 
 import android.content.Context;
-import android.content.SyncRequest;
-import android.content.res.TypedArray;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,8 +15,6 @@ import android.widget.Toast;
 import com.bigkoo.pickerview.TimePickerView;
 import com.example.coustomtoolbar.Bean.CardViewBean;
 import com.example.coustomtoolbar.Bean.TaskModel;
-import com.example.coustomtoolbar.Observer.Subject;
-import com.example.coustomtoolbar.Observer.TaskObserver;
 import com.example.coustomtoolbar.R;
 import com.example.coustomtoolbar.Util.SystemTime;
 
@@ -32,14 +28,13 @@ import java.util.List;
 
 public class AddTaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements View.OnClickListener{
     private Context context;
-    private List<CardViewBean> datas;
     private int itemCount = 0;
-    private CardViewBean cardViewBean;
     private TimePickerView pvTime;
     private int mPosition;
     private OnItemClickListener onItemClickListener;
     private TaskModel taskModel;
     private List<TaskModel> mListTask;
+    private List<CardViewBean> datas;
     private String TAG = "AddTaskAdapter";
     private List<String> mListName = new ArrayList<>();
     private String text;
@@ -59,7 +54,6 @@ public class AddTaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         datas = data;
         mListTask = new ArrayList<>();
         taskModel = new TaskModel();
-
     }
     public void setOnItemClickListener(OnItemClickListener onItemClickListener){
         this.onItemClickListener = onItemClickListener;

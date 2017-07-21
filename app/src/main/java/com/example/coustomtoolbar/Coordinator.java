@@ -22,6 +22,7 @@ import com.example.coustomtoolbar.Util.ScreenUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observer;
+import java.util.logging.Handler;
 
 public class Coordinator extends AppCompatActivity {
     private String TAG = "Coordinator";
@@ -74,6 +75,8 @@ public class Coordinator extends AppCompatActivity {
 
         TabLayout mTab = (TabLayout)findViewById(R.id.tab_layout_coordinator);
         mTab.setupWithViewPager(viewPager);
+
+
 
     }
 

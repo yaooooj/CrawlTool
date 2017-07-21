@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.example.coustomtoolbar.Adapter.BaseTaskAdapter;
 import com.example.coustomtoolbar.BaseActivity;
 import com.example.coustomtoolbar.MyService;
 import com.example.coustomtoolbar.R;
@@ -28,16 +29,19 @@ public class AlarmReceiver extends BroadcastReceiver {
         /*
         taskNameList = new ArrayList<>();
         taskNameList =  intent.getStringArrayListExtra("taskNameList");
-        Intent serviceIntent = new Intent(context, MyService.class);
+        Intent service = new Intent(context, MyService.class);
         if (taskNameList == null){
-            context.startService(serviceIntent);
+            //context.startService(service);
             Log.e(TAG, "onReceive: " );
         }else {
             showNotification(context);
-            context.startService(serviceIntent);
-        }*/
+            //context.startService(service);
+        }
+        */
         Intent serviceIntent = new Intent(context, MyService.class);
         context.startService(serviceIntent);
+
+
     }
     public void showNotification(Context context){
         String taskName;

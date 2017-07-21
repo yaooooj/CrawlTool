@@ -58,6 +58,13 @@ public class MyService extends Service {
         }
         db = DBManager.Instence(getApplicationContext());
         taskModel = db.queryWithSQL();
+        final AlarmManager manager = (AlarmManager)getSystemService(ALARM_SERVICE);
+        int anHour = 10 * 1000;
+        final long triggerAtTime = SystemClock.elapsedRealtime()+ anHour;
+        in = new Intent(this, AlarmReceiver.class);
+       // in.putStringArrayListExtra("taskNameList", taskNameList);
+        //int.putExtra("task_name",taskModel.get(i))
+        pi = PendingIntent.getBroadcast(this,0,in,PendingIntent.FLAG_UPDATE_CURRENT);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -70,6 +77,7 @@ public class MyService extends Service {
                             //Log.e(TAG, "run: " + taskModel.get(i).getTask_name());
                             taskNameList.add(taskModel.get(i).getTask_name());
                             taskModel.remove(i);
+
                         }
                         //Log.e(TAG, "run: "+  taskModel.get(i).getEnd_time());
                     }
@@ -77,15 +85,10 @@ public class MyService extends Service {
                 }
             }).start();
 
-        notification();
-        AlarmManager manager = (AlarmManager)getSystemService(ALARM_SERVICE);
-        int anHour = 10 * 1000;
-        long triggerAtTime = SystemClock.elapsedRealtime()+ anHour;
-        in = new Intent(this, AlarmReceiver.class);
-        //in.putStringArrayListExtra("taskNameList", taskNameList);
-        //intent.putExtra("task_name",taskModel.get(i))
-        pi = PendingIntent.getBroadcast(this,0,in,PendingIntent.FLAG_UPDATE_CURRENT);
         manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,triggerAtTime,pi);
+        notification();
+
+
         Log.e(TAG, "run: " + "database have  " + taskModel.size() +" tasks "+ "Scan this  " + count + " times" );
         count++;
     }

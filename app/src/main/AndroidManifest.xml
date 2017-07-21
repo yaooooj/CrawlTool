@@ -4,6 +4,8 @@
 
     <!-- To access Google+ APIs: -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
 
     <application
         android:allowBackup="true"
@@ -39,17 +41,14 @@
         <service
             android:name=".MyService"
             android:enabled="true"
-            android:exported="true">
-
-        </service>
+            android:exported="true"></service>
 
         <receiver
             android:name=".BroadcastManager.AlarmReceiver"
             android:enabled="true"
-            android:exported="true"
-            >
+            android:exported="true"></receiver>
 
-        </receiver>
+        <activity android:name=".TheBaseActivity"></activity>
     </application>
 
 </manifest>
