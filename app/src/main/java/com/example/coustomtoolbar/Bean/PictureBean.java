@@ -1,15 +1,17 @@
 package com.example.coustomtoolbar.Bean;
 
+import android.graphics.Picture;
+
 import java.util.List;
 
 /**
- * Created by yaojian on 2017/7/21.
+ * Created by yaojian on 2017/7/23.
  */
 
-public class PictureCategory {
+public class PictureBean {
     private String showapi_res_code;
     private String showapi_res_error;
-    private AllCategory showapi_res_body;
+    private PictureBody showapi_res_body;
 
     public String getShowapi_res_code() {
         return showapi_res_code;
@@ -27,11 +29,12 @@ public class PictureCategory {
         this.showapi_res_error = showapi_res_error;
     }
 
-    public AllCategory getShowapi_res_body() {
+    public PictureBody getShowapi_res_body() {
         return showapi_res_body;
     }
 
-    public void setShowapi_res_body(AllCategory showapi_res_body) {
+    public void setShowapi_res_body(PictureBody showapi_res_body) {
         this.showapi_res_body = showapi_res_body;
     }
+
 }

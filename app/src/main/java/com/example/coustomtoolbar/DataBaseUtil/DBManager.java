@@ -107,8 +107,41 @@ public class DBManager {
         }
     }
 
+    public void addCateory(String string){
+        SQLiteDatabase db = new SQLiteDbHelper(context).getReadableDatabase();
+        db.beginTransaction();
+        try{
 
+            db.execSQL("Insert into " + SQLiteDbHelper.TABLE_ALL_CATEGORY + " values(null,?)",new Object[]{string});
+            db.setTransactionSuccessful();
+        }finally {
+            db.endTransaction();
+        }
+    }
 
+    public void addConcreteCategory(String[] name){
+        SQLiteDatabase db = new SQLiteDbHelper(context).getReadableDatabase();
+        db.beginTransaction();
+        try {
+            db.execSQL("Insert into " + SQLiteDbHelper.TABLE_CONCRETE_CATEGORY+ " values(null,?,?)",name);
+            db.setTransactionSuccessful();
+        }finally {
+            db.endTransaction();
+        }
+    }
+
+    public Cursor queryCategory(String tableName,String where){
+        SQLiteDatabase db = new SQLiteDbHelper(context).getReadableDatabase();
+        Cursor cursor;
+        db.beginTransaction();
+        try {
+             cursor = db.rawQuery("select "+ where + " from " + tableName,null);
+            db.setTransactionSuccessful();
+        }finally {
+            db.endTransaction();
+        }
+        return cursor;
+    }
 }
 
 

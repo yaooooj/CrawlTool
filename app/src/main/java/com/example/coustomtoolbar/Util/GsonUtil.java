@@ -18,11 +18,11 @@ public class GsonUtil<T> {
         return result;
     }
 
-    public static <T> List<T> phraseJsonWithGsonArray(String jsonData,Class<T> type){
+    public static <T> Class<T> phraseJsonWithGsonArray(String jsonData,Class<T> type){
 
         Gson gson = new Gson();
 
-        List<T> result = gson.fromJson(jsonData,new TypeToken<List<T>>(){}.getType());
+        Class<T> result = gson.fromJson(jsonData,new TypeToken<List<T>>(){}.getType());
 
         return result;
     }

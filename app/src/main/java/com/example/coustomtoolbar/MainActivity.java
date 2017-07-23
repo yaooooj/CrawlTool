@@ -2,6 +2,9 @@ package com.example.coustomtoolbar;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
@@ -13,12 +16,19 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.coustomtoolbar.Bean.AllCategory;
+import com.example.coustomtoolbar.Bean.PictureCategory;
 import com.example.coustomtoolbar.Bean.TaskModel;
 import com.example.coustomtoolbar.DataBaseUtil.DBManager;
+import com.example.coustomtoolbar.DataBaseUtil.SQLiteDbHelper;
+import com.example.coustomtoolbar.Util.OkHttp3Util;
 import com.example.coustomtoolbar.Util.ScreenUtil;
 import com.example.coustomtoolbar.Util.SystemTime;
 import com.facebook.stetho.Stetho;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,19 +43,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private CardView cardView_1;
     private CardView cardView_2;
     private CardView cardView_3;
+    private OkHttp3Util okHttp3Util;
+    private Gson gson;
+    private AllCategory allCategory;
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            PictureCategory picture = (PictureCategory)msg.obj;
+            allCategory = picture.getShowapi_res_body();
+            for (int i = 0;i < allCategory.getList().size();i++ ){
+                dbManager.addCateory(allCategory.getList().get(i).getName());
+                for (int j =0;j < allCategory.getList().get(i).getList().size();j++){
+                    dbManager.addConcreteCategory(new String[] {allCategory.getList().get(i).getList().get(j).getId()
+                                    ,allCategory.getList().get(i).getList().get(j).getName()}
+                            );
+                }
+            }
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Stetho.initializeWithDefaults(this);
+
         initDataBase();
         initToolbar(isShowToolbar);
         initButton();
+        initRecycler();
 
     }
 
     private void initDataBase(){
         dbManager = DBManager.Instence(MainActivity.this);
+        okHttp3Util = new OkHttp3Util();
+        gson = new Gson();
         firstTimeInit();
     }
 
@@ -68,6 +100,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         cardView_3 = (CardView)findViewById(R.id.card_view_3);
         cardView_3.setOnClickListener(this);
+    }
+
+    public void initRecycler(){
 
     }
 
@@ -76,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         count = preference.getInt("count",0);
         if (count == 0){
             writeInitParamsToSharePreferences();
+            okHttp3Util.executeGet(OkHttp3Util.URL,handler,PictureCategory.class);
             Log.e(TAG, "firstTimeInit: "+ "first init database" );
         }
     }
@@ -103,6 +139,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(TAG,"The Padding Top is = " + paddingTop);
         mToolbar.setPadding(paddingLeft,paddingTop,paddingRight,paddingBottom);
     }
+
+
     @Override
     public void onClick(View v) {
         switch (v.getId()){
@@ -116,9 +154,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //Toast.makeText(MainActivity.this,"hit the button_coo",Toast.LENGTH_SHORT).show();
                 break;
             case R.id.card_view_3:
-                Intent intent_card_view = new Intent(MainActivity.this,AddTaskActivity.class);
-                startActivity(intent_card_view);
-                //Toast.makeText(MainActivity.this,"hit the button_coo",Toast.LENGTH_SHORT).show();
+                /*
+                Cursor cu = dbManager.queryCategory(SQLiteDbHelper.TABLE_ALL_CATEGORY,"category");
+                if(cu != null){
+                    while (cu.moveToNext()){
+                        String category = cu.getString(cu.getColumnIndex("category"));
+                        Log.e(TAG, "handleMessage: " + category );
+                    }
+                }
+                */
+                Cursor cursor = dbManager.queryCategory(SQLiteDbHelper.TABLE_CONCRETE_CATEGORY,"category_id");
+                if (cursor != null){
+                    while (cursor.moveToNext()){
+                        //String id = cursor.getInt(cursor.getColumnIndex("category_id"));
+                        String id = cursor.getString(cursor.getColumnIndex("category_id"));
+                        Log.e(TAG, "handleMessage: " + id );
+                    }
+                }
+
                 break;
             default:
                 break;
