@@ -1,14 +1,20 @@
 package com.example.coustomtoolbar.Util;
 
+import android.graphics.Picture;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
 import com.example.coustomtoolbar.Bean.PictureBean;
 import com.example.coustomtoolbar.Bean.PictureBody;
+import com.example.coustomtoolbar.Bean.PictureContentList;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.List;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -34,7 +40,36 @@ public class OkHttp3Util {
         gson = new GsonUtil();
     }
 
-    public void executeGet(String url, final Handler handler, final Class<?> classz) {
+    public void executeGet(String url, final Handler handler, final Class<?> claszz) {
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e(TAG, "onFailure: " + "failure execute  request");
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()) throw new IOException("Unexpected code" + response);
+                Message message = handler.obtainMessage();
+                Object object;
+               // PictureBean picture = new PictureBean();
+                if (response.code() == 200){
+                   Log.e(TAG, "onResponse: ");
+                    try {
+                        object = GsonUtil.phraseJsonWithGson(response.body().string(),claszz);
+                        message.obj = object;
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+                handler.sendMessage(message);
+            }
+        });
+
+    }
+    public void executePost(String url){
         Request request = new Request.Builder()
                 .url(url)
                 .build();
@@ -47,34 +82,9 @@ public class OkHttp3Util {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) throw new IOException("Unexpected code" + response);
-                Message message = handler.obtainMessage();
-                Object object;
-                if (response.code() == 200){
-                   Log.e(TAG, "onResponse: ");
-                    try {
-                        //Type type = new TypeToken<>(){}.getType();
-                        Log.e(TAG, "onResponse: " + response.body().string());
-                        //object = g.fromJson(response.body().string(), classz);
-                        object = GsonUtil.phraseJsonWithGsonArray(response.body().string(), classz);
-                        try {
-                            PictureBean picture = (PictureBean) object;
-                            Log.e(TAG, "onResponse: "+  picture.getShowapi_res_body().getRet_code() );
-                        }catch (ClassCastException e){
-                            e.printStackTrace();
-                        }
-
-                        message.obj = object;
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-                //handler.sendMessage(message);
+                
             }
         });
-    }
-
-    public void executePost(){
-
     }
 }
 

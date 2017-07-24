@@ -1,6 +1,7 @@
 package com.example.coustomtoolbar.Adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +21,7 @@ import java.util.List;
 public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private Context context;
     private int itemCount = 0;
-    private List<String> datas;
+    private List<Bitmap> datas;
     public static final int ITEM_TYPE_HEADER = 0;
     public static final int ITEM_TYPE_CONTENT = 1;
     public static final int ITEM_TYPE_FOOTER = 2;
@@ -28,16 +29,16 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private int mFooterCount = 1;
 
 
-    public MyAdapter(Context context, List<String> data) {
+    public MyAdapter(Context context, List<Bitmap> data) {
         this.context = context;
         datas = data;
     }
-    public void addItem(int position){
+    public void addItem(Bitmap bitmap){
         if (datas == null ){
             datas = new ArrayList<>();
         }
-
-        notifyItemInserted(position);
+        datas.add(bitmap);
+        notifyDataSetChanged();
         itemCount++;
     }
     public void removeItem(int position){
@@ -90,7 +91,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
         } else if (holder instanceof MyAdapter.MyViewHolder){
            // ((MyViewHolder) holder).textView.setText("madna");
-            ((MyViewHolder) holder).imageView.setImageResource(R.mipmap.erha);
+            ((MyViewHolder) holder).imageView.setImageBitmap(datas.get(position));
         }
 
     }

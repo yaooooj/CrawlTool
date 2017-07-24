@@ -1,6 +1,9 @@
 package com.example.coustomtoolbar.Fragment;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -23,6 +26,13 @@ import com.example.coustomtoolbar.R;
 import com.example.coustomtoolbar.Util.OkHttp3Util;
 import com.example.coustomtoolbar.Util.SpaceDecoration;
 import com.google.gson.Gson;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import okhttp3.Response;
@@ -33,16 +43,18 @@ import okhttp3.Response;
 
 public class Fragment1 extends Fragment{
     private static final String TAG = "Fragment1";
-    private List<String> mData;
+    private List<Bitmap> mData;
     private MyAdapter adapter;
     private SwipeRefreshLayout refreshLayout;
     private View view;
     private Response response;
     private Gson gson;
     private OkHttp3Util okHttp3Util;
-    private int success_code;
+    private boolean success_code = false;
     private int error_code;
     private int all_page;
+    private List<String> bitmapList;
+    private Bitmap bitmap;
     private PictureBean pictureBean;
     private PictureBody pictureBody;
     private PicturePageBean picturePageBean;
@@ -56,6 +68,34 @@ public class Fragment1 extends Fragment{
     private static final String APISECRET = "96039fbf84ee42afaad5d66f14159c31";
     private static final String URL  = "http://route.showapi.com/852-1?&showapi_appid="+APIKEY+"&showapi_sign="+APISECRET;
     private static final String URL_PICTURE = "http://route.showapi.com/852-2?page="+ page + "&showapi_appid="+APIKEY+"&type="+type+"&showapi_sign="+APISECRET;
+    private Handler handler2 = new Handler(){
+        @Override
+        public void handleMessage(final Message msg) {
+            pictureBean = (PictureBean)msg.obj;
+            Log.e(TAG, "onResponse: "+  pictureBean.getShowapi_res_body().getPagebean().getAllNum() );
+            if (pictureBean != null) {
+                if (pictureBean.getShowapi_res_body() != null) {
+                    pictureBody = pictureBean.getShowapi_res_body();
+                }
+                if (pictureBody.getPagebean() != null) {
+                    picturePageBean = pictureBody.getPagebean();
+                }
+                if (picturePageBean.getContentlist() != null) {
+                    for (int i = 0; i < picturePageBean.getContentlist().size(); i++) {
+                        pictureContentList = picturePageBean.getContentlist().get(i);
+                        if (pictureContentList.getLists() != null) {
+                            for (int j = 0; j < pictureContentList.getLists().size(); j++) {
+                                pictureList = pictureContentList.getLists().get(j);
+                               // Log.e(TAG, "run: " + pictureList.getSmall());
+                                bitmapList.add(pictureContentList.getLists().get(0).getMiddle());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -78,43 +118,7 @@ public class Fragment1 extends Fragment{
 
         return view;
     }
-    private  android.os.Handler handler = new android.os.Handler(){
-        @Override
-        public void handleMessage(final Message msg) {
-           new Thread(new Runnable() {
-               @Override
-               public void run() {
-                   pictureBean = new PictureBean();
-                   pictureBean = (PictureBean)msg.obj;
-                   if (pictureBean != null) {
-                       setError_code(Integer.parseInt(pictureBean.getShowapi_res_error()));
-                       setSuccess_code(Integer.parseInt(pictureBean.getShowapi_res_code()));
-                       if (success_code == 0) {
-                           if (pictureBean.getShowapi_res_body() != null) {
-                               pictureBody = pictureBean.getShowapi_res_body();
-                           }
-                           if (pictureBody.getPagebean() != null) {
-                               picturePageBean = pictureBody.getPagebean();
-                           }
-                           if (picturePageBean.getContentlist() != null) {
-                               for (int i = 0; i < picturePageBean.getContentlist().size(); i++) {
-                                   pictureContentList = picturePageBean.getContentlist().get(i);
-                                   if (pictureContentList.getLists() != null) {
-                                       for (int j = 0; j < pictureContentList.getLists().size(); j++) {
-                                           pictureList = pictureContentList.getLists().get(j);
-                                           Log.e(TAG, "run: " + pictureList.getSmall());
-                                       }
-                                   }
-                               }
-                           }
 
-
-                       }
-                   }
-               }
-           }).start();
-        }
-    };
     public void initSwipeRefreshLayout(){
         refreshLayout = (SwipeRefreshLayout)view.findViewById(R.id.refresh);
         if (okHttp3Util == null){
@@ -126,13 +130,17 @@ public class Fragment1 extends Fragment{
                 new android.os.Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                           okHttp3Util.executeGet(URL,handler, PictureCategory.class);
-                            refreshLayout.setRefreshing(false);
+                        okHttp3Util.executeGet(URL_PICTURE,handler2,PictureBean.class);
+                        if (success_code){
+                            getBitMap(bitmapList.get(0));
+                            Log.e(TAG, "getBitMap: " + bitmapList.get(0) );
+                            updata();
+                        }
                         }
                        // mData.add("1");
                        // adapter.notifyDataSetChanged();
 
-                     },1000);
+                     },3000);
             }
         });
     }
@@ -140,19 +148,56 @@ public class Fragment1 extends Fragment{
     public void initData(){
         mData = new ArrayList<>();
         gson = new Gson();
+        bitmapList = new ArrayList<>();
+
+    }
+
+    public void getBitMap(final String url){
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL imageUrl = new URL(url);
+                    HttpURLConnection con = (HttpURLConnection) imageUrl.openConnection();
+                    con.setRequestMethod("GET");
+                    con.setConnectTimeout(5000);
+                    con.setDoInput(true);
+                    con.connect();
+                    InputStream in = con.getInputStream();
+
+                    bitmap = BitmapFactory.decodeStream(in);
+                    Log.e(TAG, "run: "+ bitmap.toString() );
+                    in.close();
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }).start();
+    }
+
+    public void updata(){
+        refreshLayout.setRefreshing(false);
+        if (bitmap != null){
+            adapter.addItem(bitmap);
+            setSuccess_code(false);
+            Log.e(TAG, "getBitMap: " + "load image failed" );
+        }
     }
 
     public static String getTAG() {
         return TAG;
     }
 
-    public int getSuccess_code() {
+    public boolean isSuccess_code() {
         return success_code;
     }
 
-    public void setSuccess_code(int success_code) {
+    public void setSuccess_code(boolean success_code) {
         this.success_code = success_code;
-
     }
 
     public int getError_code() {
