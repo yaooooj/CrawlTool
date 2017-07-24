@@ -12,25 +12,15 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.coustomtoolbar.Bean.AllCategory;
 import com.example.coustomtoolbar.Bean.PictureCategory;
-import com.example.coustomtoolbar.Bean.TaskModel;
 import com.example.coustomtoolbar.DataBaseUtil.DBManager;
 import com.example.coustomtoolbar.DataBaseUtil.SQLiteDbHelper;
 import com.example.coustomtoolbar.Util.OkHttp3Util;
 import com.example.coustomtoolbar.Util.ScreenUtil;
-import com.example.coustomtoolbar.Util.SystemTime;
 import com.facebook.stetho.Stetho;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private String TAG = "MainActivity1";
@@ -45,20 +35,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private CardView cardView_3;
     private OkHttp3Util okHttp3Util;
     private Gson gson;
-    private AllCategory allCategory;
+    //private AllCategory allCategory;
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             PictureCategory picture = (PictureCategory)msg.obj;
-            allCategory = picture.getShowapi_res_body();
+            /*allCategory = picture.getShowapi_res_body();
             for (int i = 0;i < allCategory.getList().size();i++ ){
                 dbManager.addCateory(allCategory.getList().get(i).getName());
                 for (int j =0;j < allCategory.getList().get(i).getList().size();j++){
                     dbManager.addConcreteCategory(new String[] {allCategory.getList().get(i).getList().get(j).getId()
                                     ,allCategory.getList().get(i).getList().get(j).getName()}
                             );
+
                 }
             }
+             */
         }
     };
     @Override

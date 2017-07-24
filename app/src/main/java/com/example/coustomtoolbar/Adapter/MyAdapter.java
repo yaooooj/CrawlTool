@@ -13,6 +13,7 @@ import com.example.coustomtoolbar.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by yaojian on 2017/6/29.
@@ -22,6 +23,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private Context context;
     private int itemCount = 0;
     private List<Bitmap> datas;
+    private List<Integer> heights;
     public static final int ITEM_TYPE_HEADER = 0;
     public static final int ITEM_TYPE_CONTENT = 1;
     public static final int ITEM_TYPE_FOOTER = 2;
@@ -32,6 +34,12 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     public MyAdapter(Context context, List<Bitmap> data) {
         this.context = context;
         datas = data;
+        heights = new ArrayList<>();
+        /*
+        for(int i = 1;i <= datas.size();i++){
+            heights.add((int) (100+ Math.random()*100));
+        }
+        */
     }
     public void addItem(Bitmap bitmap){
         if (datas == null ){
@@ -87,10 +95,21 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+
+
         if (holder instanceof MyAdapter.MyFooterVIewHolder){
 
         } else if (holder instanceof MyAdapter.MyViewHolder){
            // ((MyViewHolder) holder).textView.setText("madna");
+
+            if (heights.size() <= datas.size() ){
+                heights.add((int) (100+ Math.random()*300));
+            }
+            ViewGroup.LayoutParams layoutParams = ((MyViewHolder) holder).imageView.getLayoutParams();
+            layoutParams.height = heights.get(position);
+            ((MyViewHolder) holder).imageView.setLayoutParams(layoutParams);
+
+
             ((MyViewHolder) holder).imageView.setImageBitmap(datas.get(position));
         }
 
@@ -111,11 +130,11 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private class MyViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
-        TextView textView;
+
         MyViewHolder(View itemView) {
             super(itemView);
             imageView= (ImageView) itemView.findViewById(R.id.image_recycler);
-            textView = (TextView)itemView.findViewById(R.id.textView_recycler);
+
 
         }
     }

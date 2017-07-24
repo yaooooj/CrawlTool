@@ -23,6 +23,7 @@ import com.example.coustomtoolbar.Bean.PictureContentList;
 import com.example.coustomtoolbar.Bean.PictureList;
 import com.example.coustomtoolbar.Bean.PicturePageBean;
 import com.example.coustomtoolbar.R;
+import com.example.coustomtoolbar.Util.DividerGridItemDecoration;
 import com.example.coustomtoolbar.Util.OkHttp3Util;
 import com.example.coustomtoolbar.Util.SpaceDecoration;
 import com.google.gson.Gson;
@@ -60,7 +61,7 @@ public class Fragment1 extends Fragment{
     private PicturePageBean picturePageBean;
     private PictureContentList pictureContentList;
     private PictureList pictureList;
-    private static int page = 1;
+    private static int page = 2;
     private static int type = 4001;
     private static final String URLTest = "https://api.github.com/gists/c2a7c39532239ff261be";
     private static final String APPCODE = "a2e7ba852ad505736d69a6e05f49d1ed";
@@ -86,15 +87,20 @@ public class Fragment1 extends Fragment{
                         if (pictureContentList.getLists() != null) {
                             for (int j = 0; j < pictureContentList.getLists().size(); j++) {
                                 pictureList = pictureContentList.getLists().get(j);
-                               // Log.e(TAG, "run: " + pictureList.getSmall());
-                                bitmapList.add(pictureContentList.getLists().get(0).getMiddle());
+
+                                bitmapList.add(pictureContentList.getLists().get(0).getSmall());
+
                             }
                         }
                     }
+                    getBitMap();
+                    //setSuccess_code(true);
+                    Log.e(TAG, "run: " + 1);
                 }
             }
         }
     };
+    private Handler handler1 = new Handler();
 
     @Nullable
     @Override
@@ -114,11 +120,10 @@ public class Fragment1 extends Fragment{
         rv.setLayoutManager(layoutManager);
         rv.setAdapter(adapter);
         rv.setItemAnimator(new DefaultItemAnimator());
-        rv.addItemDecoration(new SpaceDecoration(16));
+        rv.addItemDecoration(new DividerGridItemDecoration(getContext()));
 
         return view;
     }
-
     public void initSwipeRefreshLayout(){
         refreshLayout = (SwipeRefreshLayout)view.findViewById(R.id.refresh);
         if (okHttp3Util == null){
@@ -127,23 +132,12 @@ public class Fragment1 extends Fragment{
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                new android.os.Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        okHttp3Util.executeGet(URL_PICTURE,handler2,PictureBean.class);
-                        if (success_code){
-                            getBitMap(bitmapList.get(0));
-                            Log.e(TAG, "getBitMap: " + bitmapList.get(0) );
-                            updata();
-                        }
-                        }
-                       // mData.add("1");
-                       // adapter.notifyDataSetChanged();
-
-                     },3000);
+                okHttp3Util.executeGet(URL_PICTURE, handler2, PictureBean.class);
             }
         });
+
     }
+
 
     public void initData(){
         mData = new ArrayList<>();
@@ -152,39 +146,54 @@ public class Fragment1 extends Fragment{
 
     }
 
-    public void getBitMap(final String url){
+    public void getBitMap(){
 
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    URL imageUrl = new URL(url);
-                    HttpURLConnection con = (HttpURLConnection) imageUrl.openConnection();
-                    con.setRequestMethod("GET");
-                    con.setConnectTimeout(5000);
-                    con.setDoInput(true);
-                    con.connect();
-                    InputStream in = con.getInputStream();
+                for (int i = 0;i < bitmapList.size();i++){
+                    try {
+                        URL imageUrl = new URL(bitmapList.get(i));
+                        HttpURLConnection con = (HttpURLConnection) imageUrl.openConnection();
+                        con.setRequestMethod("GET");
+                        con.setConnectTimeout(5000);
+                        con.setDoInput(true);
+                        con.connect();
+                        InputStream in = con.getInputStream();
+                        bitmap = BitmapFactory.decodeStream(in);
+                        Log.e(TAG, "run: "+ 2 );
+                        in.close();
 
-                    bitmap = BitmapFactory.decodeStream(in);
-                    Log.e(TAG, "run: "+ bitmap.toString() );
-                    in.close();
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    handler1.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            setSuccess_code(true);
+                            updata(bitmap);
+                            refreshLayout.setRefreshing(false);
+                        }
+                    });
                 }
+
 
             }
         }).start();
+
+
     }
 
-    public void updata(){
+
+    public void updata(Bitmap bitmap1){
         refreshLayout.setRefreshing(false);
-        if (bitmap != null){
-            adapter.addItem(bitmap);
+        if (bitmap1 != null){
+            adapter.addItem(bitmap1);
             setSuccess_code(false);
-            Log.e(TAG, "getBitMap: " + "load image failed" );
+            Log.e(TAG, "updata: "+ 5 );
         }
     }
 
