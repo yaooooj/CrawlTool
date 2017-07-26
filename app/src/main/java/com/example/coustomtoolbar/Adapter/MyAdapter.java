@@ -114,17 +114,14 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             if (heights.size() <= datas.size() ){
                 heights.add((int) (100+ Math.random()*300));
             }
-            ViewGroup.LayoutParams layoutParams = ((MyViewHolder) holder).imageView.getLayoutParams();
-            layoutParams.height = heights.get(position);
+
             ViewGroup.LayoutParams params = ((MyViewHolder) holder).imageView.getLayoutParams();
             params.width =  screenSize;
-            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            //params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            params.height = heights.get(position);
             ((MyViewHolder) holder).imageView.setMaxWidth(screenSize);
             ((MyViewHolder) holder).imageView.setMaxHeight((int)(screenSize * 5));
             ((MyViewHolder) holder).imageView.setLayoutParams(params);
-
-            ((MyViewHolder) holder).imageView.setLayoutParams(layoutParams);
-
 
             ((MyViewHolder) holder).imageView.setImageBitmap(datas.get(position));
         }

@@ -11,6 +11,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,7 @@ import com.example.coustomtoolbar.Bean.PictureCategory;
 import com.example.coustomtoolbar.Bean.PictureContentList;
 import com.example.coustomtoolbar.Bean.PictureList;
 import com.example.coustomtoolbar.Bean.PicturePageBean;
+import com.example.coustomtoolbar.ImageCache.ImageCache;
 import com.example.coustomtoolbar.R;
 import com.example.coustomtoolbar.Util.DividerGridItemDecoration;
 import com.example.coustomtoolbar.Util.OkHttp3Util;
@@ -36,6 +38,8 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 import okhttp3.Response;
 
 /**
@@ -61,6 +65,7 @@ public class Fragment1 extends Fragment{
     private PicturePageBean picturePageBean;
     private PictureContentList pictureContentList;
     private PictureList pictureList;
+    private ImageCache imageCache;
     private static int page = 2;
     private static int type = 4001;
     private static final String URLTest = "https://api.github.com/gists/c2a7c39532239ff261be";
@@ -93,7 +98,13 @@ public class Fragment1 extends Fragment{
                             }
                         }
                     }
-                    getBitMap();
+                    try {
+                        getBitMap();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
 
                 }
             }
@@ -141,47 +152,27 @@ public class Fragment1 extends Fragment{
         mData = new ArrayList<>();
         gson = new Gson();
         bitmapList = new ArrayList<>();
+        imageCache = ImageCache.Instance();
+        DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
+        imageCache.setMaxWidth(1080 / 3);
 
     }
 
-    public void getBitMap(){
-
-        new Thread(new Runnable() {
+    public void getBitMap() throws ExecutionException, InterruptedException {
+        /*
+        for (int i = 0;i < bitmapList.size();i++ ){
+            bitmap = imageCache.loadBitmap(bitmapList.get(i));
+        }
+        */
+        bitmap = imageCache.loadBitmap(bitmapList.get(0));
+        handler1.post(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0;i < bitmapList.size();i++){
-                    try {
-                        URL imageUrl = new URL(bitmapList.get(i));
-                        HttpURLConnection con = (HttpURLConnection) imageUrl.openConnection();
-                        con.setRequestMethod("GET");
-                        con.setConnectTimeout(5000);
-                        con.setDoInput(true);
-                        con.connect();
-                        InputStream in = con.getInputStream();
-                        bitmap = BitmapFactory.decodeStream(in);
-                        Log.e(TAG, "run: "+"get current thread id " + Thread.currentThread().getName() );
-                        in.close();
-
-                    } catch (MalformedURLException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    handler1.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            setSuccess_code(true);
-                            updata(bitmap);
-                            refreshLayout.setRefreshing(false);
-                        }
-                    });
-                }
-
-
+                setSuccess_code(true);
+                updata(bitmap);
+                refreshLayout.setRefreshing(false);
             }
-        }).start();
-
+        });
 
     }
 

@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
 
@@ -14,6 +15,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by SEELE on 2017/7/25.
@@ -25,9 +27,9 @@ public class ImageCache {
     private LruCache<String,Bitmap> mLruCache;
     private int MaxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
     private int cacheSize = MaxMemory / 8;
+    private int maxWidth;
     private ImageCache() {
 
-        mImageCache = new ImageCache();
         mLruCache = new LruCache<String, Bitmap>(cacheSize){
             @Override
             protected int sizeOf(String key, Bitmap bitmap) {
@@ -35,37 +37,37 @@ public class ImageCache {
             }
         };
     }
-
     public static ImageCache Instance(){
-
+        if (mImageCache == null){
+            mImageCache = new ImageCache();
+        }
         return mImageCache;
     }
-
 
     public void addBitmapToMemoryCache(String key,Bitmap bitmap){
         if (getBitmapFromCache(key) != null){
             mLruCache.put(key,bitmap);
         }
     }
-
     public Bitmap getBitmapFromCache(String key){
-
         return mLruCache.get(key);
     }
 
-    public Bitmap loadBitmap(String url){
+    public void setMaxWidth(int maxWidth){
+        this.maxWidth = maxWidth;
+    }
+
+    public Bitmap loadBitmap(String url) throws ExecutionException, InterruptedException {
         Bitmap bitmap = null;
         if (getBitmapFromCache(url) == null){
-            BitmapTask task = new BitmapTask(url,50);
-            task.execute();
-
+            //BitmapTask task = new BitmapTask(url,maxWidth);
+            //task.execute();
+            bitmap = new BitmapTask(url,maxWidth).execute().get();
         }else {
             bitmap = getBitmapFromCache(url);
         }
-
         return bitmap;
     }
-
 
     private class BitmapTask extends AsyncTask<String, Void, Bitmap> {
         private String url;
@@ -78,9 +80,9 @@ public class ImageCache {
 
         @Override
         protected Bitmap doInBackground(String... strings) {
-            Bitmap bitmap = getBitMapFromNetWork(url);
+           // Bitmap bitmap = getBitMapFromNetWork(url);
 
-            return null;
+            return getBitMapFromNetWork(url);
         }
 
         public Bitmap getBitMapFromNetWork(String url){
@@ -95,6 +97,7 @@ public class ImageCache {
                 InputStream in = con.getInputStream();
                 //bitmap = BitmapFactory.decodeStream(in);
                 bitmap = decodeSampleBitmapFromResource(in,reqWidth);
+                addBitmapToMemoryCache(url,bitmap);
                 Log.e(TAG, "run: "+"get current thread id " + Thread.currentThread().getName() );
                 in.close();
 
@@ -112,18 +115,16 @@ public class ImageCache {
 
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        BitmapFactory.decodeStream(in);
+        //BitmapFactory.decodeStream(in);
+        BitmapFactory.decodeStream(in,null,options);
         options.inSampleSize = calculateInSampleSize(options,reqWidth);
         options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeStream(in);
+        return BitmapFactory.decodeStream(in,null,options);
 
     }
 
-
-
     public static int calculateInSampleSize(BitmapFactory.Options options,
                                             int reqWidth){
-
         final int width = options.outWidth;
         int inSampleSize = 1;
         if ( width > reqWidth){

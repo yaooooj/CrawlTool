@@ -134,7 +134,6 @@ public class DividerGridItemDecoration extends RecyclerView.ItemDecoration {
         return false;
     }
 
-
     @Override
     public void getItemOffsets(Rect outRect, View view,
                                RecyclerView parent, RecyclerView.State state) {
