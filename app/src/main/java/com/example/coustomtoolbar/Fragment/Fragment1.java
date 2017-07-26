@@ -88,7 +88,7 @@ public class Fragment1 extends Fragment{
                             for (int j = 0; j < pictureContentList.getLists().size(); j++) {
                                 pictureList = pictureContentList.getLists().get(j);
 
-                                bitmapList.add(pictureContentList.getLists().get(0).getSmall());
+                                bitmapList.add(pictureContentList.getLists().get(j).getSmall());
 
                             }
                         }
@@ -120,7 +120,7 @@ public class Fragment1 extends Fragment{
         rv.setLayoutManager(layoutManager);
         rv.setAdapter(adapter);
         rv.setItemAnimator(new DefaultItemAnimator());
-        rv.addItemDecoration(new DividerGridItemDecoration(getContext()));
+        rv.addItemDecoration(new SpaceDecoration(5,5));
 
         return view;
     }
@@ -137,7 +137,6 @@ public class Fragment1 extends Fragment{
         });
 
     }
-
 
     public void initData(){
         mData = new ArrayList<>();

@@ -2,6 +2,7 @@ package com.example.coustomtoolbar.Util;
 
 import android.graphics.Rect;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 
 /**
@@ -9,19 +10,33 @@ import android.view.View;
  */
 
 public class SpaceDecoration extends RecyclerView.ItemDecoration {
-    private int space;
+    private int right;
+    private int bottom;
+    private int left = 0 ;
 
-    public SpaceDecoration(int space) {
-        this.space = space;
+    public SpaceDecoration(int right,int bottom) {
+        this.right = right;
+        this.bottom = bottom;
+        //this.left = right;
     }
+
 
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-        outRect.left = space;
-        outRect.right = space;
-        outRect.bottom = space;
-        if (parent.getChildAdapterPosition(view) == 0){
-            outRect.top = space;
+
+        int childCount = parent.getAdapter().getItemCount();
+        int childPosition = parent.getChildAdapterPosition(view);
+        RecyclerView.LayoutManager layoutManager = parent.getLayoutManager();
+        int spanCount = ((StaggeredGridLayoutManager)layoutManager).getSpanCount();
+
+        if ((childPosition + 1) % spanCount == 0){
+            outRect.set(left,0,0,bottom);
         }
+        else if ((childCount - (childCount % spanCount)) <= childPosition){
+            outRect.set(left,0,right,0);
+        }
+
+        outRect.set(left,0,right,bottom);
+
     }
 }

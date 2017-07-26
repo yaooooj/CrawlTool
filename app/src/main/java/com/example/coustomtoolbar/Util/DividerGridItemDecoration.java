@@ -29,6 +29,7 @@ public class DividerGridItemDecoration extends RecyclerView.ItemDecoration {
 
     @Override
     public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+        RecyclerView.LayoutManager layoutManager = parent.getLayoutManager();
 
         drawHorization(c,parent);
 
@@ -81,7 +82,7 @@ public class DividerGridItemDecoration extends RecyclerView.ItemDecoration {
         }
     }
 
-    private boolean isLastColum(RecyclerView parent,int pos,int spanCount,int chiildCount){
+    private boolean isLastColum(RecyclerView parent,int pos,int spanCount,int childCount){
 
         RecyclerView.LayoutManager layoutManager = parent.getLayoutManager();
         if (layoutManager instanceof GridLayoutManager){
@@ -89,38 +90,37 @@ public class DividerGridItemDecoration extends RecyclerView.ItemDecoration {
                 return true;
             }
         }else if (layoutManager instanceof StaggeredGridLayoutManager){
-            int oritentation = ((StaggeredGridLayoutManager) layoutManager).getOrientation();
+            int orientation = ((StaggeredGridLayoutManager) layoutManager).getOrientation();
 
-            if (oritentation == StaggeredGridLayoutManager.VERTICAL){
+            if (orientation == StaggeredGridLayoutManager.VERTICAL){
                 if ((pos + 1) % spanCount == 0){
                     return  true;
                 }
             }else {
-                chiildCount = chiildCount - chiildCount % spanCount;
-                if (pos >= chiildCount){
+                childCount = childCount - childCount % spanCount;
+                if (pos >= childCount){
                     return true;
                 }
             }
         }
-
         return false;
     }
 
-    private boolean isLastRaw(RecyclerView parent,int pos,int spanCount,int chiildCount){
+    private boolean isLastRaw(RecyclerView parent,int pos,int spanCount,int childCount){
         RecyclerView.LayoutManager layoutManager = parent.getLayoutManager();
 
         if (layoutManager instanceof GridLayoutManager){
 
-            chiildCount = chiildCount - chiildCount % spanCount;
-            if (pos >= chiildCount){
+            childCount = childCount - childCount % spanCount;
+            if (pos >= childCount){
                 return true;
             }
         }else if (layoutManager instanceof StaggeredGridLayoutManager){
-            int oritentation = ((StaggeredGridLayoutManager) layoutManager).getOrientation();
+            int orientation = ((StaggeredGridLayoutManager) layoutManager).getOrientation();
 
-            if (oritentation == StaggeredGridLayoutManager.VERTICAL){
-                chiildCount = chiildCount - chiildCount % spanCount;
-                if (pos >= chiildCount){
+            if (orientation == StaggeredGridLayoutManager.VERTICAL){
+                childCount = childCount - childCount % spanCount;
+                if (pos >= childCount){
                     return true;
                 }
 
@@ -138,6 +138,17 @@ public class DividerGridItemDecoration extends RecyclerView.ItemDecoration {
     @Override
     public void getItemOffsets(Rect outRect, View view,
                                RecyclerView parent, RecyclerView.State state) {
+
+        int spanCount = getSpanCount(parent);
+        int childCount = parent.getAdapter().getItemCount();
+        int childPosition = parent.getChildAdapterPosition(view);
+        if (isLastRaw(parent,childPosition,spanCount,childCount)){
+            outRect.set(0,0,mDivider.getIntrinsicWidth(),0);
+        }else if (isLastColum(parent,childPosition,spanCount,childCount)){
+            outRect.set(0,0,0,mDivider.getIntrinsicHeight());
+        }else {
+            outRect.set(0,0,mDivider.getIntrinsicWidth(),mDivider.getIntrinsicHeight());
+        }
 
 
     }

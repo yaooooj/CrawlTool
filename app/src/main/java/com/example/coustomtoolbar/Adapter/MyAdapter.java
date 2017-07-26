@@ -3,23 +3,24 @@ package com.example.coustomtoolbar.Adapter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.coustomtoolbar.R;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by yaojian on 2017/6/29.
  */
 
 public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+    private static final String TAG = "MyAdapter";
     private Context context;
     private int itemCount = 0;
     private List<Bitmap> datas;
@@ -29,17 +30,25 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     public static final int ITEM_TYPE_FOOTER = 2;
     private int mHeaderCount = 1;
     private int mFooterCount = 1;
+    private int width;
 
 
     public MyAdapter(Context context, List<Bitmap> data) {
         this.context = context;
         datas = data;
         heights = new ArrayList<>();
-        /*
-        for(int i = 1;i <= datas.size();i++){
-            heights.add((int) (100+ Math.random()*100));
-        }
-        */
+        getScreenWidth(context);
+
+
+    }
+    public int  getScreenWidth(Context context){
+
+
+        DisplayMetrics displayMetrics  = context.getResources().getDisplayMetrics();
+        width = displayMetrics.widthPixels;
+
+        Log.e(TAG, "getScreenWidth: "+ width );
+        return width;
     }
     public void addItem(Bitmap bitmap){
         if (datas == null ){
@@ -95,7 +104,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
-
+        int screenSize = width / 3;
 
         if (holder instanceof MyAdapter.MyFooterVIewHolder){
 
@@ -107,6 +116,13 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             }
             ViewGroup.LayoutParams layoutParams = ((MyViewHolder) holder).imageView.getLayoutParams();
             layoutParams.height = heights.get(position);
+            ViewGroup.LayoutParams params = ((MyViewHolder) holder).imageView.getLayoutParams();
+            params.width =  screenSize;
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            ((MyViewHolder) holder).imageView.setMaxWidth(screenSize);
+            ((MyViewHolder) holder).imageView.setMaxHeight((int)(screenSize * 5));
+            ((MyViewHolder) holder).imageView.setLayoutParams(params);
+
             ((MyViewHolder) holder).imageView.setLayoutParams(layoutParams);
 
 
