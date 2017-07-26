@@ -94,8 +94,7 @@ public class Fragment1 extends Fragment{
                         }
                     }
                     getBitMap();
-                    //setSuccess_code(true);
-                    Log.e(TAG, "run: " + 1);
+
                 }
             }
         }
@@ -160,7 +159,7 @@ public class Fragment1 extends Fragment{
                         con.connect();
                         InputStream in = con.getInputStream();
                         bitmap = BitmapFactory.decodeStream(in);
-                        Log.e(TAG, "run: "+ 2 );
+                        Log.e(TAG, "run: "+"get current thread id " + Thread.currentThread().getName() );
                         in.close();
 
                     } catch (MalformedURLException e) {
