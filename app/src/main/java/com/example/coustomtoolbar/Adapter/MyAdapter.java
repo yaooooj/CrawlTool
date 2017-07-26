@@ -55,6 +55,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             datas = new ArrayList<>();
         }
         datas.add(bitmap);
+        //notifyItemInserted(datas.size()-1);
         notifyDataSetChanged();
         itemCount++;
     }
@@ -117,8 +118,8 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
             ViewGroup.LayoutParams params = ((MyViewHolder) holder).imageView.getLayoutParams();
             params.width =  screenSize;
-            //params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            params.height = heights.get(position);
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            //params.height = heights.get(position);
             ((MyViewHolder) holder).imageView.setMaxWidth(screenSize);
             ((MyViewHolder) holder).imageView.setMaxHeight((int)(screenSize * 5));
             ((MyViewHolder) holder).imageView.setLayoutParams(params);

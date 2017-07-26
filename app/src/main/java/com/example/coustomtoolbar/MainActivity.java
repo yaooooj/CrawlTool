@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.coustomtoolbar.Bean.AllCategory;
 import com.example.coustomtoolbar.Bean.PictureCategory;
 import com.example.coustomtoolbar.DataBaseUtil.DBManager;
 import com.example.coustomtoolbar.DataBaseUtil.SQLiteDbHelper;
@@ -35,12 +36,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private CardView cardView_3;
     private OkHttp3Util okHttp3Util;
     private Gson gson;
-    //private AllCategory allCategory;
+    private AllCategory allCategory;
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             PictureCategory picture = (PictureCategory)msg.obj;
-            /*allCategory = picture.getShowapi_res_body();
+            allCategory = picture.getShowapi_res_body();
             for (int i = 0;i < allCategory.getList().size();i++ ){
                 dbManager.addCateory(allCategory.getList().get(i).getName());
                 for (int j =0;j < allCategory.getList().get(i).getList().size();j++){
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 }
             }
-             */
+
         }
     };
     @Override

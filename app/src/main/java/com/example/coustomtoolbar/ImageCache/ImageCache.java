@@ -9,11 +9,14 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
 
+import com.example.coustomtoolbar.Adapter.MyAdapter;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -45,12 +48,14 @@ public class ImageCache {
     }
 
     public void addBitmapToMemoryCache(String key,Bitmap bitmap){
-        if (getBitmapFromCache(key) != null){
+        if (getBitmapFromCache(key) == null){
             mLruCache.put(key,bitmap);
         }
     }
     public Bitmap getBitmapFromCache(String key){
+        Log.e(TAG, "addBitmapToMemoryCache: "+ key );
         return mLruCache.get(key);
+
     }
 
     public void setMaxWidth(int maxWidth){
@@ -58,31 +63,46 @@ public class ImageCache {
     }
 
     public Bitmap loadBitmap(String url) throws ExecutionException, InterruptedException {
+        //List<Bitmap> bitmap = new ArrayList<>();
         Bitmap bitmap = null;
+        for (int i = 0;i < 10;i++){
+
+        }
         if (getBitmapFromCache(url) == null){
-            //BitmapTask task = new BitmapTask(url,maxWidth);
+            //BitmapTask task = new BitmapTask(url+"",maxWidth);
             //task.execute();
-            bitmap = new BitmapTask(url,maxWidth).execute().get();
+            //bitmap.add(new BitmapTask(maxWidth).execute(url).get());
+            bitmap = new BitmapTask(maxWidth).execute(url).get();
+            //return bitmap;
         }else {
+            //bitmap.add(getBitmapFromCache(url));
             bitmap = getBitmapFromCache(url);
         }
         return bitmap;
     }
 
     private class BitmapTask extends AsyncTask<String, Void, Bitmap> {
-        private String url;
+
         private int reqWidth;
-        private BitmapTask(String url,int reqWidth) {
-            this.url = url;
+        private BitmapTask(int reqWidth) {
+
             this.reqWidth = reqWidth;
         }
 
 
         @Override
         protected Bitmap doInBackground(String... strings) {
-           // Bitmap bitmap = getBitMapFromNetWork(url);
 
-            return getBitMapFromNetWork(url);
+           Bitmap bitmap = getBitMapFromNetWork(strings[0]);
+            if (bitmap != null){
+                addBitmapToMemoryCache(strings[0],bitmap);
+            }
+            return bitmap;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            super.onPostExecute(bitmap);
         }
 
         public Bitmap getBitMapFromNetWork(String url){
@@ -95,9 +115,9 @@ public class ImageCache {
                 con.setDoInput(true);
                 con.connect();
                 InputStream in = con.getInputStream();
-                //bitmap = BitmapFactory.decodeStream(in);
-                bitmap = decodeSampleBitmapFromResource(in,reqWidth);
-                addBitmapToMemoryCache(url,bitmap);
+                bitmap = BitmapFactory.decodeStream(in);
+
+                //bitmap = decodeSampleBitmapFromResource(in,reqWidth);
                 Log.e(TAG, "run: "+"get current thread id " + Thread.currentThread().getName() );
                 in.close();
 

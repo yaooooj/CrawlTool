@@ -59,6 +59,7 @@ public class Fragment1 extends Fragment{
     private int error_code;
     private int all_page;
     private List<String> bitmapList;
+    //private List<Bitmap> bitmap;
     private Bitmap bitmap;
     private PictureBean pictureBean;
     private PictureBody pictureBody;
@@ -93,7 +94,8 @@ public class Fragment1 extends Fragment{
                             for (int j = 0; j < pictureContentList.getLists().size(); j++) {
                                 pictureList = pictureContentList.getLists().get(j);
 
-                                bitmapList.add(pictureContentList.getLists().get(j).getSmall());
+                                bitmapList.add(pictureContentList.getLists().get(j).getBig());
+
 
                             }
                         }
@@ -159,20 +161,26 @@ public class Fragment1 extends Fragment{
     }
 
     public void getBitMap() throws ExecutionException, InterruptedException {
-        /*
-        for (int i = 0;i < bitmapList.size();i++ ){
+        //bitmap = imageCache.loadBitmap(bitmapList);
+        //bitmap = imageCache.loadBitmap(bitmapList);
+        for (int i =0; i < 10;i++){
             bitmap = imageCache.loadBitmap(bitmapList.get(i));
+            handler1.post(new Runnable() {
+                @Override
+                public void run() {
+                    setSuccess_code(true);
+                /*
+                for (Bitmap bitmap1:bitmap){
+                    updata(bitmap1);
+                }
+                */
+                    updata(bitmap);
+                    refreshLayout.setRefreshing(false);
+                }
+            });
         }
-        */
-        bitmap = imageCache.loadBitmap(bitmapList.get(0));
-        handler1.post(new Runnable() {
-            @Override
-            public void run() {
-                setSuccess_code(true);
-                updata(bitmap);
-                refreshLayout.setRefreshing(false);
-            }
-        });
+
+        //bitmap = imageCache.loadBitmap(bitmapList.get(0));
 
     }
 
