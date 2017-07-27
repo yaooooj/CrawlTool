@@ -3,12 +3,14 @@ package com.example.coustomtoolbar.Adapter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.coustomtoolbar.R;
 
@@ -81,7 +83,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     public int getItemViewType(int position) {
         int dataItemCount = getContentItemCount();
 
-        if (mFooterCount != 0 && position >= (mHeaderCount + dataItemCount)){
+        if (mFooterCount != 0 && position >=  dataItemCount){
             return ITEM_TYPE_FOOTER;
         }
         else {
@@ -94,7 +96,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         LayoutInflater inflater = LayoutInflater.from(context);
         if (viewType == ITEM_TYPE_FOOTER){
             return new MyAdapter.MyFooterVIewHolder(
-                    inflater.inflate(R.layout.layout_recycler_first_item,parent,false)
+                    inflater.inflate(R.layout.footer_add_more,parent,false)
             );
         }else if (viewType == ITEM_TYPE_CONTENT){
             return new MyAdapter.MyViewHolder(
@@ -131,14 +133,31 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     @Override
     public int getItemCount() {
-        return datas.size();
+        return datas.size() + 1;
     }
 
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
+        if (lp != null && lp instanceof StaggeredGridLayoutManager.LayoutParams){
+            StaggeredGridLayoutManager.LayoutParams p = (StaggeredGridLayoutManager.LayoutParams)lp;
+            if (isLoadMore(holder.getLayoutPosition())){
+                p.setFullSpan(true);
+            }
 
-   private class MyFooterVIewHolder extends RecyclerView.ViewHolder{
+        }
+    }
+    public boolean isLoadMore(int position){
+        return position >= getContentItemCount();
+    }
+
+    private class MyFooterVIewHolder extends RecyclerView.ViewHolder{
+       TextView mTextView;
 
          MyFooterVIewHolder(View itemView) {
             super(itemView);
+             mTextView = (TextView)itemView.findViewById(R.id.add_more_data);
         }
     }
 
