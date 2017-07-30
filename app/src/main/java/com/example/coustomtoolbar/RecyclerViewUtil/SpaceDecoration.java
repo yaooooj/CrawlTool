@@ -1,4 +1,4 @@
-package com.example.coustomtoolbar.Util;
+package com.example.coustomtoolbar.RecyclerViewUtil;
 
 import android.graphics.Rect;
 import android.support.v7.widget.RecyclerView;

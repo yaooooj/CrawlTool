@@ -1,4 +1,4 @@
-package com.example.coustomtoolbar.Util;
+package com.example.coustomtoolbar.RecyclerViewUtil;
 
 import android.content.Context;
 import android.content.res.TypedArray;

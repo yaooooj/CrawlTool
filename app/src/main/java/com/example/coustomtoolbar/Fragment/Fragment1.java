@@ -1,7 +1,6 @@
 package com.example.coustomtoolbar.Fragment;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -19,23 +18,15 @@ import android.view.ViewGroup;
 import com.example.coustomtoolbar.Adapter.MyAdapter;
 import com.example.coustomtoolbar.Bean.PictureBean;
 import com.example.coustomtoolbar.Bean.PictureBody;
-import com.example.coustomtoolbar.Bean.PictureCategory;
 import com.example.coustomtoolbar.Bean.PictureContentList;
 import com.example.coustomtoolbar.Bean.PictureList;
 import com.example.coustomtoolbar.Bean.PicturePageBean;
 import com.example.coustomtoolbar.ImageCache.ImageCache;
 import com.example.coustomtoolbar.R;
-import com.example.coustomtoolbar.Util.DividerGridItemDecoration;
 import com.example.coustomtoolbar.Util.OkHttp3Util;
-import com.example.coustomtoolbar.Util.SpaceDecoration;
+import com.example.coustomtoolbar.RecyclerViewUtil.SpaceDecoration;
 import com.google.gson.Gson;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -141,6 +132,7 @@ public class Fragment1 extends Fragment{
 
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+
                 super.onScrolled(recyclerView, dx, dy);
             }
         });

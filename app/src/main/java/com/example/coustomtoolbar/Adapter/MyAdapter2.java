@@ -48,4 +48,6 @@ public class MyAdapter2 extends RecyclerView.Adapter<MyAdapter2.Fargment2ViewHod
             textView = (TextView)itemView.findViewById(R.id.fragment2);
         }
     }
+
+
 }

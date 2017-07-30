@@ -4,18 +4,19 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.coustomtoolbar.Adapter.MyAdapter;
 import com.example.coustomtoolbar.Adapter.MyAdapter2;
 import com.example.coustomtoolbar.R;
-import com.example.coustomtoolbar.Util.DividerGridItemDecoration;
-import com.example.coustomtoolbar.Util.SpaceDecoration;
-import com.google.gson.Gson;
+import com.example.coustomtoolbar.RecyclerViewUtil.LoadMode;
+import com.example.coustomtoolbar.RecyclerViewUtil.LoadMoreScrollListener;
+import com.example.coustomtoolbar.RecyclerViewUtil.SpaceDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +26,16 @@ import java.util.List;
  */
 
 public class Fragment2 extends Fragment {
-
+    private static final String TAG = "Fragment1";
     private View view;
     private List<String> mData;
     private MyAdapter2 adapter;
+    private int visibleItemCount;
+    private int totalItemCount;
+    private int first;
+    private int last;
+    private int firstVisibleItem[];
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -38,21 +45,32 @@ public class Fragment2 extends Fragment {
         //RecyclerView
 
 
-        RecyclerView rv = (RecyclerView)view.findViewById(R.id.rv);
+        final RecyclerView rv = (RecyclerView)view.findViewById(R.id.rv);
         adapter = new MyAdapter2(getActivity(),mData);
-        RecyclerView.LayoutManager layoutManager =
-                new StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL);
-        rv.setLayoutManager(layoutManager);
+        //final RecyclerView.LayoutManager layoutManager =
+         //       new StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL);
+        RecyclerView.LayoutManager layout = new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false);
+        rv.setLayoutManager(layout);
         rv.setAdapter(adapter);
         rv.setItemAnimator(new DefaultItemAnimator());
-        rv.addItemDecoration(new SpaceDecoration(5,5));
+        //rv.addItemDecoration(new SpaceDecoration(5,5));
+        rv.addOnScrollListener(new LoadMoreScrollListener(LoadMode.PULLUP) {
+            @Override
+            public void onLoadMore() {
+                for (int i =0; i < 10;i++){
+                    mData.add("it's  new beautiful day");
+                    Log.e(TAG, "onLoadMore: " );
+                }
+                adapter.notifyItemInserted(0);
 
+            }
+        });
         return view;
     }
 
     public void initData(){
         mData = new ArrayList<>();
-        for (int i =0; i < 10;i++){
+        for (int i =0; i < 60;i++){
             mData.add("it's beautiful day");
         }
     }
