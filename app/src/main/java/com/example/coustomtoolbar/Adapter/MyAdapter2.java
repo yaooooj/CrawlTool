@@ -2,6 +2,7 @@ package com.example.coustomtoolbar.Adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import java.util.List;
  */
 
 public class MyAdapter2 extends RecyclerView.Adapter<MyAdapter2.Fargment2ViewHodler> {
+    public static final String TAG = "MyAdapter2";
     private List<String> mData;
     private Context mContext;
     public MyAdapter2(Context context, List<String> mData) {
@@ -23,6 +25,13 @@ public class MyAdapter2 extends RecyclerView.Adapter<MyAdapter2.Fargment2ViewHod
         this.mContext = context;
     }
 
+    public void updata(){
+        for (int i =0; i < 10;i++){
+            mData.add("it's  new beautiful day");
+            Log.e(TAG, "onLoadMore: " );
+        }
+        notifyDataSetChanged();
+    }
 
     @Override
     public Fargment2ViewHodler onCreateViewHolder(ViewGroup parent, int viewType) {

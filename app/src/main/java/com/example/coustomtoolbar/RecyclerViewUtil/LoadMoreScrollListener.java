@@ -5,12 +5,16 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
+
+import com.example.coustomtoolbar.Adapter.MyAdapter2;
 
 /**
  * Created by SEELE on 2017/7/30.
  */
 
 public abstract class LoadMoreScrollListener extends RecyclerView.OnScrollListener {
+    public static final String TAG = "LoadMoreScrollListener";
     private LoadMode mode;
     private int firstVisibleItem;
     private int lastVisibleItem;
@@ -18,48 +22,37 @@ public abstract class LoadMoreScrollListener extends RecyclerView.OnScrollListen
 
     private OnLoadMoreListener mOnLoadMoreListener;
 
-    private int[] positions;
+
 
     public LoadMoreScrollListener(LoadMode mode) {
 
         this.mode = mode;
+
     }
 
 
     @Override
     public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
         super.onScrollStateChanged(recyclerView, newState);
-        if (LoadMode.PULLDOWN != mode && LoadMode.PULLUP !=null){
-            return;
-        }
-        if (recyclerView.getAdapter() == null){
-            return;
-        }
+        Log.e(TAG, "onScrollStateChanged: " + newState );
 
         RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-        int visibleItenCount = layoutManager.getChildCount();
+        int visibleItemCount = layoutManager.getChildCount();
         int totalItemCount = layoutManager.getItemCount();
-        if (layoutManager instanceof StaggeredGridLayoutManager){
-
-        }else
-
-
-        if (visibleItenCount > 0
-                && newState == RecyclerView.SCROLL_STATE_SETTLING
-                && lastVisibleItem > totalItemCount - 1){
-            if (isLoading){
-                return;
-            }
-
-            if (LoadMode.PULLUP == mode){
+        Log.e(TAG, "onScrollStateChanged: " + newState );
+        if ( newState == RecyclerView.SCROLL_STATE_IDLE ){
+            if (lastVisibleItem + 1 == totalItemCount){
+                if (LoadMode.PULLUP == mode){
+                    onLoadMore();
+                /*
                 if (mOnLoadMoreListener != null){
                     mOnLoadMoreListener.loadMore();
                     return;
                 }
+                */
+                }
             }
-
         }
-
     }
 
     @Override
@@ -75,22 +68,17 @@ public abstract class LoadMoreScrollListener extends RecyclerView.OnScrollListen
                 firstVisibleItem = ((GridLayoutManager) layoutManager).findFirstVisibleItemPosition();
                 lastVisibleItem = ((GridLayoutManager) layoutManager).findLastVisibleItemPosition();
             }else if (layoutManager instanceof StaggeredGridLayoutManager){
-
-                if (positions == null){
-                    positions = new int[((StaggeredGridLayoutManager) layoutManager).getSpanCount()];
-                    ((StaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(positions);
-                    ((StaggeredGridLayoutManager) layoutManager).findLastVisibleItemPositions(positions);
-
-                    firstVisibleItem = getFirstPostion(positions);
-                    lastVisibleItem = getLastPosition(positions);
-                }
+                    int[] positions = new int[((StaggeredGridLayoutManager) layoutManager).getSpanCount()];
+                   // ((StaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(positions);
+                    firstVisibleItem = getFirstPostion(((StaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(positions));
+                    lastVisibleItem = getLastPosition(((StaggeredGridLayoutManager) layoutManager).findLastVisibleItemPositions(positions));
             }
         }
     }
 
     public int getFirstPostion(int[] position){
-        int first = positions[0];
-        for (int value : positions){
+        int first = position[0];
+        for (int value : position){
             if (value < first){
                 first = value;
             }
@@ -98,8 +86,8 @@ public abstract class LoadMoreScrollListener extends RecyclerView.OnScrollListen
         return first;
     }
     public int getLastPosition(int[] position){
-        int last = positions[0];
-        for (int value : positions){
+        int last = position[0];
+        for (int value : position){
             if (value > last){
                 last = value;
             }

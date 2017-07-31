@@ -47,22 +47,18 @@ public class Fragment2 extends Fragment {
 
         final RecyclerView rv = (RecyclerView)view.findViewById(R.id.rv);
         adapter = new MyAdapter2(getActivity(),mData);
-        //final RecyclerView.LayoutManager layoutManager =
-         //       new StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL);
-        RecyclerView.LayoutManager layout = new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false);
-        rv.setLayoutManager(layout);
+        final RecyclerView.LayoutManager layoutManager =
+                new StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL);
+        //RecyclerView.LayoutManager layout = new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false);
+        rv.setLayoutManager(layoutManager);
         rv.setAdapter(adapter);
         rv.setItemAnimator(new DefaultItemAnimator());
         //rv.addItemDecoration(new SpaceDecoration(5,5));
         rv.addOnScrollListener(new LoadMoreScrollListener(LoadMode.PULLUP) {
             @Override
             public void onLoadMore() {
-                for (int i =0; i < 10;i++){
-                    mData.add("it's  new beautiful day");
-                    Log.e(TAG, "onLoadMore: " );
-                }
-                adapter.notifyItemInserted(0);
-
+                Log.e(TAG, "onLoadMore: "  );
+                adapter.updata();
             }
         });
         return view;
