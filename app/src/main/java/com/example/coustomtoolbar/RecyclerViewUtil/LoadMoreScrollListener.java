@@ -39,9 +39,13 @@ public abstract class LoadMoreScrollListener extends RecyclerView.OnScrollListen
         RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
         int visibleItemCount = layoutManager.getChildCount();
         int totalItemCount = layoutManager.getItemCount();
+        int spanCount = 6;
+        if (layoutManager instanceof StaggeredGridLayoutManager){
+            spanCount = ((StaggeredGridLayoutManager) layoutManager).getSpanCount();
+        }
         Log.e(TAG, "onScrollStateChanged: " + newState );
         if ( newState == RecyclerView.SCROLL_STATE_IDLE ){
-            if (lastVisibleItem + 1 == totalItemCount){
+            if (lastVisibleItem + 1 == totalItemCount - spanCount * 2){
                 if (LoadMode.PULLUP == mode){
                     onLoadMore();
                 /*

@@ -31,7 +31,9 @@ public class Fragment3 extends Fragment {
         initData();
         recyclerView = (RecyclerView) view.findViewById(R.id.rv);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
-        recyclerView.setAdapter(new NormalAdapter(getContext(),R.layout.fragment2_item_,stringList));
+        NormalAdapter adapter = new NormalAdapter(getContext(),R.layout.fragment2_item_,stringList);
+        adapter.setHeaderViewList(R.layout.footer_add_more);
+        recyclerView.setAdapter(adapter);
         return view;
     }
     public void initData(){

@@ -12,6 +12,7 @@ import android.widget.TextView;
 public class BaseViewHolder extends RecyclerView.ViewHolder {
     SparseArray<View> mViews;
     View mItemView;
+    private String tag;
     public BaseViewHolder(View itemView) {
         super(itemView);
         mItemView = itemView;
@@ -30,5 +31,13 @@ public class BaseViewHolder extends RecyclerView.ViewHolder {
         TextView textView = getView(resId);
         textView.setText(text);
         return this;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 }
