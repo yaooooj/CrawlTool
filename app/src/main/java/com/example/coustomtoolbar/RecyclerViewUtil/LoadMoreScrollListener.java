@@ -45,9 +45,10 @@ public abstract class LoadMoreScrollListener extends RecyclerView.OnScrollListen
         }
         Log.e(TAG, "onScrollStateChanged: " + newState );
         if ( newState == RecyclerView.SCROLL_STATE_IDLE ){
-            if (lastVisibleItem + 1 == totalItemCount - spanCount * 2){
+            if (lastVisibleItem + 1 == totalItemCount){
                 if (LoadMode.PULLUP == mode){
                     onLoadMore();
+                    Log.e(TAG, "onScrollStateChanged: " + " is here " );
                 /*
                 if (mOnLoadMoreListener != null){
                     mOnLoadMoreListener.loadMore();
@@ -74,13 +75,13 @@ public abstract class LoadMoreScrollListener extends RecyclerView.OnScrollListen
             }else if (layoutManager instanceof StaggeredGridLayoutManager){
                     int[] positions = new int[((StaggeredGridLayoutManager) layoutManager).getSpanCount()];
                    // ((StaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(positions);
-                    firstVisibleItem = getFirstPostion(((StaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(positions));
+                    firstVisibleItem = getFirstPosition(((StaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(positions));
                     lastVisibleItem = getLastPosition(((StaggeredGridLayoutManager) layoutManager).findLastVisibleItemPositions(positions));
             }
         }
     }
 
-    public int getFirstPostion(int[] position){
+    public int getFirstPosition(int[] position){
         int first = position[0];
         for (int value : position){
             if (value < first){

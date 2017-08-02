@@ -23,18 +23,20 @@ import java.util.List;
  * Created by yaojian on 2017/8/1.
  */
 
-public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerView.Adapter<K> {
+public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerView.Adapter<K>
+        implements View.OnClickListener,View.OnLongClickListener{
     private static final String TAG = "BaseAdapter";
     private List<T> mData;
     private int layoutResId;
     private Context mContext;
     private SparseIntArray headerViews;
     private SparseIntArray footerViews;
-    private boolean isFooter = false;
-    private boolean isHeader = false;
     private static final int TYPE_HEADER = 10000;
     private static final int TYPE_ITEM = 101;
     private static final int TYPE_FOOTER = 20000;
+
+    private OnItemClickListener mOnItemClickListener;
+    private OnItemLongClickListener mOnItemLongClickListener;
 
     public BaseAdapter(Context context,int layoutResId, List<T> data) {
         mContext = context;
@@ -57,6 +59,12 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
 
     public void addData(T data){
         mData.add(data);
+        notifyDataSetChanged();
+    }
+    public void addData(List<T> datas){
+        for (T data:datas){
+            mData.add(data);
+        }
         notifyDataSetChanged();
     }
 
@@ -99,37 +107,47 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     public K onCreateViewHolder(ViewGroup parent, int viewType) {
         Log.e(TAG, "onCreateViewHolder: " + viewType );
         K baseViewHolder = null;
-        switch (viewType){
-            case TYPE_HEADER:
-                if (headerViews.get(viewType) != 0){
-                    baseViewHolder = createBaseViewHolder(
-                            LayoutInflater.from(mContext).inflate(headerViews.get(viewType),parent,false));
-                }
-                break;
-            case TYPE_FOOTER:
-                if (footerViews.get(viewType) != 0){
-                    baseViewHolder = createBaseViewHolder(
-                            LayoutInflater.from(mContext).inflate(footerViews.get(viewType),parent,false));
-                }
-                break;
-            default:
-                baseViewHolder = onCreateDefViewHolder(parent, viewType);
+        if (headerViews.get(viewType) != 0){
+            baseViewHolder = createBaseViewHolder(
+                    LayoutInflater.from(mContext).inflate(headerViews.get(viewType),parent,false));
+        }else if (footerViews.get(viewType) != 0){
+            baseViewHolder = createBaseViewHolder(
+                    LayoutInflater.from(mContext).inflate(footerViews.get(viewType),parent,false));
+        }else {
+            baseViewHolder = onCreateDefViewHolder(parent, viewType);
         }
-        ///View view = LayoutInflater.from(mContext).inflate(layoutResId,parent,false);
+
         return baseViewHolder;
     }
 
     @Override
     public void onBindViewHolder(BaseViewHolder holder, int position) {
-        int viewType = holder.getItemViewType();
 
         if (isFooter(position)){
             return;
         }else if (isHeader(position)){
             return;
         }else {
+            holder.itemView.setOnClickListener(this);
+            holder.itemView.setOnLongClickListener(this);
+            holder.itemView.setTag(holder.getAdapterPosition());
             bindingViewHolder(mContext,holder,mData.get(position - getHeaderViewCount()));
         }
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (mOnItemClickListener != null){
+            mOnItemClickListener.onClick(view, (int) view.getTag());
+        }
+    }
+
+    @Override
+    public boolean onLongClick(View view) {
+        if (mOnItemLongClickListener != null){
+            mOnItemLongClickListener.onLongClick(view, (int) view.getTag());
+        }
+        return true;
     }
 
     @Override
@@ -229,16 +247,20 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
 
     public abstract void bindingViewHolder(Context context,BaseViewHolder holder,T t );
 
-    private class HeaderViewHolder extends RecyclerView.ViewHolder{
 
-        public HeaderViewHolder(View itemView) {
-            super(itemView);
-        }
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        mOnItemClickListener = onItemClickListener;
     }
-    private class FooterViewHolder extends RecyclerView.ViewHolder{
 
-        public FooterViewHolder(View itemView) {
-            super(itemView);
-        }
+    public void setOnItemLongClickListener(OnItemLongClickListener onItemLongClickListener) {
+        mOnItemLongClickListener = onItemLongClickListener;
+    }
+
+    public interface OnItemClickListener{
+        void onClick(View view,int position);
+    }
+    public interface  OnItemLongClickListener{
+        void onLongClick(View view,int position);
+
     }
 }
