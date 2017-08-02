@@ -2,6 +2,9 @@ package com.example.coustomtoolbar.Adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.util.SparseArray;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,16 +24,17 @@ import java.util.List;
  */
 
 public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerView.Adapter<K> {
+    private static final String TAG = "BaseAdapter";
     private List<T> mData;
     private int layoutResId;
     private Context mContext;
-    private LinearLayout headerViewList;
-    private List<Integer> footerViewList;
+    private SparseIntArray headerViews;
+    private SparseIntArray footerViews;
     private boolean isFooter = false;
     private boolean isHeader = false;
-    private static final int TYPE_HEADER = 100;
+    private static final int TYPE_HEADER = 10000;
     private static final int TYPE_ITEM = 101;
-    private static final int TYPE_FOOTER = 102;
+    private static final int TYPE_FOOTER = 20000;
 
     public BaseAdapter(Context context,int layoutResId, List<T> data) {
         mContext = context;
@@ -38,8 +42,9 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         if (layoutResId != 0 ){
             this.layoutResId = layoutResId;
         }
-        //headerViewList = new ArrayList<>();
-        footerViewList = new ArrayList<>();
+        headerViews = new SparseIntArray();
+        footerViews = new SparseIntArray();
+
     }
 
     public BaseAdapter(Context context,List<T> data) {
@@ -63,42 +68,49 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         notifyItemRangeChanged(internalPosition,mData.size() - internalPosition);
     }
 
-    public void setHeaderViewList(LinearLayout view){
-
-        /*
-        if (headerViewList == null){
-            headerViewList = new ArrayList<>();
-        }else {
-
-        }
-        */
-        if (view != null){
-            headerViewList = view;
+    public void setHeaderViewList(int view){
+        if (view != 0){
+            headerViews.put(headerViews.size() + TYPE_HEADER,view);
         }
     }
 
     public void setFooterViewList(int view){
-        if (footerViewList == null){
-            footerViewList = new ArrayList<>();
-        }else {
-            if (view != 0){
-                footerViewList.add(view);
-            }
+        if (view != 0){
+            footerViews.put(footerViews.size() + TYPE_FOOTER,view);
         }
     }
-    /*
-    public int getHeaderViewCount(){
-        return headerViewList.size();
-    }
-        */
 
+    public int getHeaderViewCount(){
+        return headerViews.size();
+    }
+
+    public int getFooterViewCount(){
+        return footerViews.size();
+    }
+
+    private boolean isHeader(int position){
+        return position < getHeaderViewCount();
+    }
+
+    private boolean isFooter(int position){
+        return position >= getHeaderViewCount() + mData.size();
+    }
     @Override
     public K onCreateViewHolder(ViewGroup parent, int viewType) {
-
+        Log.e(TAG, "onCreateViewHolder: " + viewType );
         K baseViewHolder = null;
         switch (viewType){
             case TYPE_HEADER:
-                baseViewHolder = createBaseViewHolder(headerViewList);
+                if (headerViews.get(viewType) != 0){
+                    baseViewHolder = createBaseViewHolder(
+                            LayoutInflater.from(mContext).inflate(headerViews.get(viewType),parent,false));
+                }
+                break;
+            case TYPE_FOOTER:
+                if (footerViews.get(viewType) != 0){
+                    baseViewHolder = createBaseViewHolder(
+                            LayoutInflater.from(mContext).inflate(footerViews.get(viewType),parent,false));
+                }
                 break;
             default:
                 baseViewHolder = onCreateDefViewHolder(parent, viewType);
@@ -109,28 +121,33 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
 
     @Override
     public void onBindViewHolder(BaseViewHolder holder, int position) {
+        int viewType = holder.getItemViewType();
 
-        bindingViewHolder(mContext,holder,mData.get(position));
-
-
+        if (isFooter(position)){
+            return;
+        }else if (isHeader(position)){
+            return;
+        }else {
+            bindingViewHolder(mContext,holder,mData.get(position - getHeaderViewCount()));
+        }
     }
 
     @Override
     public int getItemCount() {
-
-        return mData.size() + 1 ;
+        return mData.size() + getHeaderViewCount() + getFooterViewCount() ;
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (position < 1){
-            return TYPE_HEADER;
-        }else if (position > footerViewList.size() + mData.size()){
-            return TYPE_FOOTER;
+        if (isHeader(position)){
+            return headerViews.keyAt(position);
+        }else if (isFooter(position)){
+            return footerViews.keyAt(position - getHeaderViewCount() - mData.size());
         }else {
             return TYPE_ITEM;
         }
     }
+
     protected K onCreateDefViewHolder(ViewGroup parent, int viewType) {
         int layoutId = layoutResId;
 
@@ -153,6 +170,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         Class temp = getClass();
         Class z = null;
         while (z == null && null != temp) {
+
             z = getInstancedGenericKClass(temp);
             temp = temp.getSuperclass();
         }

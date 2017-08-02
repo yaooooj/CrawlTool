@@ -22,12 +22,6 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
     @Override
     public void bindingViewHolder(Context context, BaseViewHolder holder, String s) {
        //
-        if (holder.getTag().equals("header")){
-            //TextView textView = holder.getView(R.id.add_more_data);
-            holder.setTextView(R.id.add_more_data,"more");
-
-        }else {
-            holder.setTextView(R.id.fragment2,"hahha");
-        }
+        holder.setTextView(R.id.fragment2,"you are so beautiful");
     }
 }

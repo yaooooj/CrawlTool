@@ -33,6 +33,9 @@ public class Fragment3 extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
         NormalAdapter adapter = new NormalAdapter(getContext(),R.layout.fragment2_item_,stringList);
         adapter.setHeaderViewList(R.layout.footer_add_more);
+        adapter.setHeaderViewList(R.layout.footer_error);
+        adapter.setFooterViewList(R.layout.footer_no_more_data);
+        adapter.setFooterViewList(R.layout.footer_error);
         recyclerView.setAdapter(adapter);
         return view;
     }
@@ -40,7 +43,7 @@ public class Fragment3 extends Fragment {
         if (stringList == null){
             stringList = new ArrayList<>();
         }
-        for (int i = 0; i <= 60;i++){
+        for (int i = 0; i <= 20;i++){
             stringList.add("hahha");
         }
     }
