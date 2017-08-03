@@ -3,25 +3,35 @@ package com.example.coustomtoolbar;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import com.example.coustomtoolbar.Adapter.MainAdapter;
 import com.example.coustomtoolbar.Bean.AllCategory;
 import com.example.coustomtoolbar.Bean.PictureCategory;
 import com.example.coustomtoolbar.DataBaseUtil.DBManager;
 import com.example.coustomtoolbar.DataBaseUtil.SQLiteDbHelper;
+import com.example.coustomtoolbar.RecyclerViewUtil.DividerItemDecoration;
+import com.example.coustomtoolbar.RecyclerViewUtil.LoadMode;
 import com.example.coustomtoolbar.Util.OkHttp3Util;
 import com.example.coustomtoolbar.Util.ScreenUtil;
 import com.facebook.stetho.Stetho;
 import com.google.gson.Gson;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private String TAG = "MainActivity1";
@@ -32,8 +42,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SharedPreferences preference;
     private int count;
     private CardView cardView_1;
-    private CardView cardView_2;
-    private CardView cardView_3;
+    private RecyclerView mRecyclerView;
+    private MainAdapter mAdapter;
     private OkHttp3Util okHttp3Util;
     private Gson gson;
     private AllCategory allCategory;
@@ -61,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Stetho.initializeWithDefaults(this);
 
         initDataBase();
-        initToolbar(isShowToolbar);
+       // initToolbar(isShowToolbar);
         initButton();
         initRecycler();
 
@@ -82,21 +92,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //setToolbarPaddingTop();
     }
     public void initButton(){
-        TextView textView_1 = (TextView) findViewById(R.id.textView_1);
-        TextView textView_2 = (TextView) findViewById(R.id.button_coo);
-        TextView textView_3 = (TextView) findViewById(R.id.button_card_view);
-        cardView_1 = (CardView)findViewById(R.id.card_view_1);
-        cardView_1.setOnClickListener(this);
 
-        cardView_2 = (CardView)findViewById(R.id.card_view_2);
-        cardView_2.setOnClickListener(this);
-
-        cardView_3 = (CardView)findViewById(R.id.card_view_3);
-        cardView_3.setOnClickListener(this);
     }
 
     public void initRecycler(){
-
+        List<Integer> bitmaps = new ArrayList<>();
+        for (int i = 0; i < 10;i++){
+            bitmaps.add(R.mipmap.ic_favorite_black_24dp);
+        }
+        mRecyclerView = (RecyclerView)findViewById(R.id.main_recycler_view);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
+        mAdapter = new MainAdapter(this,R.layout.main_base_layout,bitmaps,mRecyclerView);
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL_LIST));
     }
 
     public void firstTimeInit(){
@@ -137,35 +145,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.card_view_1:
-                Intent intent = new Intent(MainActivity.this,BaseActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.card_view_2:
-                Intent intent_coo = new Intent(MainActivity.this,Coordinator.class);
-                startActivity(intent_coo);
-                //Toast.makeText(MainActivity.this,"hit the button_coo",Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.card_view_3:
-                /*
-                Cursor cu = dbManager.queryCategory(SQLiteDbHelper.TABLE_ALL_CATEGORY,"category");
-                if(cu != null){
-                    while (cu.moveToNext()){
-                        String category = cu.getString(cu.getColumnIndex("category"));
-                        Log.e(TAG, "handleMessage: " + category );
-                    }
-                }
-                */
-                Cursor cursor = dbManager.queryCategory(SQLiteDbHelper.TABLE_CONCRETE_CATEGORY,"category_id");
-                if (cursor != null){
-                    while (cursor.moveToNext()){
-                        //String id = cursor.getInt(cursor.getColumnIndex("category_id"));
-                        String id = cursor.getString(cursor.getColumnIndex("category_id"));
-                        Log.e(TAG, "handleMessage: " + id );
-                    }
-                }
 
-                break;
             default:
                 break;
         }

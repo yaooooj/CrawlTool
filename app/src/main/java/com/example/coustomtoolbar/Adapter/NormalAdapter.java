@@ -28,7 +28,7 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
     @Override
     public void bindingItemView(final Context context, final BaseViewHolder holder, String s) {
         if (holder.getItemViewType() == ViewType.TYPE_EMPTY){
-            holder.getView(R.id.btu_empty).setOnClickListener(new View.OnClickListener() {
+            holder.getView(R.id.image_empty).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Toast.makeText(context,"hhhhhhhhhhhh",Toast.LENGTH_SHORT).show();

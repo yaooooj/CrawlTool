@@ -3,6 +3,7 @@ package com.example.coustomtoolbar.Adapter;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
@@ -30,6 +31,12 @@ public class BaseViewHolder extends RecyclerView.ViewHolder {
     public BaseViewHolder setTextView(int resId,CharSequence text){
         TextView textView = getView(resId);
         textView.setText(text);
+        return this;
+    }
+
+    public BaseViewHolder setImageViewResource(int resId,int imageResource){
+        ImageView view = getView(resId);
+        view.setImageResource(imageResource);
         return this;
     }
 
