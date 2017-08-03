@@ -22,39 +22,30 @@ public abstract class LoadMoreScrollListener extends RecyclerView.OnScrollListen
 
     private OnLoadMoreListener mOnLoadMoreListener;
 
-
-
     public LoadMoreScrollListener(LoadMode mode) {
-
         this.mode = mode;
-
     }
-
 
     @Override
     public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
         super.onScrollStateChanged(recyclerView, newState);
         Log.e(TAG, "onScrollStateChanged: " + newState );
-
         RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+        RecyclerView.Adapter adapter = recyclerView.getAdapter();
         int visibleItemCount = layoutManager.getChildCount();
         int totalItemCount = layoutManager.getItemCount();
-        int spanCount = 6;
-        if (layoutManager instanceof StaggeredGridLayoutManager){
-            spanCount = ((StaggeredGridLayoutManager) layoutManager).getSpanCount();
-        }
         Log.e(TAG, "onScrollStateChanged: " + newState );
         if ( newState == RecyclerView.SCROLL_STATE_IDLE ){
             if (lastVisibleItem + 1 == totalItemCount){
                 if (LoadMode.PULLUP == mode){
                     onLoadMore();
                     Log.e(TAG, "onScrollStateChanged: " + " is here " );
-                /*
+
                 if (mOnLoadMoreListener != null){
                     mOnLoadMoreListener.loadMore();
                     return;
                 }
-                */
+
                 }
             }
         }
@@ -64,19 +55,19 @@ public abstract class LoadMoreScrollListener extends RecyclerView.OnScrollListen
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         super.onScrolled(recyclerView, dx, dy);
         RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-        if (layoutManager != null){
-            if (layoutManager instanceof LinearLayoutManager){
+        if (layoutManager != null) {
+            if (layoutManager instanceof LinearLayoutManager) {
                 firstVisibleItem = ((LinearLayoutManager) layoutManager).findFirstVisibleItemPosition();
                 lastVisibleItem = ((LinearLayoutManager) layoutManager).findLastVisibleItemPosition();
 
-            }else if (layoutManager instanceof GridLayoutManager){
+            } else if (layoutManager instanceof GridLayoutManager) {
                 firstVisibleItem = ((GridLayoutManager) layoutManager).findFirstVisibleItemPosition();
                 lastVisibleItem = ((GridLayoutManager) layoutManager).findLastVisibleItemPosition();
-            }else if (layoutManager instanceof StaggeredGridLayoutManager){
-                    int[] positions = new int[((StaggeredGridLayoutManager) layoutManager).getSpanCount()];
-                   // ((StaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(positions);
-                    firstVisibleItem = getFirstPosition(((StaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(positions));
-                    lastVisibleItem = getLastPosition(((StaggeredGridLayoutManager) layoutManager).findLastVisibleItemPositions(positions));
+            } else if (layoutManager instanceof StaggeredGridLayoutManager) {
+                int[] positions = new int[((StaggeredGridLayoutManager) layoutManager).getSpanCount()];
+                // ((StaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(positions);
+                firstVisibleItem = getFirstPosition(((StaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(positions));
+                lastVisibleItem = getLastPosition(((StaggeredGridLayoutManager) layoutManager).findLastVisibleItemPositions(positions));
             }
         }
     }

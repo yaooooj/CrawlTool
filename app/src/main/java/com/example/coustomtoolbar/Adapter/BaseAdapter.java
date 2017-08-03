@@ -1,15 +1,17 @@
 package com.example.coustomtoolbar.Adapter;
 
 import android.content.Context;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
-import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+
+import com.example.coustomtoolbar.RecyclerViewUtil.LoadMode;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -31,30 +33,46 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     private Context mContext;
     private SparseIntArray headerViews;
     private SparseIntArray footerViews;
-    private static final int TYPE_HEADER = 10000;
-    private static final int TYPE_ITEM = 101;
-    private static final int TYPE_FOOTER = 20000;
+    private int emptyView;
+    private int loadingView;
+    private LoadMode loadMode;
+    private int firstVisibleItem;
+    private int lastVisibleItem;
+    private RecyclerView recyclerView;
 
     private OnItemClickListener mOnItemClickListener;
     private OnItemLongClickListener mOnItemLongClickListener;
+    private OnLoadMoreListener mOnLoadMoreListener;
 
-    public BaseAdapter(Context context,int layoutResId, List<T> data) {
+    private boolean loading = false;
+
+    public BaseAdapter(Context context,int layoutResId, List<T> data,RecyclerView recyclerView) {
         mContext = context;
         mData = data == null ? new ArrayList<T>() : data;
         if (layoutResId != 0 ){
             this.layoutResId = layoutResId;
         }
+        if (recyclerView != null){
+            this.recyclerView = recyclerView;
+        }
         headerViews = new SparseIntArray();
         footerViews = new SparseIntArray();
-
     }
 
-    public BaseAdapter(Context context,List<T> data) {
-        this(context,0,data);
+    public BaseAdapter(Context context, List<T> data,RecyclerView recyclerView) {
+        this(context,0,data,recyclerView);
     }
 
-    public BaseAdapter(Context context,int layoutResId) {
-        this(context,layoutResId,null);
+    public BaseAdapter(Context context,int layoutResId,RecyclerView recyclerView) {
+        this(context,layoutResId,null,recyclerView);
+    }
+
+    public LoadMode getLoadMode() {
+        return loadMode;
+    }
+
+    public void setLoadMode(LoadMode loadMode) {
+        this.loadMode = loadMode;
     }
 
     public void addData(T data){
@@ -64,6 +82,13 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     public void addData(List<T> datas){
         for (T data:datas){
             mData.add(data);
+        }
+        notifyDataSetChanged();
+    }
+    public void updataData(int position,T data){
+        T t = mData.get(position);
+        if (t != null && data != null){
+            mData.set(position,data);
         }
         notifyDataSetChanged();
     }
@@ -78,16 +103,34 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
 
     public void setHeaderViewList(int view){
         if (view != 0){
-            headerViews.put(headerViews.size() + TYPE_HEADER,view);
+            headerViews.put(headerViews.size() + ViewType.TYPE_HEADER,view);
         }
     }
 
     public void setFooterViewList(int view){
         if (view != 0){
-            footerViews.put(footerViews.size() + TYPE_FOOTER,view);
+            footerViews.put(footerViews.size() + ViewType.TYPE_FOOTER,view);
         }
     }
 
+    public int getEmptyView() {
+        return emptyView;
+    }
+
+    public void setEmptyView(int emptyView) {
+        this.emptyView = emptyView;
+    }
+
+    public int getLoadingView() {
+        return loadingView;
+    }
+
+    public void setLoadingView(int loadingView) {
+        this.loadingView = loadingView;
+    }
+    private int getRealItemCount(){
+        return mData.size();
+    }
     public int getHeaderViewCount(){
         return headerViews.size();
     }
@@ -101,38 +144,60 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     }
 
     private boolean isFooter(int position){
-        return position >= getHeaderViewCount() + mData.size();
+        return position >= getHeaderViewCount() + getRealItemCount();
+    }
+    private void removeHeader(){
+
+    }
+    private void removeFooter(){
+
+    }
+    private boolean isEmpty(){
+        return getRealItemCount() == 0;
     }
     @Override
     public K onCreateViewHolder(ViewGroup parent, int viewType) {
         Log.e(TAG, "onCreateViewHolder: " + viewType );
         K baseViewHolder = null;
         if (headerViews.get(viewType) != 0){
-            baseViewHolder = createBaseViewHolder(
-                    LayoutInflater.from(mContext).inflate(headerViews.get(viewType),parent,false));
+            baseViewHolder = createBaseViewHolder(parent,headerViews.get(viewType));
         }else if (footerViews.get(viewType) != 0){
-            baseViewHolder = createBaseViewHolder(
-                    LayoutInflater.from(mContext).inflate(footerViews.get(viewType),parent,false));
+            baseViewHolder = createBaseViewHolder(parent,footerViews.get(viewType));
+        }else if (viewType == ViewType.TYPE_EMPTY){
+            baseViewHolder = createBaseViewHolder(parent,getEmptyView());
+        }else if (viewType == ViewType.TYPE_LOADING){
+            baseViewHolder = createBaseViewHolder(parent,getLoadingView());
         }else {
             baseViewHolder = onCreateDefViewHolder(parent, viewType);
         }
-
         return baseViewHolder;
     }
 
     @Override
     public void onBindViewHolder(BaseViewHolder holder, int position) {
-
-        if (isFooter(position)){
-            return;
-        }else if (isHeader(position)){
-            return;
+        int viewType = holder.getItemViewType();
+        Log.e(TAG, "onBindViewHolder: " + ViewType.TYPE_EMPTY );
+        if (isEmpty()){
+         if ( viewType == ViewType.TYPE_EMPTY){
+                Log.e(TAG, "onBindViewHolder: "+ "YYYYYY" );
+                bindingItemView(mContext,holder,null);
+         }
         }else {
-            holder.itemView.setOnClickListener(this);
-            holder.itemView.setOnLongClickListener(this);
-            holder.itemView.setTag(holder.getAdapterPosition());
-            bindingViewHolder(mContext,holder,mData.get(position - getHeaderViewCount()));
+            if (isFooter(position)){
+
+            }else if (isHeader(position)){
+
+            }else if (holder.getItemViewType() == ViewType.TYPE_LOADING){
+
+            }
+            else {
+                holder.itemView.setOnClickListener(this);
+                holder.itemView.setOnLongClickListener(this);
+                holder.itemView.setTag(holder.getAdapterPosition() - getHeaderViewCount());
+                bindingItemView(mContext,holder,mData.get(position - getHeaderViewCount()));
+            }
         }
+
     }
 
     @Override
@@ -152,20 +217,69 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
 
     @Override
     public int getItemCount() {
-        return mData.size() + getHeaderViewCount() + getFooterViewCount() ;
+        if (getRealItemCount() == 0){
+            return 1;
+        }else {
+            return mData.size() + getHeaderViewCount() + getFooterViewCount() ;
+        }
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (isHeader(position)){
-            return headerViews.keyAt(position);
-        }else if (isFooter(position)){
-            return footerViews.keyAt(position - getHeaderViewCount() - mData.size());
+        if (isEmpty()){
+            return ViewType.TYPE_EMPTY;
         }else {
-            return TYPE_ITEM;
+            if (isHeader(position)){
+                return headerViews.keyAt(position);
+            }else if (isFooter(position)){
+                if (isLoading()){
+                    return ViewType.TYPE_LOADING;
+                }else {
+                    return footerViews.keyAt(position - getHeaderViewCount() - mData.size());
+                }
+            }else {
+                return ViewType.TYPE_ITEM;
+            }
         }
     }
 
+    @Override
+    public void onViewAttachedToWindow(K holder) {
+        super.onViewAttachedToWindow(holder);
+        int viewType = holder.getItemViewType();
+        if (viewType >= ViewType.TYPE_HEADER
+                || viewType >= ViewType.TYPE_FOOTER || viewType == ViewType.TYPE_LOADING ){
+            ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
+            if (lp != null && lp instanceof StaggeredGridLayoutManager.LayoutParams){
+                StaggeredGridLayoutManager.LayoutParams p = (StaggeredGridLayoutManager.LayoutParams)lp;
+                p.setFullSpan(true);
+            }
+        }
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+        if (layoutManager instanceof GridLayoutManager){
+            final GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
+            gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                @Override
+                public int getSpanSize(int position) {
+                    int viewType = getItemViewType(position);
+                    if (viewType >= ViewType.TYPE_HEADER || viewType >= ViewType.TYPE_FOOTER
+                            || viewType == ViewType.TYPE_LOADING || viewType == ViewType.TYPE_EMPTY ){
+                        return gridLayoutManager.getSpanCount();
+                    }
+                    return 1;
+                }
+            });
+        }
+
+    }
+    private boolean isLoading(){
+        return loading;
+    }
     protected K onCreateDefViewHolder(ViewGroup parent, int viewType) {
         int layoutId = layoutResId;
 
@@ -173,7 +287,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     }
 
     protected K createBaseViewHolder(ViewGroup parent, int layoutResId) {
-        return createBaseViewHolder(LayoutInflater.from(mContext).inflate(layoutResId,parent,false));
+        return createBaseViewHolder(LayoutInflater.from(parent.getContext()).inflate(layoutResId,parent,false));
     }
 
     /**
@@ -244,8 +358,65 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         }
         return null;
     }
+    public void setLoadMoreListener(final OnLoadMoreListener onLoadMoreListener){
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+                int visibleItemCount = layoutManager.getChildCount();
+                int totalItemCount = layoutManager.getItemCount();
+                if ( newState == RecyclerView.SCROLL_STATE_IDLE ){
+                    if (lastVisibleItem + 1 == totalItemCount){
+                        if (LoadMode.PULLUP == getLoadMode()){
+                            onLoadMoreListener.loadMore();
+                        }
+                    }
+                }
+            }
 
-    public abstract void bindingViewHolder(Context context,BaseViewHolder holder,T t );
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                Log.e(TAG, "onScrolled: " + dx );
+                RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+                if (layoutManager != null) {
+                    if (layoutManager instanceof LinearLayoutManager) {
+                        firstVisibleItem = ((LinearLayoutManager) layoutManager).findFirstVisibleItemPosition();
+                        lastVisibleItem = ((LinearLayoutManager) layoutManager).findLastVisibleItemPosition();
+                    } else if (layoutManager instanceof GridLayoutManager) {
+                        firstVisibleItem = ((GridLayoutManager) layoutManager).findFirstVisibleItemPosition();
+                        lastVisibleItem = ((GridLayoutManager) layoutManager).findLastVisibleItemPosition();
+                    } else if (layoutManager instanceof StaggeredGridLayoutManager) {
+                        int[] positions = new int[((StaggeredGridLayoutManager) layoutManager).getSpanCount()];
+                        // ((StaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(positions);
+                        firstVisibleItem = getFirstPosition(((StaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(positions));
+                        lastVisibleItem = getLastPosition(((StaggeredGridLayoutManager) layoutManager).findLastVisibleItemPositions(positions));
+                    }
+                }
+            }
+        });
+    }
+    public int getFirstPosition(int[] position){
+        int first = position[0];
+        for (int value : position){
+            if (value < first){
+                first = value;
+            }
+        }
+        return first;
+    }
+    public int getLastPosition(int[] position){
+        int last = position[0];
+        for (int value : position){
+            if (value > last){
+                last = value;
+            }
+        }
+        return last;
+    }
+    public abstract void bindingItemView(Context context, BaseViewHolder holder, T t );
+
 
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
@@ -256,11 +427,18 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         mOnItemLongClickListener = onItemLongClickListener;
     }
 
+    public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener){
+        mOnLoadMoreListener = onLoadMoreListener;
+    }
+
     public interface OnItemClickListener{
         void onClick(View view,int position);
     }
     public interface  OnItemLongClickListener{
         void onLongClick(View view,int position);
 
+    }
+    public interface OnLoadMoreListener{
+        void loadMore();
     }
 }

@@ -43,8 +43,6 @@ public class Fragment2 extends Fragment {
         view = inflater.inflate(R.layout.layout_fragment_1,container,false);
         initData();
         //RecyclerView
-
-
         final RecyclerView rv = (RecyclerView)view.findViewById(R.id.rv);
         adapter = new MyAdapter2(getActivity(),mData);
         final RecyclerView.LayoutManager layoutManager =
@@ -53,14 +51,7 @@ public class Fragment2 extends Fragment {
         rv.setLayoutManager(layoutManager);
         rv.setAdapter(adapter);
         rv.setItemAnimator(new DefaultItemAnimator());
-        //rv.addItemDecoration(new SpaceDecoration(5,5));
-        rv.addOnScrollListener(new LoadMoreScrollListener(LoadMode.PULLUP) {
-            @Override
-            public void onLoadMore() {
-                Log.e(TAG, "onLoadMore: "  );
-                adapter.updata();
-            }
-        });
+        rv.addItemDecoration(new SpaceDecoration(5,5));
         return view;
     }
 
