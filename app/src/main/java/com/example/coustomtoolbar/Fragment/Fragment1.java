@@ -22,6 +22,7 @@ import com.example.coustomtoolbar.Bean.PictureContentList;
 import com.example.coustomtoolbar.Bean.PictureList;
 import com.example.coustomtoolbar.Bean.PicturePageBean;
 import com.example.coustomtoolbar.ImageCache.ImageCache;
+import com.example.coustomtoolbar.ImageCache.SetBitmapListener;
 import com.example.coustomtoolbar.R;
 import com.example.coustomtoolbar.Util.OkHttp3Util;
 import com.example.coustomtoolbar.RecyclerViewUtil.SpaceDecoration;
@@ -39,7 +40,7 @@ import okhttp3.Response;
 
 public class Fragment1 extends Fragment{
     private static final String TAG = "Fragment1";
-    private List<Bitmap> mData;
+    private List<String> mData;
     private MyAdapter adapter;
     private SwipeRefreshLayout refreshLayout;
     private View view;
@@ -58,6 +59,7 @@ public class Fragment1 extends Fragment{
     private PictureContentList pictureContentList;
     private PictureList pictureList;
     private ImageCache imageCache;
+    private SetBitmapListener setBitmapListener;
     private static int page = 2;
     private static int type = 4001;
     private static final String URLTest = "https://api.github.com/gists/c2a7c39532239ff261be";
@@ -84,21 +86,12 @@ public class Fragment1 extends Fragment{
                         if (pictureContentList.getLists() != null) {
                             for (int j = 0; j < pictureContentList.getLists().size(); j++) {
                                 pictureList = pictureContentList.getLists().get(j);
-
                                 bitmapList.add(pictureContentList.getLists().get(j).getBig());
-
-
                             }
                         }
                     }
-                    try {
-                        getBitMap();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
 
+                    updata(bitmapList);
                 }
             }
         }
@@ -113,9 +106,7 @@ public class Fragment1 extends Fragment{
         view = inflater.inflate(R.layout.layout_fragment_1,container,false);
         initData();
         //RecyclerView
-
         initSwipeRefreshLayout();
-
         RecyclerView rv = (RecyclerView)view.findViewById(R.id.rv);
        adapter = new MyAdapter(getActivity(),mData);
         RecyclerView.LayoutManager layoutManager =
@@ -129,14 +120,11 @@ public class Fragment1 extends Fragment{
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
             }
-
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-
                 super.onScrolled(recyclerView, dx, dy);
             }
         });
-
         return view;
     }
     public void initSwipeRefreshLayout(){
@@ -150,56 +138,29 @@ public class Fragment1 extends Fragment{
                 okHttp3Util.executeGet(URL_PICTURE, handler2, PictureBean.class);
             }
         });
-
     }
 
     public void initData(){
         mData = new ArrayList<>();
         gson = new Gson();
         bitmapList = new ArrayList<>();
-        imageCache = ImageCache.Instance();
+        imageCache = ImageCache.getInstance();
         DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
         imageCache.setMaxWidth(1080 / 3);
-
-    }
-
-    public void getBitMap() throws ExecutionException, InterruptedException {
-        //bitmap = imageCache.loadBitmap(bitmapList);
-        //bitmap = imageCache.loadBitmap(bitmapList);
-        for (int i =0; i < 10;i++){
-            bitmap = imageCache.loadBitmap(bitmapList.get(i));
-            handler1.post(new Runnable() {
-                @Override
-                public void run() {
-                    setSuccess_code(true);
-                /*
-                for (Bitmap bitmap1:bitmap){
-                    updata(bitmap1);
-                }
-                */
-                    updata(bitmap);
-                    refreshLayout.setRefreshing(false);
-                }
-            });
-        }
-
-        //bitmap = imageCache.loadBitmap(bitmapList.get(0));
-
     }
 
 
-    public void updata(Bitmap bitmap1){
+    public void updata(List<String> bitmap1){
         refreshLayout.setRefreshing(false);
         if (bitmap1 != null){
-            adapter.addItem(bitmap1);
+            for (String bitmap:bitmap1){
+                adapter.addItem(bitmap);
+            }
             setSuccess_code(false);
             Log.e(TAG, "updata: "+ 5 );
         }
     }
 
-    public static String getTAG() {
-        return TAG;
-    }
 
     public boolean isSuccess_code() {
         return success_code;

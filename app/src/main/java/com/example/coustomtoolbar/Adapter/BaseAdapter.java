@@ -156,6 +156,9 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         return getRealItemCount() == 0;
     }
     @Override
+
+
+
     public K onCreateViewHolder(ViewGroup parent, int viewType) {
         Log.e(TAG, "onCreateViewHolder: " + viewType );
         K baseViewHolder = null;

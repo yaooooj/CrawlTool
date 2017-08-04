@@ -5,9 +5,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.Message;
+import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
+import android.widget.ImageView;
 
 import com.example.coustomtoolbar.Adapter.MyAdapter;
 
@@ -27,12 +30,11 @@ import java.util.concurrent.ExecutionException;
 public class ImageCache {
     private static final String TAG = "ImageCache";
     public static ImageCache mImageCache;
-    private LruCache<String,Bitmap> mLruCache;
+    private  LruCache<String,Bitmap> mLruCache;
     private int MaxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
     private int cacheSize = MaxMemory / 8;
     private int maxWidth;
     private ImageCache() {
-
         mLruCache = new LruCache<String, Bitmap>(cacheSize){
             @Override
             protected int sizeOf(String key, Bitmap bitmap) {
@@ -40,22 +42,22 @@ public class ImageCache {
             }
         };
     }
-    public static ImageCache Instance(){
+    public static ImageCache getInstance(){
         if (mImageCache == null){
             mImageCache = new ImageCache();
         }
         return mImageCache;
     }
 
-    public void addBitmapToMemoryCache(String key,Bitmap bitmap){
+    public  void addBitmapToMemoryCache(String key, Bitmap bitmap){
         if (getBitmapFromCache(key) == null){
             mLruCache.put(key,bitmap);
+            Log.e(TAG, "addBitmapToMemoryCache: "+ key );
         }
     }
-    public Bitmap getBitmapFromCache(String key){
-        Log.e(TAG, "addBitmapToMemoryCache: "+ key );
-        return mLruCache.get(key);
+    public  Bitmap getBitmapFromCache(String key){
 
+        return mLruCache.get(key);
     }
 
     public void setMaxWidth(int maxWidth){
@@ -65,35 +67,40 @@ public class ImageCache {
     public Bitmap loadBitmap(String url) throws ExecutionException, InterruptedException {
         //List<Bitmap> bitmap = new ArrayList<>();
         Bitmap bitmap = null;
-        for (int i = 0;i < 10;i++){
-
-        }
         if (getBitmapFromCache(url) == null){
-            //BitmapTask task = new BitmapTask(url+"",maxWidth);
-            //task.execute();
-            //bitmap.add(new BitmapTask(maxWidth).execute(url).get());
-            bitmap = new BitmapTask(maxWidth).execute(url).get();
-            //return bitmap;
+            new BitmapTask().execute(url);
         }else {
-            //bitmap.add(getBitmapFromCache(url));
             bitmap = getBitmapFromCache(url);
         }
         return bitmap;
     }
 
-    private class BitmapTask extends AsyncTask<String, Void, Bitmap> {
+    public void showImage(final ImageView imageView, final String url){
 
-        private int reqWidth;
-        private BitmapTask(int reqWidth) {
-
-            this.reqWidth = reqWidth;
+        try {
+            imageView.setImageBitmap(loadBitmap(url));
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
 
+    }
+
+    public  class BitmapTask extends AsyncTask<String, Void, Bitmap> {
+        private int reqWidth;
+        public BitmapTask() {
+        }
         @Override
         protected Bitmap doInBackground(String... strings) {
 
-           Bitmap bitmap = getBitMapFromNetWork(strings[0]);
+            Bitmap bitmap = null;
+            try {
+                bitmap = getBitMapFromNetWork(strings[0]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             if (bitmap != null){
                 addBitmapToMemoryCache(strings[0],bitmap);
             }
@@ -102,37 +109,27 @@ public class ImageCache {
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            super.onPostExecute(bitmap);
+
         }
-
-        public Bitmap getBitMapFromNetWork(String url){
+        public Bitmap getBitMapFromNetWork(String url) throws IOException{
             Bitmap bitmap = null;
-            try {
-                URL imageUrl = new URL(url);
-                HttpURLConnection con = (HttpURLConnection) imageUrl.openConnection();
-                con.setRequestMethod("GET");
-                con.setConnectTimeout(5000);
-                con.setDoInput(true);
-                con.connect();
-                InputStream in = con.getInputStream();
-                bitmap = BitmapFactory.decodeStream(in);
 
-                //bitmap = decodeSampleBitmapFromResource(in,reqWidth);
-                Log.e(TAG, "run: "+"get current thread id " + Thread.currentThread().getName() );
-                in.close();
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            URL imageUrl = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) imageUrl.openConnection();
+            con.setRequestMethod("GET");
+            con.setConnectTimeout(5000);
+            con.setDoInput(true);
+            con.connect();
+            InputStream in = con.getInputStream();
+            bitmap = BitmapFactory.decodeStream(in);
+            //bitmap = decodeSampleBitmapFromResource(in,reqWidth);
+            Log.e(TAG, "run: "+"get current thread id " + Thread.currentThread().getName() );
+            in.close();
             return bitmap;
         }
     }
 
-
     public static Bitmap decodeSampleBitmapFromResource(InputStream in,int reqWidth ){
-
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         //BitmapFactory.decodeStream(in);
@@ -140,9 +137,7 @@ public class ImageCache {
         options.inSampleSize = calculateInSampleSize(options,reqWidth);
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeStream(in,null,options);
-
     }
-
     public static int calculateInSampleSize(BitmapFactory.Options options,
                                             int reqWidth){
         final int width = options.outWidth;

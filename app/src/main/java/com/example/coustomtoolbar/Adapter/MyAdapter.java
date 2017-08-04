@@ -12,10 +12,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.coustomtoolbar.ImageCache.ImageCache;
 import com.example.coustomtoolbar.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by yaojian on 2017/6/29.
@@ -25,7 +27,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private static final String TAG = "MyAdapter";
     private Context context;
     private int itemCount = 0;
-    private List<Bitmap> datas;
+    private List<String> datas;
     private List<Integer> heights;
     public static final int ITEM_TYPE_HEADER = 0;
     public static final int ITEM_TYPE_CONTENT = 1;
@@ -33,14 +35,15 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private int mHeaderCount = 1;
     private int mFooterCount = 1;
     private int width;
+    private ImageCache imageCache;
 
 
-    public MyAdapter(Context context, List<Bitmap> data) {
+    public MyAdapter(Context context, List<String> data) {
         this.context = context;
         datas = data;
         heights = new ArrayList<>();
         getScreenWidth(context);
-
+        imageCache = ImageCache.getInstance();
 
     }
     public int  getScreenWidth(Context context){
@@ -52,11 +55,11 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         Log.e(TAG, "getScreenWidth: "+ width );
         return width;
     }
-    public void addItem(Bitmap bitmap){
+    public void addItem(String url){
         if (datas == null ){
             datas = new ArrayList<>();
         }
-        datas.add(bitmap);
+        datas.add(url);
         //notifyItemInserted(datas.size()-1);
         notifyDataSetChanged();
         itemCount++;
@@ -126,7 +129,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             ((MyViewHolder) holder).imageView.setMaxHeight((int)(screenSize * 5));
             ((MyViewHolder) holder).imageView.setLayoutParams(params);
 
-            ((MyViewHolder) holder).imageView.setImageBitmap(datas.get(position));
+            imageCache.showImage(((MyViewHolder) holder).imageView,datas.get(position));
         }
 
     }

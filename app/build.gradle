@@ -49,6 +49,6 @@ dependencies {
     compile 'com.contrarywind:Android-PickerView:3.2.5'
     compile 'com.squareup.okhttp3:okhttp:3.8.1'
     compile 'com.squareup.okio:okio:1.13.0'
-    compile 'com.google.code.gson:gson:+'
+    compile 'com.google.code.gson:gson:2.2.4'
     testCompile 'junit:junit:4.12'
 }

@@ -23,6 +23,7 @@
         android:layout_gravity="center"
         android:src="@mipmap/ic_perm_scan_wifi_black_24dp"
         android:layout_above="@+id/empty"
+        android:background="@android:color/transparent"
         android:layout_centerHorizontal="true"/>
 
 </RelativeLayout>

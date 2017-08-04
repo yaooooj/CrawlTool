@@ -1,9 +1,11 @@
 package com.example.coustomtoolbar;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -15,9 +17,12 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.coustomtoolbar.Adapter.BaseAdapter;
 import com.example.coustomtoolbar.Adapter.MainAdapter;
 import com.example.coustomtoolbar.Bean.AllCategory;
 import com.example.coustomtoolbar.Bean.PictureCategory;
@@ -41,7 +46,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int  isFirstTimeInit = 0;
     private SharedPreferences preference;
     private int count;
-    private CardView cardView_1;
+    private ImageView imageView1;
+    private ImageView imageView2;
+    private ImageView imageView3;
     private RecyclerView mRecyclerView;
     private MainAdapter mAdapter;
     private OkHttp3Util okHttp3Util;
@@ -69,14 +76,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Stetho.initializeWithDefaults(this);
-
+        initStatusColor();
         initDataBase();
        // initToolbar(isShowToolbar);
-        initButton();
+        initImageView();
         initRecycler();
 
     }
-
+    public void initStatusColor(){
+        ScreenUtil screenUtil = new ScreenUtil();
+        screenUtil.setColor(Color.parseColor("#dedede"));
+        screenUtil.StatusView(getWindow());
+    }
     private void initDataBase(){
         dbManager = DBManager.Instence(MainActivity.this);
         okHttp3Util = new OkHttp3Util();
@@ -91,8 +102,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.e(TAG,"The Status Height is = " + statusHeight);
         //setToolbarPaddingTop();
     }
-    public void initButton(){
-
+    public void initImageView(){
+        int statusHeight = ScreenUtil.getStatusHeight(this);
+        Log.e(TAG,"The Status Height is = " + statusHeight);
+        imageView1 = (ImageView)findViewById(R.id.nvg);
+        imageView2 = (ImageView)findViewById(R.id.favorite);
+        imageView3 = (ImageView)findViewById(R.id.setting);
+        imageView3.setOnClickListener(this);
+        imageView2.setOnClickListener(this);
+        imageView1.setOnClickListener(this);
     }
 
     public void initRecycler(){
@@ -104,7 +122,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
         mAdapter = new MainAdapter(this,R.layout.main_base_layout,bitmaps,mRecyclerView);
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL_LIST));
+        mAdapter.setOnItemClickListener(new BaseAdapter.OnItemClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                Toast.makeText(MainActivity.this,"this " + position,Toast.LENGTH_SHORT).show();
+                if (position == 0){
+                    intentActivity(Coordinator.class);
+                }
+            }
+        });
+        //mRecyclerView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL_LIST));
     }
 
     public void firstTimeInit(){
@@ -140,12 +167,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(TAG,"The Padding Top is = " + paddingTop);
         mToolbar.setPadding(paddingLeft,paddingTop,paddingRight,paddingBottom);
     }
-
+    public void intentActivity(Class activity){
+        Intent intent = new Intent(MainActivity.this,activity);
+        startActivity(intent);
+    }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-
+            case R.id.nvg:
+                intentActivity(SettingActivity.class);
+                break;
+            case R.id.favorite:
+                break;
+            case R.id.setting:
+                intentActivity(SettingActivity.class);
             default:
                 break;
         }

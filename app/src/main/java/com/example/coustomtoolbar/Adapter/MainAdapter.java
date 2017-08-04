@@ -22,7 +22,8 @@ public class MainAdapter extends BaseAdapter<Integer,BaseViewHolder> {
     @Override
     public void bindingItemView(Context context, BaseViewHolder holder, Integer integer) {
 
-       holder.setImageViewResource(R.id.image_main,integer);
+        holder.setImageViewResource(R.id.image_main,integer);
+        //holder.setTextView(R.id.button_card_view,holder.getAdapterPosition()+ "");
 
 
     }
