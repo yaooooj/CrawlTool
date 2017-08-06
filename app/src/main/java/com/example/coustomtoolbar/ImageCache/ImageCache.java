@@ -52,11 +52,10 @@ public class ImageCache {
     public  void addBitmapToMemoryCache(String key, Bitmap bitmap){
         if (getBitmapFromCache(key) == null){
             mLruCache.put(key,bitmap);
-            Log.e(TAG, "addBitmapToMemoryCache: "+ key );
         }
     }
     public  Bitmap getBitmapFromCache(String key){
-
+        Log.e(TAG, "addBitmapToMemoryCache: "+ "form cache" );
         return mLruCache.get(key);
     }
 
@@ -75,27 +74,39 @@ public class ImageCache {
         return bitmap;
     }
 
-    public void showImage(final ImageView imageView, final String url){
+    public Bitmap showImage( String url) throws ExecutionException, InterruptedException {
 
-        try {
-            imageView.setImageBitmap(loadBitmap(url));
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        /*
+        if (getBitmapFromCache(url) != null){
+                imageView.setImageBitmap(getBitmapFromCache(url));
+        }
+        else {
+            new BitmapTask(imageView).execute(url);
         }
 
+           */
+        return new BitmapTask().execute(url).get();
+    }
+
+    public void showImageByHolder(){
 
     }
 
     public  class BitmapTask extends AsyncTask<String, Void, Bitmap> {
         private int reqWidth;
+        private ImageView mImageView;
+
         public BitmapTask() {
         }
+
         @Override
         protected Bitmap doInBackground(String... strings) {
 
             Bitmap bitmap = null;
+            if (ImageCache.getInstance().getBitmapFromCache(strings[0])!= null){
+                bitmap = ImageCache.getInstance().getBitmapFromCache(strings[0]);
+                return bitmap;
+            }
             try {
                 bitmap = getBitMapFromNetWork(strings[0]);
             } catch (IOException e) {
@@ -109,6 +120,7 @@ public class ImageCache {
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
+            Log.e(TAG, "onPostExecute: " +"form network" );
 
         }
         public Bitmap getBitMapFromNetWork(String url) throws IOException{

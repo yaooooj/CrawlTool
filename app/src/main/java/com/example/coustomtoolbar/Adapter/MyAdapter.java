@@ -2,6 +2,7 @@ package com.example.coustomtoolbar.Adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.DisplayMetrics;
@@ -109,7 +110,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         int screenSize = width / 3;
 
         if (holder instanceof MyAdapter.MyFooterVIewHolder){
@@ -129,7 +130,27 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             ((MyViewHolder) holder).imageView.setMaxHeight((int)(screenSize * 5));
             ((MyViewHolder) holder).imageView.setLayoutParams(params);
 
-            imageCache.showImage(((MyViewHolder) holder).imageView,datas.get(position));
+            ((MyViewHolder) holder).imageView.setImageResource(R.mipmap.ic_favorite_black_24dp);
+            //imageCache.showImage(((MyViewHolder) holder).imageView,datas.get(position));
+            new AsyncTask<Void,Void,Bitmap>() {
+                @Override
+                protected Bitmap doInBackground(Void... voids) {
+                    Bitmap bitmap=null;
+                    try {
+                        bitmap = imageCache.loadBitmap(datas.get(position));
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return bitmap;
+                }
+
+                @Override
+                protected void onPostExecute(Bitmap bitmap) {
+                    ((MyViewHolder) holder).imageView.setImageBitmap(bitmap);
+                }
+            }.execute();
         }
 
     }

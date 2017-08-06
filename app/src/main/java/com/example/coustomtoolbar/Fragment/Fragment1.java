@@ -24,6 +24,8 @@ import com.example.coustomtoolbar.Bean.PicturePageBean;
 import com.example.coustomtoolbar.ImageCache.ImageCache;
 import com.example.coustomtoolbar.ImageCache.SetBitmapListener;
 import com.example.coustomtoolbar.R;
+import com.example.coustomtoolbar.RecyclerViewUtil.LoadMode;
+import com.example.coustomtoolbar.RecyclerViewUtil.LoadMoreScrollListener;
 import com.example.coustomtoolbar.Util.OkHttp3Util;
 import com.example.coustomtoolbar.RecyclerViewUtil.SpaceDecoration;
 import com.google.gson.Gson;
@@ -115,14 +117,11 @@ public class Fragment1 extends Fragment{
         rv.setAdapter(adapter);
         rv.setItemAnimator(new DefaultItemAnimator());
         rv.addItemDecoration(new SpaceDecoration(5,5));
-        rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+        rv.addOnScrollListener(new LoadMoreScrollListener(LoadMode.PULLUP) {
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-            }
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
+            public void onLoadMore() {
+
             }
         });
         return view;

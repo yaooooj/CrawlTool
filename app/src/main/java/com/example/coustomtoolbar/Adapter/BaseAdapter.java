@@ -5,6 +5,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.support.v7.widget.ViewStubCompat;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
@@ -33,6 +34,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     private Context mContext;
     private SparseIntArray headerViews;
     private SparseIntArray footerViews;
+    private SparseIntArray loadingViews;
     private int emptyView;
     private int loadingView;
     private LoadMode loadMode;
@@ -40,11 +42,15 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     private int lastVisibleItem;
     private RecyclerView recyclerView;
 
+    private boolean showFooter = false;
+    private boolean showHeader = false;
+    private boolean loading;
+
+
     private OnItemClickListener mOnItemClickListener;
     private OnItemLongClickListener mOnItemLongClickListener;
     private OnLoadMoreListener mOnLoadMoreListener;
 
-    private boolean loading = false;
 
     public BaseAdapter(Context context,int layoutResId, List<T> data,RecyclerView recyclerView) {
         mContext = context;
@@ -57,6 +63,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         }
         headerViews = new SparseIntArray();
         footerViews = new SparseIntArray();
+        loadingViews = new SparseIntArray();
     }
 
     public BaseAdapter(Context context, List<T> data,RecyclerView recyclerView) {
@@ -125,9 +132,6 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         return loadingView;
     }
 
-    public void setLoadingView(int loadingView) {
-        this.loadingView = loadingView;
-    }
     private int getRealItemCount(){
         return mData.size();
     }
@@ -139,6 +143,15 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         return footerViews.size();
     }
 
+    public void setLoadingView(int loadingView) {
+        loadingViews.put(loadingViews.size(),loadingView);
+    }
+
+    private int getLoadingViewCount(){
+
+        return loadingViews.size();
+    }
+
     private boolean isHeader(int position){
         return position < getHeaderViewCount();
     }
@@ -146,30 +159,55 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     private boolean isFooter(int position){
         return position >= getHeaderViewCount() + getRealItemCount();
     }
-    private void removeHeader(){
 
+    public boolean isShowFooter() {
+        return showFooter;
     }
-    private void removeFooter(){
 
+    public void setShowFooter(boolean showFooter) {
+        this.showFooter = showFooter;
     }
+
+    public boolean isShowHeader() {
+        return showHeader;
+    }
+
+    public void setShowHeader(boolean showHeader) {
+        this.showHeader = showHeader;
+    }
+
+    public boolean isLoading() {
+        return loading;
+    }
+
+    public void setLoading(boolean loading) {
+        this.loading = loading;
+        setShowFooter(true);
+        notifyItemInserted(getRealItemCount() + getHeaderViewCount() +1);
+    }
+
     private boolean isEmpty(){
         return getRealItemCount() == 0;
     }
+
+
     @Override
-
-
-
     public K onCreateViewHolder(ViewGroup parent, int viewType) {
-        Log.e(TAG, "onCreateViewHolder: " + viewType );
+        //Log.e(TAG, "onCreateViewHolder: " + viewType );
         K baseViewHolder = null;
         if (headerViews.get(viewType) != 0){
             baseViewHolder = createBaseViewHolder(parent,headerViews.get(viewType));
         }else if (footerViews.get(viewType) != 0){
-            baseViewHolder = createBaseViewHolder(parent,footerViews.get(viewType));
+            if (!isLoading()){
+                baseViewHolder = createBaseViewHolder(parent,footerViews.get(viewType));
+            }
+
         }else if (viewType == ViewType.TYPE_EMPTY){
             baseViewHolder = createBaseViewHolder(parent,getEmptyView());
         }else if (viewType == ViewType.TYPE_LOADING){
-            baseViewHolder = createBaseViewHolder(parent,getLoadingView());
+            if (isLoading()){
+                baseViewHolder = createBaseViewHolder(parent,loadingViews.get(0));
+            }
         }else {
             baseViewHolder = onCreateDefViewHolder(parent, viewType);
         }
@@ -179,13 +217,12 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     @Override
     public void onBindViewHolder(BaseViewHolder holder, int position) {
         int viewType = holder.getItemViewType();
-        Log.e(TAG, "onBindViewHolder: " + ViewType.TYPE_EMPTY );
         if (isEmpty()){
          if ( viewType == ViewType.TYPE_EMPTY){
-                Log.e(TAG, "onBindViewHolder: "+ "YYYYYY" );
-                bindingItemView(mContext,holder,null);
+             bindingItemView(mContext,holder,null);
          }
         }else {
+
             if (isFooter(position)){
 
             }else if (isHeader(position)){
@@ -222,13 +259,19 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     public int getItemCount() {
         if (getRealItemCount() == 0){
             return 1;
-        }else {
-            return mData.size() + getHeaderViewCount() + getFooterViewCount() ;
+        }else if (isShowFooter()){
+            if (isLoading()){
+                return getRealItemCount()+ getHeaderViewCount()  + getLoadingViewCount() ;
+            }else if (!isLoading()){
+                return getRealItemCount()+ getHeaderViewCount() + getFooterViewCount();
+            }
         }
+        return getRealItemCount()+ getHeaderViewCount();
     }
 
     @Override
     public int getItemViewType(int position) {
+
         if (isEmpty()){
             return ViewType.TYPE_EMPTY;
         }else {
@@ -236,8 +279,10 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
                 return headerViews.keyAt(position);
             }else if (isFooter(position)){
                 if (isLoading()){
+                    Log.e(TAG, "getItemViewType: " + "Loading" );
                     return ViewType.TYPE_LOADING;
                 }else {
+                    Log.e(TAG, "getItemViewType: " + "Footer");
                     return footerViews.keyAt(position - getHeaderViewCount() - mData.size());
                 }
             }else {
@@ -280,9 +325,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         }
 
     }
-    private boolean isLoading(){
-        return loading;
-    }
+
     protected K onCreateDefViewHolder(ViewGroup parent, int viewType) {
         int layoutId = layoutResId;
 

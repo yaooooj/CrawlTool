@@ -1,6 +1,8 @@
 package com.example.coustomtoolbar.Fragment;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
@@ -8,6 +10,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +31,7 @@ import java.util.List;
  */
 
 public class Fragment3 extends Fragment {
+    private static final String TAG = "Fragment3";
     RecyclerView recyclerView;
     private List<String> stringList;
     private View view;
@@ -49,6 +53,7 @@ public class Fragment3 extends Fragment {
         adapter.setEmptyView(R.layout.empty_layout);
         adapter.setHeaderViewList(R.layout.footer_add_more);
         adapter.setFooterViewList(R.layout.footer_no_more_data);
+        adapter.setLoadingView(R.layout.layout_loading);
         recyclerView.setAdapter(adapter);
         adapter.setOnItemClickListener(new BaseAdapter.OnItemClickListener() {
             @Override
@@ -67,11 +72,57 @@ public class Fragment3 extends Fragment {
         adapter.setLoadMoreListener(new BaseAdapter.OnLoadMoreListener() {
             @Override
             public void loadMore() {
-                List<String> datas = new ArrayList<String>();
-                for (int i=0;i<20;i++){
-                    datas.add("New Data " + i);
+                /*
+
+                */
+                final boolean[] ok = {true};
+                int i = 0;
+                final List<String> datas = new ArrayList<String>();
+                if (ok[0]){
+                    Log.e(TAG, "loadMore: " + i++);
+                    final Handler handler = new Handler(){
+                        @Override
+                        public void handleMessage(Message msg) {
+                            super.handleMessage(msg);
+                            switch (msg.what){
+                                case 1:
+                                    adapter.setLoading(false);
+                                    adapter.addData(datas);
+                                    ok[0] = true;
+
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    };
+                    adapter.setLoading(true);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ok[0] = false;
+                            try {
+                                Thread.sleep(5000);
+                                Message ma = new Message();
+                                ma.what = 1;
+                                handler.sendMessage(ma);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+                            for (int i=0;i<20;i++){
+                                datas.add("New Data " + i);
+                            }
+
+                        }
+                    }).start();
                 }
-                adapter.addData(datas);
+
+
+
+
+
+
             }
         });
         return view;
