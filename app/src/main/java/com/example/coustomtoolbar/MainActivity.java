@@ -68,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 }
             }
-
         }
     };
     @Override
@@ -139,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         count = preference.getInt("count",0);
         if (count == 0){
             writeInitParamsToSharePreferences();
-            okHttp3Util.executeGet(OkHttp3Util.URL,handler,PictureCategory.class);
+            okHttp3Util.executeGet(OkHttp3Util.URL,handler,PictureCategory.class,2);
             Log.e(TAG, "firstTimeInit: "+ "first init database" );
         }
     }

@@ -25,10 +25,9 @@ public class MyAdapter2 extends RecyclerView.Adapter<MyAdapter2.Fargment2ViewHod
         this.mContext = context;
     }
 
-    public void updata(){
-        for (int i =0; i < 10;i++){
+    public void updata(int count){
+        for (int i =0; i < count;i++){
             mData.add("it's  new beautiful day");
-            Log.e(TAG, "onLoadMore: " );
         }
         notifyDataSetChanged();
     }

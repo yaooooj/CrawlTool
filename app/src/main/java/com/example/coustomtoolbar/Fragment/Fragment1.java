@@ -22,6 +22,7 @@ import com.example.coustomtoolbar.Bean.PictureContentList;
 import com.example.coustomtoolbar.Bean.PictureList;
 import com.example.coustomtoolbar.Bean.PicturePageBean;
 import com.example.coustomtoolbar.ImageCache.ImageCache;
+import com.example.coustomtoolbar.ImageCache.ImageUrl;
 import com.example.coustomtoolbar.ImageCache.SetBitmapListener;
 import com.example.coustomtoolbar.R;
 import com.example.coustomtoolbar.RecyclerViewUtil.LoadMode;
@@ -70,44 +71,33 @@ public class Fragment1 extends Fragment{
     private static final String APISECRET = "96039fbf84ee42afaad5d66f14159c31";
     private static final String URL  = "http://route.showapi.com/852-1?&showapi_appid="+APIKEY+"&showapi_sign="+APISECRET;
     private static final String URL_PICTURE = "http://route.showapi.com/852-2?page="+ page + "&showapi_appid="+APIKEY+"&type="+type+"&showapi_sign="+APISECRET;
+    private ImageUrl imageUrl;
     private Handler handler2 = new Handler(){
         @Override
         public void handleMessage(final Message msg) {
-            pictureBean = (PictureBean)msg.obj;
-            Log.e(TAG, "onResponse: "+  pictureBean.getShowapi_res_body().getPagebean().getAllNum() );
-            if (pictureBean != null) {
-                if (pictureBean.getShowapi_res_body() != null) {
-                    pictureBody = pictureBean.getShowapi_res_body();
-                }
-                if (pictureBody.getPagebean() != null) {
-                    picturePageBean = pictureBody.getPagebean();
-                }
-                if (picturePageBean.getContentlist() != null) {
-                    for (int i = 0; i < picturePageBean.getContentlist().size(); i++) {
-                        pictureContentList = picturePageBean.getContentlist().get(i);
-                        if (pictureContentList.getLists() != null) {
-                            for (int j = 0; j < pictureContentList.getLists().size(); j++) {
-                                pictureList = pictureContentList.getLists().get(j);
-                                bitmapList.add(pictureContentList.getLists().get(j).getBig());
-                            }
-                        }
-                    }
-
-                    updata(bitmapList);
-                }
+            switch (msg.what ){
+                case 1:
+                    pictureBean = (PictureBean)msg.obj;
+                    Log.e(TAG, "onResponse: "+  pictureBean.getShowapi_res_body().getPagebean().getAllNum() );
+                    imageUrl = new ImageUrl(pictureBean);
+                    break;
+                default:
+                    break;
             }
         }
     };
-    private Handler handler1 = new Handler();
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         view = inflater.inflate(R.layout.layout_fragment_1,container,false);
         initData();
         //RecyclerView
+        if (okHttp3Util == null){
+            okHttp3Util = new OkHttp3Util();
+        }
+        okHttp3Util.executeGet(URL_PICTURE,handler2, PictureBean.class,1);
+
         initSwipeRefreshLayout();
         RecyclerView rv = (RecyclerView)view.findViewById(R.id.rv);
        adapter = new MyAdapter(getActivity(),mData);
@@ -128,13 +118,12 @@ public class Fragment1 extends Fragment{
     }
     public void initSwipeRefreshLayout(){
         refreshLayout = (SwipeRefreshLayout)view.findViewById(R.id.refresh);
-        if (okHttp3Util == null){
-            okHttp3Util = new OkHttp3Util();
-        }
+
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                okHttp3Util.executeGet(URL_PICTURE, handler2, PictureBean.class);
+                imageUrl.praserUrl();
+               updata(imageUrl.getBitmapList());
             }
         });
     }
@@ -144,19 +133,19 @@ public class Fragment1 extends Fragment{
         gson = new Gson();
         bitmapList = new ArrayList<>();
         imageCache = ImageCache.getInstance();
-        DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
         imageCache.setMaxWidth(1080 / 3);
-    }
 
+
+    }
 
     public void updata(List<String> bitmap1){
         refreshLayout.setRefreshing(false);
         if (bitmap1 != null){
-            for (String bitmap:bitmap1){
-                adapter.addItem(bitmap);
+            Log.e(TAG, "updata: " + bitmap1.size() );
+            for (int i =0; i < 20;i++){
+                adapter.addItem(bitmap1.get(i));
             }
             setSuccess_code(false);
-            Log.e(TAG, "updata: "+ 5 );
         }
     }
 

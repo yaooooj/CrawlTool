@@ -30,11 +30,7 @@ public class Fragment2 extends Fragment {
     private View view;
     private List<String> mData;
     private MyAdapter2 adapter;
-    private int visibleItemCount;
-    private int totalItemCount;
-    private int first;
-    private int last;
-    private int firstVisibleItem[];
+
 
     @Nullable
     @Override
@@ -52,6 +48,12 @@ public class Fragment2 extends Fragment {
         rv.setAdapter(adapter);
         rv.setItemAnimator(new DefaultItemAnimator());
         rv.addItemDecoration(new SpaceDecoration(5,5));
+        rv.addOnScrollListener(new LoadMoreScrollListener(LoadMode.PULLUP) {
+            @Override
+            public void onLoadMore() {
+                adapter.updata(18);
+            }
+        });
         return view;
     }
 

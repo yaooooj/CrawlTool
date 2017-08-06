@@ -55,7 +55,7 @@ public class ImageCache {
         }
     }
     public  Bitmap getBitmapFromCache(String key){
-        Log.e(TAG, "addBitmapToMemoryCache: "+ "form cache" );
+
         return mLruCache.get(key);
     }
 
@@ -67,65 +67,62 @@ public class ImageCache {
         //List<Bitmap> bitmap = new ArrayList<>();
         Bitmap bitmap = null;
         if (getBitmapFromCache(url) == null){
-            new BitmapTask().execute(url);
+            //new BitmapTask(url).execute(url);
+
+            //bitmap = task.get();
         }else {
+            Log.e(TAG, "addBitmapToMemoryCache: "+ "form cache" );
             bitmap = getBitmapFromCache(url);
         }
         return bitmap;
     }
 
-    public Bitmap showImage( String url) throws ExecutionException, InterruptedException {
+    public void showImage(ImageView imageView, String url) throws ExecutionException, InterruptedException {
 
-        /*
         if (getBitmapFromCache(url) != null){
-                imageView.setImageBitmap(getBitmapFromCache(url));
+            Log.e(TAG, "addBitmapToMemoryCache: "+ "form cache" );
+                if (imageView.getTag() == url){
+                    imageView.setImageBitmap(getBitmapFromCache(url));
+                }
         }
         else {
-            new BitmapTask(imageView).execute(url);
+            Log.e(TAG, "showImage: " + "form network" );
+            new BitmapTask(url,imageView).execute(url);
         }
 
-           */
-        return new BitmapTask().execute(url).get();
     }
 
-    public void showImageByHolder(){
-
-    }
 
     public  class BitmapTask extends AsyncTask<String, Void, Bitmap> {
         private int reqWidth;
-        private ImageView mImageView;
+        private String url;
+        private ImageView imageView;
 
-        public BitmapTask() {
+        public BitmapTask(String url,ImageView imageView) {
+            this.url = url;
+            this.imageView = imageView;
         }
 
         @Override
         protected Bitmap doInBackground(String... strings) {
-
             Bitmap bitmap = null;
-            if (ImageCache.getInstance().getBitmapFromCache(strings[0])!= null){
-                bitmap = ImageCache.getInstance().getBitmapFromCache(strings[0]);
-                return bitmap;
-            }
             try {
-                bitmap = getBitMapFromNetWork(strings[0]);
+                bitmap = getBitMapFromNetWork(url);
             } catch (IOException e) {
                 e.printStackTrace();
-            }
-            if (bitmap != null){
-                addBitmapToMemoryCache(strings[0],bitmap);
             }
             return bitmap;
         }
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            Log.e(TAG, "onPostExecute: " +"form network" );
+            if (imageView.getTag() == url){
+                imageView.setImageBitmap(bitmap);
+            }
 
         }
         public Bitmap getBitMapFromNetWork(String url) throws IOException{
             Bitmap bitmap = null;
-
             URL imageUrl = new URL(url);
             HttpURLConnection con = (HttpURLConnection) imageUrl.openConnection();
             con.setRequestMethod("GET");
@@ -134,8 +131,11 @@ public class ImageCache {
             con.connect();
             InputStream in = con.getInputStream();
             bitmap = BitmapFactory.decodeStream(in);
+            if (bitmap != null){
+                addBitmapToMemoryCache(url,bitmap);
+            }
             //bitmap = decodeSampleBitmapFromResource(in,reqWidth);
-            Log.e(TAG, "run: "+"get current thread id " + Thread.currentThread().getName() );
+            //Log.e(TAG, "run: "+"get current thread id " + Thread.currentThread().getName() );
             in.close();
             return bitmap;
         }

@@ -36,6 +36,8 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private int mHeaderCount = 1;
     private int mFooterCount = 1;
     private int width;
+    private int height;
+    private boolean overScreenHeight;
     private ImageCache imageCache;
 
 
@@ -49,12 +51,22 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     }
     public int  getScreenWidth(Context context){
 
-
         DisplayMetrics displayMetrics  = context.getResources().getDisplayMetrics();
         width = displayMetrics.widthPixels;
-
+        height = displayMetrics.heightPixels;
         Log.e(TAG, "getScreenWidth: "+ width );
         return width;
+    }
+
+    public boolean isOverScreenHeight() {
+        return overScreenHeight;
+    }
+
+    public void setOverScreenHeight(boolean overScreenHeight) {
+        this.overScreenHeight = overScreenHeight;
+    }
+    public void computeImageheight(){
+
     }
     public void addItem(String url){
         if (datas == null ){
@@ -63,7 +75,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         datas.add(url);
         //notifyItemInserted(datas.size()-1);
         notifyDataSetChanged();
-        itemCount++;
+        //itemCount++;
     }
     public void removeItem(int position){
         if (datas == null || datas.isEmpty()){
@@ -131,33 +143,22 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             ((MyViewHolder) holder).imageView.setLayoutParams(params);
 
             ((MyViewHolder) holder).imageView.setImageResource(R.mipmap.ic_favorite_black_24dp);
-            //imageCache.showImage(((MyViewHolder) holder).imageView,datas.get(position));
-            new AsyncTask<Void,Void,Bitmap>() {
-                @Override
-                protected Bitmap doInBackground(Void... voids) {
-                    Bitmap bitmap=null;
-                    try {
-                        bitmap = imageCache.loadBitmap(datas.get(position));
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    return bitmap;
-                }
-
-                @Override
-                protected void onPostExecute(Bitmap bitmap) {
-                    ((MyViewHolder) holder).imageView.setImageBitmap(bitmap);
-                }
-            }.execute();
+            final String url  = datas.get(position);
+            ((MyViewHolder) holder).imageView.setTag(url);
+            try {
+                imageCache.showImage(((MyViewHolder) holder).imageView,datas.get(position));
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
     }
 
     @Override
     public int getItemCount() {
-        return datas.size() + 1;
+        return datas.size() ;
     }
 
     @Override
@@ -185,7 +186,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         }
     }
 
-    private class MyViewHolder extends RecyclerView.ViewHolder {
+    public class MyViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
 
         MyViewHolder(View itemView) {

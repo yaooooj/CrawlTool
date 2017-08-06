@@ -2,6 +2,7 @@ package com.example.coustomtoolbar.Util;
 
 import android.graphics.Picture;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
@@ -40,7 +41,7 @@ public class OkHttp3Util {
         gson = new GsonUtil();
     }
 
-    public void executeGet(String url, final Handler handler, final Class<?> claszz) {
+    public void executeGet(String url, final Handler handler, final Class<?> claszz, final int flag) {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
@@ -52,6 +53,8 @@ public class OkHttp3Util {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) throw new IOException("Unexpected code" + response);
+               // Handler handler = new Handler(Looper.getMainLooper());
+
                 Message message = handler.obtainMessage();
                 Object object;
                // PictureBean picture = new PictureBean();
@@ -64,10 +67,10 @@ public class OkHttp3Util {
                         e.printStackTrace();
                     }
                 }
+                message.what = flag;
                 handler.sendMessage(message);
             }
         });
-
     }
     public void executePost(String url){
         Request request = new Request.Builder()

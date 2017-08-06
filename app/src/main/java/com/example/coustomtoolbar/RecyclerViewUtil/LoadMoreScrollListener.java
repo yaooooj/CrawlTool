@@ -29,21 +29,18 @@ public abstract class LoadMoreScrollListener extends RecyclerView.OnScrollListen
     @Override
     public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
         super.onScrollStateChanged(recyclerView, newState);
-        Log.e(TAG, "onScrollStateChanged: " + newState );
+       // Log.e(TAG, "onScrollStateChanged: " + newState );
         RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
         RecyclerView.Adapter adapter = recyclerView.getAdapter();
         int visibleItemCount = layoutManager.getChildCount();
         int totalItemCount = layoutManager.getItemCount();
-        Log.e(TAG, "onScrollStateChanged: " + newState );
+        Log.e(TAG, "onScrollStateChanged: "  + visibleItemCount +" + " + totalItemCount );
         if ( newState == RecyclerView.SCROLL_STATE_IDLE ){
-            if (lastVisibleItem + 1 == totalItemCount){
+            if (totalItemCount - lastVisibleItem < visibleItemCount){
                 if (LoadMode.PULLUP == mode){
                     onLoadMore();
-                    Log.e(TAG, "onScrollStateChanged: " + " is here " );
-
                 if (mOnLoadMoreListener != null){
                     mOnLoadMoreListener.loadMore();
-                    return;
                 }
 
                 }
