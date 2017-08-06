@@ -6,12 +6,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.ViewStubCompat;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
+import com.example.coustomtoolbar.R;
 import com.example.coustomtoolbar.RecyclerViewUtil.LoadMode;
 
 import java.lang.reflect.Constructor;
@@ -46,7 +49,8 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     private boolean showHeader = false;
     private boolean loading;
 
-
+    private int width;
+    private int height;
     private OnItemClickListener mOnItemClickListener;
     private OnItemLongClickListener mOnItemLongClickListener;
     private OnLoadMoreListener mOnLoadMoreListener;
@@ -64,6 +68,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         headerViews = new SparseIntArray();
         footerViews = new SparseIntArray();
         loadingViews = new SparseIntArray();
+
     }
 
     public BaseAdapter(Context context, List<T> data,RecyclerView recyclerView) {
@@ -109,12 +114,14 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     }
 
     public void setHeaderViewList(int view){
+
         if (view != 0){
             headerViews.put(headerViews.size() + ViewType.TYPE_HEADER,view);
         }
     }
 
     public void setFooterViewList(int view){
+
         if (view != 0){
             footerViews.put(footerViews.size() + ViewType.TYPE_FOOTER,view);
         }
@@ -144,6 +151,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     }
 
     public void setLoadingView(int loadingView) {
+
         loadingViews.put(loadingViews.size(),loadingView);
     }
 
@@ -187,9 +195,16 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     }
 
     private boolean isEmpty(){
-        return getRealItemCount() == 0;
+        return getRealItemCount() == 1;
     }
+    public int  getScreenWidth(Context context){
 
+        DisplayMetrics displayMetrics  = context.getResources().getDisplayMetrics();
+        width = displayMetrics.widthPixels;
+        height = displayMetrics.heightPixels;
+        Log.e(TAG, "getScreenWidth: "+ width );
+        return width;
+    }
 
     @Override
     public K onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -231,6 +246,37 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
 
             }
             else {
+                int screenSize = width / 3;
+                /*
+                if (heights.size() <= datas.size() ){
+                    heights.add((int) (100+ Math.random()*300));
+                }
+                */
+                ViewGroup viewGroup = (ViewGroup) holder.itemView.getParent();
+                int childCount = 0;
+                if (viewGroup != null){
+                    childCount = viewGroup.getChildCount();
+                    Log.e(TAG, "onBindViewHolder: " + "ViewGroup not null" );
+                }
+
+                View view = null;
+                ImageView imageView = null;
+                for (int i=0;i < childCount; i++){
+                    view = viewGroup.getChildAt(0);
+                    if (view instanceof ImageView){
+                        imageView = (ImageView) view;
+                    }
+                }
+
+                if (imageView  != null){
+                    ViewGroup.LayoutParams params = view.getLayoutParams();
+                    params.width =  screenSize;
+                    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                    imageView.setMaxWidth(screenSize);
+                    imageView.setMaxHeight(screenSize*5);
+                    imageView.setLayoutParams(params);
+                    Log.e(TAG, "onBindViewHolder: " + "is image view" );
+                }
                 holder.itemView.setOnClickListener(this);
                 holder.itemView.setOnLongClickListener(this);
                 holder.itemView.setTag(holder.getAdapterPosition() - getHeaderViewCount());
@@ -425,7 +471,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                Log.e(TAG, "onScrolled: " + dx );
+               // Log.e(TAG, "onScrolled: " + dx );
                 RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
                 if (layoutManager != null) {
                     if (layoutManager instanceof LinearLayoutManager) {
@@ -474,9 +520,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         mOnItemLongClickListener = onItemLongClickListener;
     }
 
-    public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener){
-        mOnLoadMoreListener = onLoadMoreListener;
-    }
+
 
     public interface OnItemClickListener{
         void onClick(View view,int position);

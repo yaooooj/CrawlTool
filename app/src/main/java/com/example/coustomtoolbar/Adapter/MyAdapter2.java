@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.coustomtoolbar.R;
@@ -41,7 +42,7 @@ public class MyAdapter2 extends RecyclerView.Adapter<MyAdapter2.Fargment2ViewHod
 
     @Override
     public void onBindViewHolder(Fargment2ViewHodler holder, int position) {
-        holder.textView.setText(mData.get(position));
+        holder.mImageView.setImageResource(R.mipmap.ic_favorite_black_24dp);
     }
 
     @Override
@@ -50,10 +51,10 @@ public class MyAdapter2 extends RecyclerView.Adapter<MyAdapter2.Fargment2ViewHod
     }
 
     public class Fargment2ViewHodler extends RecyclerView.ViewHolder{
-        TextView textView;
+        ImageView mImageView;
         public Fargment2ViewHodler(View itemView) {
             super(itemView);
-            textView = (TextView)itemView.findViewById(R.id.fragment2);
+            mImageView = (ImageView) itemView.findViewById(R.id.fragment2_image);
         }
     }
 

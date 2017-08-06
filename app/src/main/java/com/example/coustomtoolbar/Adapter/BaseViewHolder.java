@@ -39,7 +39,12 @@ public class BaseViewHolder extends RecyclerView.ViewHolder {
         view.setImageResource(imageResource);
         return this;
     }
-
+    public BaseViewHolder setImageView(ImageView imageView,int imageResource){
+        if (imageView != null){
+            imageView.setImageResource(imageResource);
+        }
+        return this;
+    }
     public String getTag() {
         return tag;
     }

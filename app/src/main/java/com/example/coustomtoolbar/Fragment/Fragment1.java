@@ -50,27 +50,18 @@ public class Fragment1 extends Fragment{
     private Response response;
     private Gson gson;
     private OkHttp3Util okHttp3Util;
-    private boolean success_code = false;
-    private int error_code;
-    private int all_page;
     private List<String> bitmapList;
-    //private List<Bitmap> bitmap;
     private Bitmap bitmap;
     private PictureBean pictureBean;
-    private PictureBody pictureBody;
-    private PicturePageBean picturePageBean;
-    private PictureContentList pictureContentList;
-    private PictureList pictureList;
     private ImageCache imageCache;
-    private SetBitmapListener setBitmapListener;
     private static int page = 2;
     private static int type = 4001;
-    private static final String URLTest = "https://api.github.com/gists/c2a7c39532239ff261be";
-    private static final String APPCODE = "a2e7ba852ad505736d69a6e05f49d1ed";
     private static final String APIKEY = "42731";
     private static final String APISECRET = "96039fbf84ee42afaad5d66f14159c31";
-    private static final String URL  = "http://route.showapi.com/852-1?&showapi_appid="+APIKEY+"&showapi_sign="+APISECRET;
     private static final String URL_PICTURE = "http://route.showapi.com/852-2?page="+ page + "&showapi_appid="+APIKEY+"&type="+type+"&showapi_sign="+APISECRET;
+    private static final String URLTest = "https://api.github.com/gists/c2a7c39532239ff261be";
+    private static final String APPCODE = "a2e7ba852ad505736d69a6e05f49d1ed";
+    private static final String URL  = "http://route.showapi.com/852-1?&showapi_appid="+APIKEY+"&showapi_sign="+APISECRET;
     private ImageUrl imageUrl;
     private Handler handler2 = new Handler(){
         @Override
@@ -135,7 +126,6 @@ public class Fragment1 extends Fragment{
         imageCache = ImageCache.getInstance();
         imageCache.setMaxWidth(1080 / 3);
 
-
     }
 
     public void updata(List<String> bitmap1){
@@ -145,32 +135,11 @@ public class Fragment1 extends Fragment{
             for (int i =0; i < 20;i++){
                 adapter.addItem(bitmap1.get(i));
             }
-            setSuccess_code(false);
+
         }
     }
 
 
-    public boolean isSuccess_code() {
-        return success_code;
-    }
 
-    public void setSuccess_code(boolean success_code) {
-        this.success_code = success_code;
-    }
 
-    public int getError_code() {
-        return error_code;
-    }
-
-    public void setError_code(int error_code) {
-        this.error_code = error_code;
-    }
-
-    public int getAll_page() {
-        return all_page;
-    }
-
-    public void setAll_page(int all_page) {
-        this.all_page = all_page;
-    }
 }
