@@ -1,5 +1,6 @@
 package com.example.coustomtoolbar.Fragment;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListAdapter;
 import android.widget.Toast;
 
 import com.example.coustomtoolbar.Adapter.BaseAdapter;
@@ -46,6 +48,8 @@ public class Fragment3 extends Fragment {
     private PictureBean pictureBean;
     private ImageCache imageCache;
     private ImageUrl imageUrl;
+    int count = 0;
+    private int pageItem = 10;
     private static int page = 2;
     private static int type = 4001;
     private static final String APIKEY = "42731";
@@ -71,14 +75,12 @@ public class Fragment3 extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.layout_fragment_3,null);
-        initData();
-        initSwipeRefreshLayout();
         if (okHttp3Util == null){
             okHttp3Util = new OkHttp3Util();
         }
         okHttp3Util.executeGet(URL_PICTURE,handler3, PictureBean.class,2);
-
-
+        initData();
+        initSwipeRefreshLayout();
         recyclerView = (RecyclerView) view.findViewById(R.id.rv);
 
         recyclerView.setLayoutManager(
@@ -100,7 +102,7 @@ public class Fragment3 extends Fragment {
             @Override
             public void onClick(View view, int position) {
                 Toast.makeText(getContext(),"item click " + position,Toast.LENGTH_SHORT).show();
-                adapter.updataData(position,"new data");
+                //adapter.updataData(position,"new data");
             }
         });
         adapter.setOnItemLongClickListener(new BaseAdapter.OnItemLongClickListener() {
@@ -113,19 +115,14 @@ public class Fragment3 extends Fragment {
         adapter.setLoadMoreListener(new BaseAdapter.OnLoadMoreListener() {
             @Override
             public void loadMore() {
-                Log.e(TAG, "loadMore: "+ "have some move" );
-
+                //updata();
             }
-        });
 
-        /*
-        recyclerView.addOnScrollListener(new LoadMoreScrollListener(LoadMode.PULLUP) {
             @Override
-            public void onLoadMore() {
-                Log.e(TAG, "onLoadMore: " + "has more data" );
+            public void setImage() {
+                updata();
             }
         });
-        */
         return view;
     }
     public void initSwipeRefreshLayout(){
@@ -134,21 +131,23 @@ public class Fragment3 extends Fragment {
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                imageUrl.praserUrl();
-                updata(imageUrl.getBitmapList());
+
             }
         });
     }
-    public void updata(List<String> bitmap1){
+    public void updata(){
         refreshLayout.setRefreshing(false);
-        if (bitmap1 != null){
-
-            for (int i =0; i < 10;i++){
-                adapter.addData(bitmap1.get(i));
-                Log.e(TAG, "updata: " + bitmap1.get(i) );
+        List<String> urls = imageUrl.getBitmapList();
+        if (urls != null){
+            for ( int i = 0; i < getPageItem();i++){
+                adapter.addData(urls.get(count));
+                count++;
+                //Log.e(TAG, "updata: " + urls.get(count) );
             }
-
+           // count += getPageItem();
+            Log.e(TAG, "updata: " + count);
         }
+
     }
     public void initData(){
         if (stringList == null){
@@ -156,8 +155,14 @@ public class Fragment3 extends Fragment {
         }
         imageCache = ImageCache.getInstance();
         imageCache.setMaxWidth(1080 / 3);
-        for (int i = 0; i <= 10;i++){
-            //stringList.add("hahha");
-        }
+        //stringList.add()
+    }
+
+    public int getPageItem() {
+        return pageItem;
+    }
+
+    public void setPageItem(int pageItem) {
+        this.pageItem = pageItem;
     }
 }

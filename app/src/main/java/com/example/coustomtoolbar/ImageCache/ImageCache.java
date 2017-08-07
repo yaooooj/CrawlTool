@@ -63,19 +63,6 @@ public class ImageCache {
         this.maxWidth = maxWidth;
     }
 
-    public Bitmap loadBitmap(String url) throws ExecutionException, InterruptedException {
-        //List<Bitmap> bitmap = new ArrayList<>();
-        Bitmap bitmap = null;
-        if (getBitmapFromCache(url) == null){
-            //new BitmapTask(url).execute(url);
-
-            //bitmap = task.get();
-        }else {
-            Log.e(TAG, "addBitmapToMemoryCache: "+ "form cache" );
-            bitmap = getBitmapFromCache(url);
-        }
-        return bitmap;
-    }
 
     public void showImage(ImageView imageView, String url) throws ExecutionException, InterruptedException {
 
@@ -117,6 +104,9 @@ public class ImageCache {
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             if (imageView.getTag() == url){
+
+                Log.e(TAG, "getBitMapFromNetWork: " + url );
+                addBitmapToMemoryCache(url,bitmap);
                 imageView.setImageBitmap(bitmap);
             }
 
@@ -131,11 +121,6 @@ public class ImageCache {
             con.connect();
             InputStream in = con.getInputStream();
             bitmap = BitmapFactory.decodeStream(in);
-            if (bitmap != null){
-                addBitmapToMemoryCache(url,bitmap);
-            }
-            //bitmap = decodeSampleBitmapFromResource(in,reqWidth);
-            //Log.e(TAG, "run: "+"get current thread id " + Thread.currentThread().getName() );
             in.close();
             return bitmap;
         }

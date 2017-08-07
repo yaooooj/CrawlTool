@@ -93,7 +93,7 @@ public class Fragment1 extends Fragment{
         RecyclerView rv = (RecyclerView)view.findViewById(R.id.rv);
        adapter = new MyAdapter(getActivity(),mData);
         RecyclerView.LayoutManager layoutManager =
-                new StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL);
+                new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);
         rv.setLayoutManager(layoutManager);
         rv.setAdapter(adapter);
         rv.setItemAnimator(new DefaultItemAnimator());

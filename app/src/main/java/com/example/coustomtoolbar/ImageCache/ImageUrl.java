@@ -29,9 +29,11 @@ public class ImageUrl {
     public ImageUrl(PictureBean pictureBean) {
         this.pictureBean = pictureBean;
         bitmapList = new ArrayList<>();
+        praserUrl();
+
     }
 
-    public  void praserUrl(){
+    public void praserUrl(){
         if (pictureBean != null) {
             if (pictureBean.getShowapi_res_body() != null) {
                 pictureBody = pictureBean.getShowapi_res_body();

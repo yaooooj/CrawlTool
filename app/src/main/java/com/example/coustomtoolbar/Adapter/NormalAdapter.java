@@ -63,6 +63,7 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
             imageView.setLayoutParams(params);
             holder.setImageView(imageView,R.mipmap.ic_favorite_black_24dp);
             imageView.setTag(s);
+
             try {
                 mImageCache.showImage(imageView,s);
             } catch (ExecutionException e) {

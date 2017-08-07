@@ -123,16 +123,11 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
-        int screenSize = width / 3;
+        int screenSize = width / 2;
 
         if (holder instanceof MyAdapter.MyFooterVIewHolder){
 
         } else if (holder instanceof MyAdapter.MyViewHolder){
-           // ((MyViewHolder) holder).textView.setText("madna");
-
-            if (heights.size() <= datas.size() ){
-                heights.add((int) (100+ Math.random()*300));
-            }
 
             ViewGroup.LayoutParams params = ((MyViewHolder) holder).imageView.getLayoutParams();
             params.width =  screenSize;
