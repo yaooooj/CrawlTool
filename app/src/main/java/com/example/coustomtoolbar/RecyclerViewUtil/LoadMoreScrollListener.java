@@ -35,14 +35,13 @@ public abstract class LoadMoreScrollListener extends RecyclerView.OnScrollListen
         int visibleItemCount = layoutManager.getChildCount();
         int totalItemCount = layoutManager.getItemCount();
         Log.e(TAG, "onScrollStateChanged: "  + visibleItemCount +" + " + totalItemCount );
-        if ( newState == RecyclerView.SCROLL_STATE_IDLE ){
-            if (totalItemCount - lastVisibleItem < visibleItemCount){
-                if (LoadMode.PULLUP == mode){
-                    onLoadMore();
-                if (mOnLoadMoreListener != null){
-                    mOnLoadMoreListener.loadMore();
-                }
+        if (LoadMode.PULLUP == mode){
+            if ( newState == RecyclerView.SCROLL_STATE_IDLE ) {
+                        onLoadMore();
 
+            }else if (newState == RecyclerView.SCROLL_STATE_DRAGGING){
+                if (totalItemCount - lastVisibleItem == 0){
+                    onDraggerLoadMore();
                 }
             }
         }
@@ -100,5 +99,7 @@ public abstract class LoadMoreScrollListener extends RecyclerView.OnScrollListen
 
 
     public abstract void onLoadMore();
+
+    public abstract void onDraggerLoadMore();
 
 }

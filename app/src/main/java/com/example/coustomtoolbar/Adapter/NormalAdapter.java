@@ -27,6 +27,8 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
     private int width;
     private int height;
     private ImageCache mImageCache;
+    private ShowImage showImage;
+    private boolean firstLoadImage = true;
 
     public NormalAdapter(Context context, int layoutResId, List<String> data, RecyclerView recyclerView) {
         super(context, layoutResId, data, recyclerView);
@@ -64,6 +66,22 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
             holder.setImageView(imageView,R.mipmap.ic_favorite_black_24dp);
             imageView.setTag(s);
 
+            if (isFirstLoadImage()){
+                Log.e(TAG, "bindingItemView: " + "FirstLoadImage" );
+                try {
+                    mImageCache.showImage(imageView,s);
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+            }else {
+                Log.e(TAG, "bindingItemView: " + "scroll" );
+                showImage.setShowImage(imageView,s);
+            }
+
+            /*
             try {
                 mImageCache.showImage(imageView,s);
             } catch (ExecutionException e) {
@@ -71,8 +89,24 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            */
 
             //holder.setImageViewResource(R.id.fragment2_image,R.mipmap.ic_favorite_black_24dp);
         }
+    }
+
+    public boolean isFirstLoadImage() {
+        return firstLoadImage;
+    }
+
+    public void setFirstLoadImage(boolean firstLoadImage) {
+        this.firstLoadImage = firstLoadImage;
+    }
+
+    public void setShowImage(ShowImage showImage){
+        this.showImage = showImage;
+    }
+    public interface ShowImage{
+        void setShowImage(ImageView image,String url);
     }
 }

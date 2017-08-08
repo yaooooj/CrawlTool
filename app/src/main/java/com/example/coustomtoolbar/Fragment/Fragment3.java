@@ -1,5 +1,6 @@
 package com.example.coustomtoolbar.Fragment;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.Toast;
 
@@ -32,6 +34,7 @@ import com.example.coustomtoolbar.Util.OkHttp3Util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by yaojian on 2017/6/23.
@@ -48,10 +51,12 @@ public class Fragment3 extends Fragment {
     private PictureBean pictureBean;
     private ImageCache imageCache;
     private ImageUrl imageUrl;
+    private List<String> urls;
     int count = 0;
     private int pageItem = 10;
     private static int page = 2;
     private static int type = 4001;
+
     private static final String APIKEY = "42731";
     private static final String APISECRET = "96039fbf84ee42afaad5d66f14159c31";
     private static final String URL_PICTURE = "http://route.showapi.com/852-2?page="+ page + "&showapi_appid="+APIKEY+"&type="+type+"&showapi_sign="+APISECRET;
@@ -64,6 +69,10 @@ public class Fragment3 extends Fragment {
                     pictureBean = (PictureBean)msg.obj;
                     Log.e(TAG, "onResponse: "+  pictureBean.getShowapi_res_body().getPagebean().getAllNum() );
                     imageUrl = new ImageUrl(pictureBean);
+                    urls = imageUrl.getBitmapList();
+
+                    adapter.setFirstLoadImage(true);
+                    updata();
                     break;
                 default:
                     break;
@@ -75,6 +84,8 @@ public class Fragment3 extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.layout_fragment_3,null);
+        Log.e(TAG, "onCreateView: " );
+        imageCache = ImageCache.getInstance();
         if (okHttp3Util == null){
             okHttp3Util = new OkHttp3Util();
         }
@@ -111,18 +122,34 @@ public class Fragment3 extends Fragment {
                 Toast.makeText(getContext(),"item long click " + position,Toast.LENGTH_SHORT).show();
             }
         });
+
         adapter.setLoadMode(LoadMode.PULLUP);
         adapter.setLoadMoreListener(new BaseAdapter.OnLoadMoreListener() {
             @Override
             public void loadMore() {
-                //updata();
+                updata();
             }
 
             @Override
             public void setImage() {
-                updata();
+                //updata();
+                adapter.setFirstLoadImage(false);
+                adapter.setShowImage(new NormalAdapter.ShowImage() {
+                    @Override
+                    public void setShowImage(ImageView image, String url) {
+                        try {
+                            Log.e(TAG, "setShowImage: " );
+                            imageCache.showImage(image,url);
+                        } catch (ExecutionException e) {
+                            e.printStackTrace();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
             }
         });
+
         return view;
     }
     public void initSwipeRefreshLayout(){
@@ -131,15 +158,15 @@ public class Fragment3 extends Fragment {
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
+                updata();
             }
         });
     }
     public void updata(){
         refreshLayout.setRefreshing(false);
-        List<String> urls = imageUrl.getBitmapList();
+        //List<String> urls = imageUrl.getBitmapList();
         if (urls != null){
-            for ( int i = 0; i < getPageItem();i++){
+            for ( int i = 0; i < 30;i++){
                 adapter.addData(urls.get(count));
                 count++;
                 //Log.e(TAG, "updata: " + urls.get(count) );
@@ -155,7 +182,13 @@ public class Fragment3 extends Fragment {
         }
         imageCache = ImageCache.getInstance();
         imageCache.setMaxWidth(1080 / 3);
-        //stringList.add()
+        //urls = imageUrl.getBitmapList();
+        /*
+        for ( int i = 0; i < 20;i++){
+            stringList.add(urls.get(count));
+            count++;
+        }
+        */
     }
 
     public int getPageItem() {
@@ -164,5 +197,70 @@ public class Fragment3 extends Fragment {
 
     public void setPageItem(int pageItem) {
         this.pageItem = pageItem;
+    }
+
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Log.e(TAG, "onAttach: ");
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Log.e(TAG, "onCreate: " );
+    }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Log.e(TAG, "onActivityCreated: " );
+    }
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.e(TAG, "onStart: " );
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.e(TAG, "onResume: " );
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.e(TAG, "onPause: " );
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.e(TAG, "onStop: " );
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.e(TAG, "onDestroyView: " );
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.e(TAG, "onDestroy: " );
+
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.e(TAG, "onDetach: " );
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 }

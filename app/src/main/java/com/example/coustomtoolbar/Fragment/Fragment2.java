@@ -48,12 +48,7 @@ public class Fragment2 extends Fragment {
         rv.setAdapter(adapter);
         rv.setItemAnimator(new DefaultItemAnimator());
         rv.addItemDecoration(new SpaceDecoration(5,5));
-        rv.addOnScrollListener(new LoadMoreScrollListener(LoadMode.PULLUP) {
-            @Override
-            public void onLoadMore() {
-                adapter.updata(18);
-            }
-        });
+
         return view;
     }
 

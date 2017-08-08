@@ -17,6 +17,7 @@ import android.view.View;
 import com.example.coustomtoolbar.Fragment.Fragment1;
 import com.example.coustomtoolbar.Fragment.Fragment2;
 import com.example.coustomtoolbar.Fragment.Fragment3;
+import com.example.coustomtoolbar.Fragment.PlusOneFragment;
 import com.example.coustomtoolbar.Util.ScreenUtil;
 
 import java.util.ArrayList;
@@ -67,11 +68,12 @@ public class Coordinator extends AppCompatActivity {
         mFragment.add(new Fragment1());
         mFragment.add(new Fragment2());
         mFragment.add(new Fragment3());
+        mFragment.add(new PlusOneFragment());
     }
 
     private class ViewPagerAdapter extends FragmentPagerAdapter{
         private List<Fragment> fragments;
-        private  final String[] mTitles= new String[]{"Home","Classify","Setting"};
+        private  final String[] mTitles= new String[]{"Home","Classify","Setting","haha"};
         ViewPagerAdapter(FragmentManager fm,List<Fragment> fragment) {
             super(fm);
             fragments =fragment;

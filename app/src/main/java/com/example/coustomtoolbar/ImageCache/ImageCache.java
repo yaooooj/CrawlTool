@@ -1,9 +1,13 @@
 package com.example.coustomtoolbar.ImageCache;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +18,7 @@ import android.widget.ImageView;
 
 import com.example.coustomtoolbar.Adapter.MyAdapter;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -23,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import okhttp3.internal.cache.DiskLruCache;
+
 /**
  * Created by SEELE on 2017/7/25.
  */
@@ -31,20 +38,25 @@ public class ImageCache {
     private static final String TAG = "ImageCache";
     public static ImageCache mImageCache;
     private  LruCache<String,Bitmap> mLruCache;
+    private DiskLruCache diskLruCache = null;
     private int MaxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
     private int cacheSize = MaxMemory / 8;
     private int maxWidth;
-    private ImageCache() {
+    private ImageCache(Context context) {
         mLruCache = new LruCache<String, Bitmap>(cacheSize){
             @Override
             protected int sizeOf(String key, Bitmap bitmap) {
                 return bitmap.getByteCount() / 1024;
             }
         };
+        File cacheDir = getDiskLruCacheDir(context,"bitmap");
+        if (cacheDir.exists()){
+            cacheDir.mkdirs();
+        }
     }
-    public static ImageCache getInstance(){
+    public static ImageCache getInstance(Context context){
         if (mImageCache == null){
-            mImageCache = new ImageCache();
+            mImageCache = new ImageCache(context);
         }
         return mImageCache;
     }
@@ -79,6 +91,27 @@ public class ImageCache {
 
     }
 
+    public File getDiskLruCacheDir(Context context,String uniqueName){
+        String cahceDir;
+
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
+                || !Environment.isExternalStorageRemovable()){
+            cahceDir = context.getExternalCacheDir().getPath();
+        }else {
+            cahceDir = context.getCacheDir().getPath();
+        }
+        return new File(cahceDir + File.separator + uniqueName);
+    }
+
+    public int getAppVersion(Context context){
+        try {
+            PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(),0);
+            return info.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return 1;
+    }
 
     public  class BitmapTask extends AsyncTask<String, Void, Bitmap> {
         private int reqWidth;

@@ -99,12 +99,7 @@ public class Fragment1 extends Fragment{
         rv.setItemAnimator(new DefaultItemAnimator());
         rv.addItemDecoration(new SpaceDecoration(5,5));
 
-        rv.addOnScrollListener(new LoadMoreScrollListener(LoadMode.PULLUP) {
-            @Override
-            public void onLoadMore() {
 
-            }
-        });
         return view;
     }
     public void initSwipeRefreshLayout(){

@@ -430,12 +430,15 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
                 int visibleItemCount = layoutManager.getChildCount();
                 int totalItemCount = layoutManager.getItemCount() - getHeaderViewCount();
                 Log.e(TAG, "onScrollStateChanged: " + visibleItemCount +" + " + totalItemCount + " + " + lastVisibleItem );
-                if (totalItemCount - lastVisibleItem == 0 &&LoadMode.PULLUP == getLoadMode()){
-                    if (newState == RecyclerView.SCROLL_STATE_DRAGGING){
-                        onLoadMoreListener.loadMore();
-                    }
+                if (LoadMode.PULLUP == getLoadMode()){
                     if ( newState == RecyclerView.SCROLL_STATE_IDLE ){
                         onLoadMoreListener.setImage();
+                    }
+                    if (newState == RecyclerView.SCROLL_STATE_DRAGGING){
+                        if (totalItemCount - lastVisibleItem == 0){
+                            onLoadMoreListener.loadMore();
+                        }
+
                     }
                 }
 
