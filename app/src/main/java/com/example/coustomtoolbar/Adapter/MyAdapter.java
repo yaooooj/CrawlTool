@@ -46,7 +46,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         datas = data;
         heights = new ArrayList<>();
         getScreenWidth(context);
-        imageCache = ImageCache.getInstance();
+        imageCache = ImageCache.getInstance(context);
 
     }
     public int  getScreenWidth(Context context){

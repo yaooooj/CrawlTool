@@ -1,7 +1,6 @@
 package com.example.coustomtoolbar.Fragment;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -9,16 +8,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.Toast;
 
 import com.example.coustomtoolbar.Adapter.BaseAdapter;
@@ -28,9 +24,7 @@ import com.example.coustomtoolbar.ImageCache.ImageCache;
 import com.example.coustomtoolbar.ImageCache.ImageUrl;
 import com.example.coustomtoolbar.R;
 import com.example.coustomtoolbar.RecyclerViewUtil.LoadMode;
-import com.example.coustomtoolbar.RecyclerViewUtil.LoadMoreScrollListener;
-import com.example.coustomtoolbar.RecyclerViewUtil.SpaceDecoration;
-import com.example.coustomtoolbar.Util.OkHttp3Util;
+import com.example.coustomtoolbar.NetUtil.OkHttp3Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,9 +79,9 @@ public class Fragment3 extends Fragment {
                              @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.layout_fragment_3,null);
         Log.e(TAG, "onCreateView: " );
-        imageCache = ImageCache.getInstance();
+        imageCache = ImageCache.getInstance(getContext());
         if (okHttp3Util == null){
-            okHttp3Util = new OkHttp3Util();
+            okHttp3Util = new OkHttp3Util(getContext());
         }
         okHttp3Util.executeGet(URL_PICTURE,handler3, PictureBean.class,2);
         initData();
@@ -180,7 +174,7 @@ public class Fragment3 extends Fragment {
         if (stringList == null){
             stringList = new ArrayList<>();
         }
-        imageCache = ImageCache.getInstance();
+        imageCache = ImageCache.getInstance(getContext());
         imageCache.setMaxWidth(1080 / 3);
         //urls = imageUrl.getBitmapList();
         /*

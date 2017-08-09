@@ -10,30 +10,21 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.example.coustomtoolbar.Adapter.MyAdapter;
 import com.example.coustomtoolbar.Bean.PictureBean;
-import com.example.coustomtoolbar.Bean.PictureBody;
-import com.example.coustomtoolbar.Bean.PictureContentList;
-import com.example.coustomtoolbar.Bean.PictureList;
-import com.example.coustomtoolbar.Bean.PicturePageBean;
 import com.example.coustomtoolbar.ImageCache.ImageCache;
 import com.example.coustomtoolbar.ImageCache.ImageUrl;
-import com.example.coustomtoolbar.ImageCache.SetBitmapListener;
 import com.example.coustomtoolbar.R;
-import com.example.coustomtoolbar.RecyclerViewUtil.LoadMode;
-import com.example.coustomtoolbar.RecyclerViewUtil.LoadMoreScrollListener;
-import com.example.coustomtoolbar.Util.OkHttp3Util;
+import com.example.coustomtoolbar.NetUtil.OkHttp3Util;
 import com.example.coustomtoolbar.RecyclerViewUtil.SpaceDecoration;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import okhttp3.Response;
 
@@ -85,7 +76,7 @@ public class Fragment1 extends Fragment{
         initData();
         //RecyclerView
         if (okHttp3Util == null){
-            okHttp3Util = new OkHttp3Util();
+            okHttp3Util = new OkHttp3Util(getContext());
         }
         okHttp3Util.executeGet(URL_PICTURE,handler2, PictureBean.class,1);
 
@@ -118,7 +109,7 @@ public class Fragment1 extends Fragment{
         mData = new ArrayList<>();
         gson = new Gson();
         bitmapList = new ArrayList<>();
-        imageCache = ImageCache.getInstance();
+        imageCache = ImageCache.getInstance(getContext());
         imageCache.setMaxWidth(1080 / 3);
 
     }

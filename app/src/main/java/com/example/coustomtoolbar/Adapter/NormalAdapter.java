@@ -33,7 +33,7 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
     public NormalAdapter(Context context, int layoutResId, List<String> data, RecyclerView recyclerView) {
         super(context, layoutResId, data, recyclerView);
         getScreenWidth(context);
-        mImageCache = ImageCache.getInstance();
+        mImageCache = ImageCache.getInstance(context);
     }
 
 

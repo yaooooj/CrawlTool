@@ -1,4 +1,4 @@
-package com.example.coustomtoolbar.Util;
+package com.example.coustomtoolbar.NetUtil;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
