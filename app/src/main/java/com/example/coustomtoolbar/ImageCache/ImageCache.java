@@ -10,7 +10,14 @@ import android.os.Environment;
 import android.util.Log;
 import android.util.LruCache;
 import android.widget.ImageView;
+
+import com.jakewharton.disklrucache.DiskLruCache;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -19,7 +26,6 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ExecutionException;
-import okhttp3.internal.cache.DiskLruCache;
 
 /**
  * Created by SEELE on 2017/7/25.
@@ -79,16 +85,43 @@ public class ImageCache {
     public void showImage(ImageView imageView, String url) throws ExecutionException, InterruptedException {
 
         if (getBitmapFromCache(url) != null){
-            Log.e(TAG, "addBitmapToMemoryCache: "+ "form cache" );
+            Log.e(TAG, "addBitmapFromMemoryCache: "+ "form cache" );
                 if (imageView.getTag() == url){
                     imageView.setImageBitmap(getBitmapFromCache(url));
                 }
+        }else if (getBitmapFromDiskLruCache(url) != null){
+            Log.e(TAG, "addBitmapFromDiskMemoryCache: "+ "form disk cache" );
+            imageView.setImageBitmap(getBitmapFromDiskLruCache(url));
         }
         else {
             Log.e(TAG, "showImage: " + "form network" );
             new BitmapTask(url,imageView).execute(url);
         }
 
+    }
+
+    private Bitmap getBitmapFromDiskLruCache(String url){
+        DiskLruCache.Snapshot snapshot = null;
+        FileInputStream fileInputStream = null;
+        FileDescriptor descriptor = null;
+        Bitmap bitmap = null;
+        String key = hashKeyForDisk(url);
+        try {
+            snapshot = diskLruCache.get(key);
+            if (snapshot != null){
+                fileInputStream = (FileInputStream) snapshot.getInputStream(0);
+                descriptor = fileInputStream.getFD();
+            }
+
+            if (descriptor != null){
+                bitmap = BitmapFactory.decodeFileDescriptor(descriptor);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return bitmap;
     }
 
     private File getDiskLruCacheDir(Context context,String uniqueName){
@@ -139,25 +172,46 @@ public class ImageCache {
         return stringBuilder.toString();
     }
 
-    private void addBitmapToDiskLurCache(InputStream in,String url) throws IOException {
-        String key = hashKeyForDisk(url);
-        OutputStream outputStream = null;
+    private void addBitmapToDiskLurCache(BufferedInputStream in,String url) throws IOException {
+
+        OutputStream outputStream= null;
+        //BufferedOutputStream bufferedOutputStream;
         try {
+            String key = hashKeyForDisk(url);
             com.jakewharton.disklrucache.DiskLruCache.Editor editor = diskLruCache.edit(key);
             if (editor != null){
                 outputStream = editor.newOutputStream(0);
-                int b;
-                Log.e(TAG, "addBitmapToDiskLurCache: " + "11111111111111111111" );
-                while ((b = in.read()) != -1){
-                    outputStream.write(b);
+                if (cacheToDisk(in,outputStream)){
+                    editor.commit();
+                } else {
+                    editor.abort();
                 }
             }
+            diskLruCache.flush();
         } catch (IOException e) {
             if (outputStream != null){
                 outputStream.close();
             }
             e.printStackTrace();
         }
+    }
+    private boolean cacheToDisk(BufferedInputStream in,OutputStream outputStream){
+        BufferedOutputStream bufferedOutputStream;
+        int b;
+        Log.e(TAG, "addBitmapToDiskLurCache: " + "11111111111111111111" );
+        try {
+            bufferedOutputStream = new BufferedOutputStream(outputStream,10 * 1024);
+            while ((b = in.read()) != -1){
+                //outputStream.write(b);
+                bufferedOutputStream.write(b);
+            }
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+
     }
     private  class BitmapTask extends AsyncTask<String, Void, Bitmap> {
         private int reqWidth;
@@ -172,8 +226,21 @@ public class ImageCache {
         @Override
         protected Bitmap doInBackground(String... strings) {
             Bitmap bitmap = null;
+            String key = hashKeyForDisk(url);
+
             try {
+                //com.jakewharton.disklrucache.DiskLruCache.Editor editor = diskLruCache.edit(key);
+                //OutputStream out = editor.newOutputStream(0);
                 bitmap = getBitMapFromNetWork(url);
+                /*
+                if (bitmap == null){
+                    Log.e(TAG, "addBitmapToDiskLurCache: " + "11111111111111111111" );
+                    editor.commit();
+                }else {
+                    editor.abort();
+                }
+                */
+                //diskLruCache.flush();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -183,7 +250,6 @@ public class ImageCache {
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             if (imageView.getTag() == url){
-
                 Log.e(TAG, "getBitMapFromNetWork: " + url );
                 addBitmapToMemoryCache(url,bitmap);
                 imageView.setImageBitmap(bitmap);
@@ -193,6 +259,11 @@ public class ImageCache {
         private Bitmap getBitMapFromNetWork(String url) throws IOException{
             Bitmap bitmap = null;
             HttpURLConnection con = null;
+            DiskLruCache.Snapshot snapshot;
+            FileInputStream fileInputStream;
+            FileDescriptor descriptor = null;
+            BufferedInputStream inputStream = null;
+            String key = hashKeyForDisk(url);
             try {
                 URL imageUrl = new URL(url);
                 con = (HttpURLConnection) imageUrl.openConnection();
@@ -201,14 +272,32 @@ public class ImageCache {
                 con.setDoInput(true);
                 con.connect();
                 InputStream in = con.getInputStream();
-                bitmap = BitmapFactory.decodeStream(in);
-                addBitmapToDiskLurCache(in,url);
-                in.close();
-            }finally {
-                if (con != null){
-                    con.disconnect();
+                inputStream = new BufferedInputStream(in,8 * 1024);
+                addBitmapToDiskLurCache(inputStream,url);
+
+                snapshot = diskLruCache.get(key);
+
+                if (snapshot != null){
+                    fileInputStream = (FileInputStream) snapshot.getInputStream(0);
+                    descriptor = fileInputStream.getFD();
                 }
-            }
+
+                if (descriptor != null){
+                    bitmap = BitmapFactory.decodeFileDescriptor(descriptor);
+                }
+
+                }finally {
+                    if (con != null) {
+                        con.disconnect();
+                    }
+                    try {
+                        if (inputStream != null) {
+                            inputStream.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
 
             return bitmap;
         }
