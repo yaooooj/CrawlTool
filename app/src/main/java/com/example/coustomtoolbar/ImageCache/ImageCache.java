@@ -200,7 +200,7 @@ public class ImageCache {
         int b;
         Log.e(TAG, "addBitmapToDiskLurCache: " + "11111111111111111111" );
         try {
-            bufferedOutputStream = new BufferedOutputStream(outputStream,10 * 1024);
+            bufferedOutputStream = new BufferedOutputStream(outputStream);
             while ((b = in.read()) != -1){
                 //outputStream.write(b);
                 bufferedOutputStream.write(b);
@@ -251,8 +251,11 @@ public class ImageCache {
         protected void onPostExecute(Bitmap bitmap) {
             if (imageView.getTag() == url){
                 Log.e(TAG, "getBitMapFromNetWork: " + url );
-                addBitmapToMemoryCache(url,bitmap);
-                imageView.setImageBitmap(bitmap);
+                if (bitmap != null){
+                    addBitmapToMemoryCache(url,bitmap);
+                    imageView.setImageBitmap(bitmap);
+                }
+
             }
 
         }
@@ -272,17 +275,20 @@ public class ImageCache {
                 con.setDoInput(true);
                 con.connect();
                 InputStream in = con.getInputStream();
-                inputStream = new BufferedInputStream(in,8 * 1024);
+                inputStream = new BufferedInputStream(in);
+
                 addBitmapToDiskLurCache(inputStream,url);
 
                 snapshot = diskLruCache.get(key);
 
                 if (snapshot != null){
+                    Log.e(TAG, "getBitMapFromNetWork: " + "snapshot" );
                     fileInputStream = (FileInputStream) snapshot.getInputStream(0);
                     descriptor = fileInputStream.getFD();
                 }
 
                 if (descriptor != null){
+                    Log.e(TAG, "getBitMapFromNetWork: "+"descriptor" );
                     bitmap = BitmapFactory.decodeFileDescriptor(descriptor);
                 }
 

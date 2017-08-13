@@ -63,7 +63,7 @@ public class OkHttp3Util {
         File httpCacheDirectory  = new File(mContext.getCacheDir(),"response");
         Cache cache = new Cache(httpCacheDirectory,10 * 1024 * 1024);
 
-
+        //CacheControl cacheControl1 = new CacheControl().
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(mInterceptor)
@@ -73,6 +73,7 @@ public class OkHttp3Util {
         Request request1 = new Request.Builder()
                 .url(url)
                 .cacheControl(CacheControl.FORCE_CACHE)
+
                 .build();
 
         Request request2 = new Request.Builder()

@@ -48,7 +48,7 @@ public class Fragment3 extends Fragment {
     private List<String> urls;
     int count = 0;
     private int pageItem = 10;
-    private static int page = 2;
+    private static int page = 1;
     private static int type = 4001;
 
     private static final String APIKEY = "42731";
