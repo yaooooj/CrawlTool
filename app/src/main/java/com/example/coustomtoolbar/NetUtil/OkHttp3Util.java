@@ -63,7 +63,9 @@ public class OkHttp3Util {
         File httpCacheDirectory  = new File(mContext.getCacheDir(),"response");
         Cache cache = new Cache(httpCacheDirectory,10 * 1024 * 1024);
 
-        //CacheControl cacheControl1 = new CacheControl().
+        CacheControl cacheControl1 = new CacheControl.Builder()
+                .maxAge(10,TimeUnit.MILLISECONDS)
+                .build();
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(mInterceptor)
@@ -78,7 +80,7 @@ public class OkHttp3Util {
 
         Request request2 = new Request.Builder()
                 .url(url)
-                .cacheControl(CacheControl.FORCE_NETWORK)
+                .cacheControl(cacheControl1)
                 .build();
 
         try {
@@ -110,7 +112,7 @@ public class OkHttp3Util {
                         Object object;
 
                         if (response.code() == 200){
-                            Log.e(TAG, "From NetWorkCacheControl: ");
+                            Log.e(TAG, "From NetWorkCacheControl: " + "NetWork NetWork NetWork NetWork NetWork ");
                             try {
                                 object = GsonUtil.phraseJsonWithGson(response.body().string(),claszz);
                                 message.obj = object;

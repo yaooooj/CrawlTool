@@ -58,7 +58,7 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
 
             ImageView imageView = holder.getView(R.id.fragment2_image);
             ViewGroup.LayoutParams params = imageView.getLayoutParams();
-            params.width =  width;
+            params.width =  width / 2;
             params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             imageView.setMaxHeight(width);
             imageView.setMaxHeight(width * 3);
@@ -81,17 +81,6 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
                 showImage.setShowImage(imageView,s);
             }
 
-            /*
-            try {
-                mImageCache.showImage(imageView,s);
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            */
-
-            //holder.setImageViewResource(R.id.fragment2_image,R.mipmap.ic_favorite_black_24dp);
         }
     }
 

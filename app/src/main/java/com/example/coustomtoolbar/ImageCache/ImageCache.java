@@ -38,7 +38,7 @@ public class ImageCache {
     private com.jakewharton.disklrucache.DiskLruCache diskLruCache = null;
     private int MaxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
     private int cacheSize = MaxMemory / 8;
-
+    private BitmapFactory.Options options1 = new BitmapFactory.Options();
     private int maxWidth;
 
     private ImageCache(Context context) {
@@ -156,7 +156,6 @@ public class ImageCache {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-
         return cacheKey;
     }
 
@@ -196,22 +195,25 @@ public class ImageCache {
         }
     }
     private boolean cacheToDisk(BufferedInputStream in,OutputStream outputStream){
-        BufferedOutputStream bufferedOutputStream;
+        BufferedOutputStream bufferedOutputStream = null;
         int b;
         Log.e(TAG, "addBitmapToDiskLurCache: " + "11111111111111111111" );
         try {
             bufferedOutputStream = new BufferedOutputStream(outputStream);
             while ((b = in.read()) != -1){
-                //outputStream.write(b);
                 bufferedOutputStream.write(b);
             }
             return true;
         } catch (IOException e) {
             e.printStackTrace();
+        }finally {
+            try {
+                bufferedOutputStream.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
         return false;
-
     }
     private  class BitmapTask extends AsyncTask<String, Void, Bitmap> {
         private int reqWidth;
@@ -226,21 +228,8 @@ public class ImageCache {
         @Override
         protected Bitmap doInBackground(String... strings) {
             Bitmap bitmap = null;
-            String key = hashKeyForDisk(url);
-
             try {
-                //com.jakewharton.disklrucache.DiskLruCache.Editor editor = diskLruCache.edit(key);
-                //OutputStream out = editor.newOutputStream(0);
                 bitmap = getBitMapFromNetWork(url);
-                /*
-                if (bitmap == null){
-                    Log.e(TAG, "addBitmapToDiskLurCache: " + "11111111111111111111" );
-                    editor.commit();
-                }else {
-                    editor.abort();
-                }
-                */
-                //diskLruCache.flush();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -250,19 +239,16 @@ public class ImageCache {
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             if (imageView.getTag() == url){
-                Log.e(TAG, "getBitMapFromNetWork: " + url );
                 if (bitmap != null){
+                    Log.e(TAG, "getBitMapFromNetWork: " + url );
                     addBitmapToMemoryCache(url,bitmap);
                     imageView.setImageBitmap(bitmap);
                 }
-
             }
-
         }
         private Bitmap getBitMapFromNetWork(String url) throws IOException{
             Bitmap bitmap = null;
             HttpURLConnection con = null;
-            DiskLruCache.Snapshot snapshot;
             FileInputStream fileInputStream;
             FileDescriptor descriptor = null;
             BufferedInputStream inputStream = null;
@@ -276,22 +262,22 @@ public class ImageCache {
                 con.connect();
                 InputStream in = con.getInputStream();
                 inputStream = new BufferedInputStream(in);
-
                 addBitmapToDiskLurCache(inputStream,url);
-
-                snapshot = diskLruCache.get(key);
+                DiskLruCache.Snapshot snapshot = diskLruCache.get(key);
 
                 if (snapshot != null){
                     Log.e(TAG, "getBitMapFromNetWork: " + "snapshot" );
                     fileInputStream = (FileInputStream) snapshot.getInputStream(0);
+                    //InputStream inBitmap = snapshot.getInputStream(0);
                     descriptor = fileInputStream.getFD();
                 }
 
                 if (descriptor != null){
                     Log.e(TAG, "getBitMapFromNetWork: "+"descriptor" );
                     bitmap = BitmapFactory.decodeFileDescriptor(descriptor);
+                    //return BitmapFactory.decodeFileDescriptor(descriptor,null,options1);
+                    return bitmap;
                 }
-
                 }finally {
                     if (con != null) {
                         con.disconnect();
@@ -304,8 +290,7 @@ public class ImageCache {
                         e.printStackTrace();
                     }
                 }
-
-            return bitmap;
+            return null;
         }
     }
 
