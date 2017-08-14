@@ -5,8 +5,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.audiofx.AudioEffect;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
 import android.widget.ImageView;
@@ -40,8 +42,13 @@ public class ImageCache {
     private int cacheSize = MaxMemory / 8;
     private BitmapFactory.Options options1 = new BitmapFactory.Options();
     private int maxWidth;
+    private int width;
+    private int height;
+    private Context mContext;
 
     private ImageCache(Context context) {
+        mContext = context;
+        getScreenWidth(context);
         mLruCache = new LruCache<String, Bitmap>(cacheSize){
             @Override
             protected int sizeOf(String key, Bitmap bitmap) {
@@ -54,7 +61,7 @@ public class ImageCache {
         }
         try {
             diskLruCache = com.jakewharton.disklrucache.DiskLruCache
-                    .open(cacheDir,getAppVersion(context),1,10 * 1024 * 1024);
+                    .open(cacheDir,getAppVersion(context),1,100 * 1024 * 1024);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -73,48 +80,52 @@ public class ImageCache {
         }
     }
     private Bitmap getBitmapFromCache(String key){
-
+        Log.e(TAG, "getBitmapFromCache: " + "form memory cache " );
         return mLruCache.get(key);
     }
-
+    public int  getScreenWidth(Context context){
+        DisplayMetrics displayMetrics  = context.getResources().getDisplayMetrics();
+        width = displayMetrics.widthPixels;
+        height = 3 * width;
+        Log.e(TAG, "getScreenWidth: "+ width );
+        return width;
+    }
     public void setMaxWidth(int maxWidth){
         this.maxWidth = maxWidth;
     }
 
 
     public void showImage(ImageView imageView, String url) throws ExecutionException, InterruptedException {
-
         if (getBitmapFromCache(url) != null){
-            Log.e(TAG, "addBitmapFromMemoryCache: "+ "form cache" );
-                if (imageView.getTag() == url){
-                    imageView.setImageBitmap(getBitmapFromCache(url));
-                }
-        }else if (getBitmapFromDiskLruCache(url) != null){
-            Log.e(TAG, "addBitmapFromDiskMemoryCache: "+ "form disk cache" );
-            imageView.setImageBitmap(getBitmapFromDiskLruCache(url));
+            if (imageView.getTag() == url){
+                imageView.setImageBitmap(getBitmapFromCache(url));
+            }
         }
         else {
-            Log.e(TAG, "showImage: " + "form network" );
+
             new BitmapTask(url,imageView).execute(url);
         }
-
     }
 
     private Bitmap getBitmapFromDiskLruCache(String url){
         DiskLruCache.Snapshot snapshot = null;
-        FileInputStream fileInputStream = null;
+        FileInputStream fileInput;
+        BufferedInputStream in = null;
         FileDescriptor descriptor = null;
         Bitmap bitmap = null;
         String key = hashKeyForDisk(url);
         try {
             snapshot = diskLruCache.get(key);
             if (snapshot != null){
-                fileInputStream = (FileInputStream) snapshot.getInputStream(0);
-                descriptor = fileInputStream.getFD();
+                fileInput = (FileInputStream) snapshot.getInputStream(0);
+                descriptor = fileInput.getFD();
+                //in = new BufferedInputStream(snapshot.getInputStream(0),8 * 1024);
+                //bitmap = BitmapFactory.decodeStream(in);
             }
 
             if (descriptor != null){
-                bitmap = BitmapFactory.decodeFileDescriptor(descriptor);
+                Log.e(TAG, "getBitmapFromDiskLruCache: "+ "Load from disk " );
+                bitmap = decodeSampleBitmapFromResource(descriptor,width,height);
             }
 
         } catch (IOException e) {
@@ -197,7 +208,6 @@ public class ImageCache {
     private boolean cacheToDisk(BufferedInputStream in,OutputStream outputStream){
         BufferedOutputStream bufferedOutputStream = null;
         int b;
-        Log.e(TAG, "addBitmapToDiskLurCache: " + "11111111111111111111" );
         try {
             bufferedOutputStream = new BufferedOutputStream(outputStream);
             while ((b = in.read()) != -1){
@@ -228,11 +238,19 @@ public class ImageCache {
         @Override
         protected Bitmap doInBackground(String... strings) {
             Bitmap bitmap = null;
-            try {
-                bitmap = getBitMapFromNetWork(url);
-            } catch (IOException e) {
-                e.printStackTrace();
+
+            if (getBitmapFromDiskLruCache(url) != null){
+
+                bitmap = getBitmapFromDiskLruCache(url);
+
+            }else {
+                try {
+                    bitmap = getBitMapFromNetWork(url);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+
             return bitmap;
         }
 
@@ -240,9 +258,12 @@ public class ImageCache {
         protected void onPostExecute(Bitmap bitmap) {
             if (imageView.getTag() == url){
                 if (bitmap != null){
+
                     Log.e(TAG, "getBitMapFromNetWork: " + url );
                     addBitmapToMemoryCache(url,bitmap);
                     imageView.setImageBitmap(bitmap);
+                    imageView.getMaxWidth();
+
                 }
             }
         }
@@ -262,21 +283,22 @@ public class ImageCache {
                 con.connect();
                 InputStream in = con.getInputStream();
                 inputStream = new BufferedInputStream(in);
+
+
                 addBitmapToDiskLurCache(inputStream,url);
+
                 DiskLruCache.Snapshot snapshot = diskLruCache.get(key);
 
                 if (snapshot != null){
-                    Log.e(TAG, "getBitMapFromNetWork: " + "snapshot" );
                     fileInputStream = (FileInputStream) snapshot.getInputStream(0);
                     //InputStream inBitmap = snapshot.getInputStream(0);
                     descriptor = fileInputStream.getFD();
                 }
 
                 if (descriptor != null){
-                    Log.e(TAG, "getBitMapFromNetWork: "+"descriptor" );
-                    bitmap = BitmapFactory.decodeFileDescriptor(descriptor);
-                    //return BitmapFactory.decodeFileDescriptor(descriptor,null,options1);
-                    return bitmap;
+                    //bitmap = BitmapFactory.decodeFileDescriptor(descriptor);
+                    return BitmapFactory.decodeFileDescriptor(descriptor,null,options1);
+                    //return bitmap;
                 }
                 }finally {
                     if (con != null) {
@@ -294,23 +316,34 @@ public class ImageCache {
         }
     }
 
-    private  static Bitmap decodeSampleBitmapFromResource(InputStream in,int reqWidth ){
+     private  Bitmap decodeSampleBitmapFromResource(FileDescriptor in, int reqWidth,int height){
         final BitmapFactory.Options options = new BitmapFactory.Options();
+
         options.inJustDecodeBounds = true;
-        //BitmapFactory.decodeStream(in);
-        BitmapFactory.decodeStream(in,null,options);
-        options.inSampleSize = calculateInSampleSize(options,reqWidth);
+        //BitmapFactory.decodeStream(in,null,options);
+        BitmapFactory.decodeFileDescriptor(in,null,options);
+
+        options.inSampleSize = calculateInSampleSize(options,reqWidth,height);
+
         options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeStream(in,null,options);
+
+        return BitmapFactory.decodeFileDescriptor(in,null,options);
     }
-    private static int calculateInSampleSize(BitmapFactory.Options options,
-                                            int reqWidth){
+    private  int calculateInSampleSize(BitmapFactory.Options options,
+                                            int reqWidth,int reqHeight){
+
         final int width = options.outWidth;
+        final int height = options.outHeight;
         int inSampleSize = 1;
+        Log.e(TAG, "calculateInSampleSize: " );
         if ( width > reqWidth){
 
             final int widthRatio = Math.round((float)width / (float)reqWidth);
             inSampleSize = widthRatio;
+        }
+        if (height > reqHeight){
+            final int heightRatio = Math.round((float) height / (float) reqHeight);
+            inSampleSize = heightRatio;
         }
         return inSampleSize;
     }
