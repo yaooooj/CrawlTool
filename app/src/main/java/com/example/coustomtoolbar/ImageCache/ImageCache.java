@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.LruCache;
 import android.widget.ImageView;
@@ -25,7 +26,16 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Time;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by SEELE on 2017/7/25.
@@ -33,13 +43,13 @@ import java.util.concurrent.ExecutionException;
 
 public class ImageCache {
     private static final String TAG = "ImageCache";
-    public static ImageCache mImageCache;
+    private static ImageCache mImageCache;
     private  LruCache<String,Bitmap> mLruCache;
     private com.jakewharton.disklrucache.DiskLruCache diskLruCache = null;
-    private int MaxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-    private int cacheSize = MaxMemory / 8;
-    private BitmapFactory.Options options1 = new BitmapFactory.Options();
     private int maxWidth;
+    private static final int MaxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+    private static final int cacheSize = MaxMemory / 8;
+
 
     private ImageCache(Context context) {
         mLruCache = new LruCache<String, Bitmap>(cacheSize){
@@ -58,6 +68,7 @@ public class ImageCache {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        //initExecuteService();
 
     }
     public static ImageCache getInstance(Context context){
@@ -146,7 +157,7 @@ public class ImageCache {
         return 1;
     }
 
-    public String hashKeyForDisk(String key){
+    private String hashKeyForDisk(String key){
         String cacheKey = null;
 
         try {
@@ -215,6 +226,8 @@ public class ImageCache {
         }
         return false;
     }
+
+
     private  class BitmapTask extends AsyncTask<String, Void, Bitmap> {
         private int reqWidth;
         private String url;

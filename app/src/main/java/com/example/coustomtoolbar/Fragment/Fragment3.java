@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.TimeUtils;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -146,7 +147,12 @@ public class Fragment3 extends Fragment {
                 });
             }
         });
+        boolean handler1 = new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
 
+            }
+        }, 1000);
         return view;
     }
     public void initSwipeRefreshLayout(){

@@ -1,6 +1,7 @@
 package com.example.coustomtoolbar.Adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,16 +20,16 @@ import java.util.List;
 
 public class MyAdapter2 extends RecyclerView.Adapter<MyAdapter2.Fargment2ViewHodler> {
     public static final String TAG = "MyAdapter2";
-    private List<String> mData;
+    private List<Bitmap> mData;
     private Context mContext;
-    public MyAdapter2(Context context, List<String> mData) {
+    public MyAdapter2(Context context, List<Bitmap> mData) {
         this.mData = mData;
         this.mContext = context;
     }
 
-    public void updata(int count){
-        for (int i =0; i < count;i++){
-            mData.add("it's  new beautiful day");
+    public void updata(Bitmap count){
+        if (count != null){
+            mData.add(count);
         }
         notifyDataSetChanged();
     }
@@ -43,6 +44,7 @@ public class MyAdapter2 extends RecyclerView.Adapter<MyAdapter2.Fargment2ViewHod
     @Override
     public void onBindViewHolder(Fargment2ViewHodler holder, int position) {
         holder.mImageView.setImageResource(R.mipmap.ic_favorite_black_24dp);
+        holder.mImageView.setImageBitmap(mData.get(position));
     }
 
     @Override

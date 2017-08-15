@@ -49,7 +49,8 @@ public class Fragment1 extends Fragment{
     private static int type = 4001;
     private static final String APIKEY = "42731";
     private static final String APISECRET = "96039fbf84ee42afaad5d66f14159c31";
-    private static final String URL_PICTURE = "http://route.showapi.com/852-2?page="+ page + "&showapi_appid="+APIKEY+"&type="+type+"&showapi_sign="+APISECRET;
+    private static final String URL_PICTURE = "http://route.showapi.com/852-2?page="+ page +
+            "&showapi_appid="+APIKEY+"&type="+type+"&showapi_sign="+APISECRET;
     private static final String URLTest = "https://api.github.com/gists/c2a7c39532239ff261be";
     private static final String APPCODE = "a2e7ba852ad505736d69a6e05f49d1ed";
     private static final String URL  = "http://route.showapi.com/852-1?&showapi_appid="+APIKEY+"&showapi_sign="+APISECRET;
