@@ -119,7 +119,7 @@ public class Fragment1 extends Fragment{
         refreshLayout.setRefreshing(false);
         if (bitmap1 != null){
             Log.e(TAG, "updata: " + bitmap1.size() );
-            for (int i =0; i < 20;i++){
+            for (int i =0; i < 40;i++){
                 adapter.addItem(bitmap1.get(i));
             }
 

@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.LruCache;
 import android.widget.ImageView;
@@ -26,16 +25,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Time;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by SEELE on 2017/7/25.
@@ -43,13 +33,19 @@ import java.util.concurrent.TimeUnit;
 
 public class ImageCache {
     private static final String TAG = "ImageCache";
-    private static ImageCache mImageCache;
+    public static ImageCache mImageCache;
     private  LruCache<String,Bitmap> mLruCache;
     private com.jakewharton.disklrucache.DiskLruCache diskLruCache = null;
+    private int MaxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+    private int cacheSize = MaxMemory / 8;
+    private BitmapFactory.Options options1 = new BitmapFactory.Options();
     private int maxWidth;
     private static final int MaxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
     private static final int cacheSize = MaxMemory / 8;
 
+    private int width;
+    private int height;
+    private Context mContext;
 
     private ImageCache(Context context) {
         mLruCache = new LruCache<String, Bitmap>(cacheSize){
@@ -64,7 +60,7 @@ public class ImageCache {
         }
         try {
             diskLruCache = com.jakewharton.disklrucache.DiskLruCache
-                    .open(cacheDir,getAppVersion(context),1,10 * 1024 * 1024);
+                    .open(cacheDir,getAppVersion(context),1,100 * 1024 * 1024);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -84,7 +80,7 @@ public class ImageCache {
         }
     }
     private Bitmap getBitmapFromCache(String key){
-
+        Log.e(TAG, "getBitmapFromCache: " + "form memory cache " );
         return mLruCache.get(key);
     }
 
@@ -96,13 +92,9 @@ public class ImageCache {
     public void showImage(ImageView imageView, String url) throws ExecutionException, InterruptedException {
 
         if (getBitmapFromCache(url) != null){
-            Log.e(TAG, "addBitmapFromMemoryCache: "+ "form cache" );
-                if (imageView.getTag() == url){
-                    imageView.setImageBitmap(getBitmapFromCache(url));
-                }
-        }else if (getBitmapFromDiskLruCache(url) != null){
-            Log.e(TAG, "addBitmapFromDiskMemoryCache: "+ "form disk cache" );
-            imageView.setImageBitmap(getBitmapFromDiskLruCache(url));
+            if (imageView.getTag() == url){
+                imageView.setImageBitmap(getBitmapFromCache(url));
+            }
         }
         else {
             Log.e(TAG, "showImage: " + "form network" );
@@ -113,15 +105,18 @@ public class ImageCache {
 
     private Bitmap getBitmapFromDiskLruCache(String url){
         DiskLruCache.Snapshot snapshot = null;
-        FileInputStream fileInputStream = null;
+        FileInputStream fileInput;
+        BufferedInputStream in = null;
         FileDescriptor descriptor = null;
         Bitmap bitmap = null;
         String key = hashKeyForDisk(url);
         try {
             snapshot = diskLruCache.get(key);
             if (snapshot != null){
-                fileInputStream = (FileInputStream) snapshot.getInputStream(0);
-                descriptor = fileInputStream.getFD();
+                fileInput = (FileInputStream) snapshot.getInputStream(0);
+                descriptor = fileInput.getFD();
+                //in = new BufferedInputStream(snapshot.getInputStream(0),8 * 1024);
+                //bitmap = BitmapFactory.decodeStream(in);
             }
 
             if (descriptor != null){
@@ -157,7 +152,7 @@ public class ImageCache {
         return 1;
     }
 
-    private String hashKeyForDisk(String key){
+    public String hashKeyForDisk(String key){
         String cacheKey = null;
 
         try {
@@ -226,8 +221,6 @@ public class ImageCache {
         }
         return false;
     }
-
-
     private  class BitmapTask extends AsyncTask<String, Void, Bitmap> {
         private int reqWidth;
         private String url;

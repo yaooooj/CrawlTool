@@ -50,7 +50,7 @@ public class Fragment3 extends Fragment {
     private List<String> urls;
     int count = 0;
     private int pageItem = 10;
-    private static int page = 4;
+    private static int page = 1;
     private static int type = 4001;
 
     private static final String APIKEY = "42731";
@@ -93,7 +93,7 @@ public class Fragment3 extends Fragment {
         //recyclerView.setLayoutManager(
        //         new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
         recyclerView.setLayoutManager(
-                new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
+                new StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL)
         );
         recyclerView.addItemDecoration(
                 new DividerItemDecoration(getContext(),DividerItemDecoration.VERTICAL));

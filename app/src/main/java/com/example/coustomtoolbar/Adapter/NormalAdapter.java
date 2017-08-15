@@ -57,12 +57,8 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
         }else {
 
             ImageView imageView = holder.getView(R.id.fragment2_image);
-            ViewGroup.LayoutParams params = imageView.getLayoutParams();
-            params.width =  width / 2;
-            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            imageView.setMaxHeight(width);
-            imageView.setMaxHeight(width * 3);
-            imageView.setLayoutParams(params);
+
+
             holder.setImageView(imageView,R.mipmap.ic_favorite_black_24dp);
             imageView.setTag(s);
 
