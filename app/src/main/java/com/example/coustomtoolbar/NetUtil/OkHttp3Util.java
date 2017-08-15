@@ -66,16 +66,18 @@ public class OkHttp3Util {
         CacheControl cacheControl1 = new CacheControl.Builder()
                 .maxAge(10,TimeUnit.MILLISECONDS)
                 .build();
+        cacheControl1.isPublic();
+
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(mInterceptor)
                 .cache(cache)
                 .build();
 
+
         Request request1 = new Request.Builder()
                 .url(url)
-                .cacheControl(CacheControl.FORCE_CACHE)
-
+                .cacheControl(cacheControl1)
                 .build();
 
         Request request2 = new Request.Builder()
@@ -83,51 +85,50 @@ public class OkHttp3Util {
                 .cacheControl(cacheControl1)
                 .build();
 
-        try {
-            Response forceCacheResponse = okHttpClient.newCall(request1).execute();
-            if (forceCacheResponse.code() != 504){
+        /*
+        Response forceCacheResponse = okHttpClient.newCall(request1).execute();
+        if (forceCacheResponse.code() != 504){
+            Message message = handler.obtainMessage();
+            Object object;
+            Log.e(TAG, "From ForceCacheControl: ");
+            try {
+                object = GsonUtil.phraseJsonWithGson(forceCacheResponse.body().string(),claszz);
+                message.obj = object;
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            message.what = flag;
+            handler.sendMessage(message);
+
+        }else {
+
+        }
+        */
+        okHttpClient.newCall(request2).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, IOException e) {
+                Log.e(TAG, "onFailure: " + "failure execute  request");
+            }
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (!response.isSuccessful()) throw new IOException("Unexpected code" + response);
+
                 Message message = handler.obtainMessage();
                 Object object;
-                Log.e(TAG, "From ForceCacheControl: ");
-                try {
-                    object = GsonUtil.phraseJsonWithGson(forceCacheResponse.body().string(),claszz);
-                    message.obj = object;
-                }catch (Exception e){
-                    e.printStackTrace();
+
+                if (response.code() == 200){
+                    Log.e(TAG, "From NetWorkCacheControl: " + "NetWork NetWork NetWork NetWork NetWork ");
+                    try {
+                        object = GsonUtil.phraseJsonWithGson(response.body().string(),claszz);
+                        message.obj = object;
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
                 }
                 message.what = flag;
                 handler.sendMessage(message);
-
-            }else {
-                okHttpClient.newCall(request2).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(@NonNull Call call, IOException e) {
-                        Log.e(TAG, "onFailure: " + "failure execute  request");
-                    }
-                    @Override
-                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                        if (!response.isSuccessful()) throw new IOException("Unexpected code" + response);
-
-                        Message message = handler.obtainMessage();
-                        Object object;
-
-                        if (response.code() == 200){
-                            Log.e(TAG, "From NetWorkCacheControl: " + "NetWork NetWork NetWork NetWork NetWork ");
-                            try {
-                                object = GsonUtil.phraseJsonWithGson(response.body().string(),claszz);
-                                message.obj = object;
-                            }catch (Exception e){
-                                e.printStackTrace();
-                            }
-                        }
-                        message.what = flag;
-                        handler.sendMessage(message);
-                    }
-                });
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        });
 
 
     }

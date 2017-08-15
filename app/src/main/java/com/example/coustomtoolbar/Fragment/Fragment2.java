@@ -85,7 +85,7 @@ public class Fragment2 extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.layout_fragment_1,container,false);
-        executor = DownloadBitmapExecutor.getInstanceExecutor();
+       // executor = DownloadBitmapExecutor.getInstanceExecutor();
         initData();
         //RecyclerView
         if (okHttp3Util == null){
@@ -131,6 +131,7 @@ public class Fragment2 extends Fragment {
     public void initData(){
         mData = new ArrayList<>();
     }
+
     private class DownBitmap implements Callable<Bitmap>{
         String url;
         public DownBitmap(String url) {

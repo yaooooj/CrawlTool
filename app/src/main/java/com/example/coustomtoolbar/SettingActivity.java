@@ -21,7 +21,7 @@ public class SettingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_setting);
         screenUtil.setColor(Color.parseColor("#f19388"));
         screenUtil.StatusView(getWindow());
-        executor = DownloadBitmapExecutor.getInstanceExecutor();
+        //executor = DownloadBitmapExecutor.getInstanceExecutor();
         Button button = (Button)findViewById(R.id.setting_button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
