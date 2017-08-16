@@ -3,6 +3,9 @@ package com.example.coustomtoolbar.ImageCache;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.ImageView;
@@ -39,20 +42,16 @@ public class DownloadBitmapExecutor {
     private static final ThreadPoolExecutor executor = new ThreadPoolExecutor(
             corePoolSize,maxPoolSize,keepAliveTime,TIME_UNIT,sWorkQueues);
 
-    private LoadBitmap laodBitmap = null;
-    private String url = null;
+    private LoadBitmap task = null;
     private FutureTask<Bitmap> future = null;
+    private ShowImage1 mShowImage = null;
+    private static final int SUCCESS = 1;
+    private static final int FAILED = 2;
+    private String urla = null;
 
     private DownloadBitmapExecutor() {
         Log.e(TAG, "DownloadBitmapExecutor: " );
-        laodBitmap = new LoadBitmap(url);
-        future = new FutureTask<Bitmap>(laodBitmap){
-            @Override
-            protected void done() {
-                super.done();
 
-            }
-        };
     }
 
     public static DownloadBitmapExecutor getInstanceExecutor(){
@@ -68,27 +67,79 @@ public class DownloadBitmapExecutor {
 
 
     public void execute(String url){
-        laodBitmap = new LoadBitmap(url);
 
+        this.urla = url;
+
+
+        executor.submit(new FutureTask<Bitmap>(new LoadBitmap(url)){
+            @Override
+            protected void done() {
+                super.done();
+                Message msg = new Handler(Looper.getMainLooper()).obtainMessage();
+                msg.what = SUCCESS;
+                try {
+                    if (get() != null){
+                        msg.obj = get();
+                        Log.e(TAG, "call: " + "_______________" );
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+                msg.sendToTarget();
+
+
+            }
+        });
 
     }
+
+    public void showImage(){
+
+        new Handler(Looper.getMainLooper()){
+            @Override
+            public void handleMessage(Message msg) {
+               switch (msg.what){
+                   case SUCCESS:
+                       Log.e(TAG, "handleMessage: " + "FAILED FAILED  FAILED FAILED FAILED" );
+                       if (msg.obj != null){
+                           Log.e(TAG, "handleMessage: " + "FAILED FAILED  FAILED FAILED FAILED" );
+
+                       }
+                       break;
+                   case FAILED:
+                       Log.e(TAG, "handleMessage: " + "FAILED FAILED  FAILED FAILED FAILED" );
+                       break;
+                   default:
+                       break;
+               }
+            }
+        };
+    }
+
+
     public void remove(Runnable task){
         if (task != null){
             executor.remove(task);
         }
     }
-    private class LoadBitmap implements Callable<Bitmap> {
+
+
+
+    private  class LoadBitmap implements Callable<Bitmap>{
         String url;
 
-        LoadBitmap(String url) {
+        public LoadBitmap(String url) {
             this.url = url;
         }
+
         @Override
         public Bitmap call() throws Exception {
             Bitmap bitmap = null;
             HttpURLConnection con = null;
-            //URL imageUrl = null;
             try {
+
                 URL imageUrl = new URL(url);
                 con = (HttpURLConnection) imageUrl.openConnection();
                 con.setRequestMethod("GET");
@@ -97,6 +148,15 @@ public class DownloadBitmapExecutor {
                 con.connect();
                 InputStream in = con.getInputStream();
                 bitmap = BitmapFactory.decodeStream(in);
+                /*
+                Message msg = new Handler(Looper.getMainLooper()).obtainMessage();
+                msg.what = SUCCESS;
+                if (bitmap != null){
+                    msg.obj = bitmap;
+                    Log.e(TAG, "call: " + "_______________" );
+                }
+                msg.sendToTarget();
+                */
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (ProtocolException e) {
@@ -107,4 +167,17 @@ public class DownloadBitmapExecutor {
             return bitmap;
         }
     }
+
+
+    public void setShowImage(ShowImage1 showImage){
+        this.mShowImage = showImage;
+
+    }
+
+    public interface ShowImage1{
+
+        void show(Bitmap bitmap,String url);
+    }
+
+
 }

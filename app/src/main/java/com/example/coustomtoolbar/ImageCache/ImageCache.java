@@ -6,7 +6,11 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
@@ -51,6 +55,27 @@ public class ImageCache {
     private int height;
     private Context mContext;
     private static DownloadBitmapExecutor executor1;
+    private ImageView mImageView = null;
+    private Handler mHandler = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case 1:
+                    Log.e(TAG, "handleMessage: " + "FAILED FAILED  FAILED FAILED FAILED" );
+                    if (msg.obj != null){
+                        Log.e(TAG, "handleMessage: " + "FAILED FAILED  FAILED FAILED FAILED" );
+
+                    }
+                    break;
+                case 2:
+                    Log.e(TAG, "handleMessage: " + "FAILED FAILED  FAILED FAILED FAILED" );
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     private ImageCache(Context context) {
         mContext = context;
@@ -104,15 +129,28 @@ public class ImageCache {
     }
 
 
-    public void showImage(ImageView imageView, String url) throws ExecutionException, InterruptedException {
+    public void showImage(final ImageView imageView, String url) throws ExecutionException, InterruptedException {
+
         if (getBitmapFromCache(url) != null){
             if (imageView.getTag() == url){
                 imageView.setImageBitmap(getBitmapFromCache(url));
             }
         }
         else {
-            new BitmapTask(url,imageView).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,url);
+            //new BitmapTask(url,imageView).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,url);
             //getBitmapFromNetWork(url,imageView);
+            executor1.execute(url);
+            /*
+            executor1.setShowImage(new DownloadBitmapExecutor.ShowImage1() {
+                @Override
+                public void show(Bitmap bitmap, String url) {
+                    if (imageView.getTag() == url){
+                        imageView.setImageBitmap(bitmap);
+                    }
+
+                }
+            });
+            */
         }
     }
 
@@ -152,8 +190,8 @@ public class ImageCache {
 
             if (descriptor != null){
                 Log.e(TAG, "getBitmapFromDiskLruCache: "+ "Load from disk " );
-                //bitmap = decodeSampleBitmapFromResource(descriptor,width,height);
-                bitmap = BitmapFactory.decodeFileDescriptor(descriptor);
+                bitmap = decodeSampleBitmapFromResource(descriptor,width,height);
+                //bitmap = BitmapFactory.decodeFileDescriptor(descriptor);
             }
 
         } catch (IOException e) {
@@ -318,8 +356,8 @@ public class ImageCache {
 
                 if (descriptor != null){
                     //bitmap = BitmapFactory.decodeFileDescriptor(descriptor);
-                    return BitmapFactory.decodeFileDescriptor(descriptor,null,options1);
-                    //return getBitmapFromDiskLruCache(url);
+                    //return BitmapFactory.decodeFileDescriptor(descriptor,null,options1);
+                    return getBitmapFromDiskLruCache(url);
                     //return bitmap;
                 }
                 }finally {
@@ -371,5 +409,7 @@ public class ImageCache {
         }
         return inSampleSize;
     }
+
+
 
 }
