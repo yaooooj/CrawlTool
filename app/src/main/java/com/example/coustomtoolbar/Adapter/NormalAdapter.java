@@ -2,6 +2,7 @@ package com.example.coustomtoolbar.Adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -29,17 +30,25 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
     private ImageCache mImageCache;
     private ShowImage showImage;
     private boolean firstLoadImage = true;
+    private RecyclerView recyclerView = null;
 
     public NormalAdapter(Context context, int layoutResId, List<String> data, RecyclerView recyclerView) {
         super(context, layoutResId, data, recyclerView);
+        this.recyclerView = recyclerView;
         getScreenWidth(context);
         mImageCache = ImageCache.getInstance(context);
+
     }
 
 
     public int  getScreenWidth(Context context){
         DisplayMetrics displayMetrics  = context.getResources().getDisplayMetrics();
-        width = displayMetrics.widthPixels;
+        int count = 1;
+        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+        if (layoutManager instanceof StaggeredGridLayoutManager){
+            count = ((StaggeredGridLayoutManager) layoutManager).getSpanCount();
+        }
+        width = displayMetrics.widthPixels / count;
         height = displayMetrics.heightPixels;
         Log.e(TAG, "getScreenWidth: "+ width );
         return width;
@@ -55,13 +64,14 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
                 }
             });
         }else {
-
             ImageView imageView = holder.getView(R.id.fragment2_image);
-
-
+            ViewGroup.LayoutParams params = imageView.getLayoutParams();
+            params.width = width;
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            imageView.setLayoutParams(params);
             holder.setImageView(imageView,R.mipmap.ic_favorite_black_24dp);
-            imageView.setTag(s);
 
+            imageView.setTag(s);
             if (isFirstLoadImage()){
                 Log.e(TAG, "bindingItemView: " + "FirstLoadImage" );
                 try {
@@ -71,9 +81,7 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
             }else {
-                Log.e(TAG, "bindingItemView: " + "scroll" );
                 showImage.setShowImage(imageView,s);
             }
 

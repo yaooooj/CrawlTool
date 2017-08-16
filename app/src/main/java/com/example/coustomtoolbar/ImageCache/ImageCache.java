@@ -94,12 +94,10 @@ public class ImageCache {
         Log.e(TAG, "getBitmapFromCache: " + "form memory cache " );
         return mLruCache.get(key);
     }
-    public int  getScreenWidth(Context context){
+    public void   getScreenWidth(Context context){
         DisplayMetrics displayMetrics  = context.getResources().getDisplayMetrics();
-        width = displayMetrics.widthPixels;
-        height = 4 * width;
-        Log.e(TAG, "getScreenWidth: "+ width );
-        return width;
+        width = displayMetrics.widthPixels / 3;
+        height = displayMetrics.heightPixels / 3;
     }
     public void setMaxWidth(int maxWidth){
         this.maxWidth = maxWidth;
@@ -113,8 +111,8 @@ public class ImageCache {
             }
         }
         else {
-            //
-            getBitmapFromNetWork(url,imageView);
+            new BitmapTask(url,imageView).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,url);
+            //getBitmapFromNetWork(url,imageView);
         }
     }
 
@@ -134,26 +132,6 @@ public class ImageCache {
             Log.e(TAG, "getBitmapFromNetWork: ");
         }*/
         //executor.submitTask(new DownBitmap1(url,imageView));
-        Bitmap bitmap = null;
-        try {
-            bitmap = executor1.submitCallable(new DownBitmap1(url,imageView));
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        final Bitmap finalBitmap = bitmap;
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-
-                if (finalBitmap != null && imageView.getTag() == url){
-                    imageView.setImageBitmap(finalBitmap);
-                }
-            }
-        }).start();
-
     }
 
     private Bitmap getBitmapFromDiskLruCache(String url){
@@ -174,7 +152,8 @@ public class ImageCache {
 
             if (descriptor != null){
                 Log.e(TAG, "getBitmapFromDiskLruCache: "+ "Load from disk " );
-                bitmap = decodeSampleBitmapFromResource(descriptor,width,height);
+                //bitmap = decodeSampleBitmapFromResource(descriptor,width,height);
+                bitmap = BitmapFactory.decodeFileDescriptor(descriptor);
             }
 
         } catch (IOException e) {
@@ -287,11 +266,8 @@ public class ImageCache {
         @Override
         protected Bitmap doInBackground(String... strings) {
             Bitmap bitmap = null;
-
             if (getBitmapFromDiskLruCache(url) != null){
-
                 bitmap = getBitmapFromDiskLruCache(url);
-
             }else {
                 try {
                     bitmap = getBitMapFromNetWork(url);
@@ -299,7 +275,6 @@ public class ImageCache {
                     e.printStackTrace();
                 }
             }
-
             return bitmap;
         }
 
@@ -308,7 +283,6 @@ public class ImageCache {
             if (imageView.getTag() == url){
                 if (bitmap != null){
 
-                    Log.e(TAG, "getBitMapFromNetWork: " + url );
                     addBitmapToMemoryCache(url,bitmap);
                     imageView.setImageBitmap(bitmap);
                     imageView.getMaxWidth();
@@ -333,9 +307,7 @@ public class ImageCache {
                 InputStream in = con.getInputStream();
                 inputStream = new BufferedInputStream(in);
 
-
                 addBitmapToDiskLurCache(inputStream,url);
-
                 DiskLruCache.Snapshot snapshot = diskLruCache.get(key);
 
                 if (snapshot != null){
@@ -347,6 +319,7 @@ public class ImageCache {
                 if (descriptor != null){
                     //bitmap = BitmapFactory.decodeFileDescriptor(descriptor);
                     return BitmapFactory.decodeFileDescriptor(descriptor,null,options1);
+                    //return getBitmapFromDiskLruCache(url);
                     //return bitmap;
                 }
                 }finally {
@@ -371,11 +344,12 @@ public class ImageCache {
         options.inJustDecodeBounds = true;
         //BitmapFactory.decodeStream(in,null,options);
         BitmapFactory.decodeFileDescriptor(in,null,options);
-
         options.inSampleSize = calculateInSampleSize(options,reqWidth,height);
 
-        options.inJustDecodeBounds = false;
+        options.inJustDecodeBounds = true;
+         BitmapFactory.decodeFileDescriptor(in,null,options);
 
+        options.inJustDecodeBounds = false;
         return BitmapFactory.decodeFileDescriptor(in,null,options);
     }
     private  int calculateInSampleSize(BitmapFactory.Options options,
@@ -386,48 +360,16 @@ public class ImageCache {
         int inSampleSize = 1;
         Log.e(TAG, "calculateInSampleSize: " );
         if ( width > reqWidth){
-
             final int widthRatio = Math.round((float)width / (float)reqWidth);
             inSampleSize = widthRatio;
+            return inSampleSize;
         }
         if (height > reqHeight){
             final int heightRatio = Math.round((float) height / (float) reqHeight);
             inSampleSize = heightRatio;
+            return inSampleSize;
         }
         return inSampleSize;
     }
 
-
-    private class DownBitmap1 implements Callable<Bitmap> {
-        String url;
-        ImageView mImageView;
-        public DownBitmap1(String url,ImageView imageView) {
-            this.url = url;
-            mImageView = imageView;
-        }
-        @Override
-        public Bitmap call() throws Exception {
-            Bitmap bitmap = null;
-            HttpURLConnection con = null;
-            //URL imageUrl = null;
-            try {
-                URL imageUrl = new URL(url);
-                con = (HttpURLConnection) imageUrl.openConnection();
-                con.setRequestMethod("GET");
-                con.setConnectTimeout(5000);
-                con.setDoInput(true);
-                con.connect();
-                InputStream in = con.getInputStream();
-                bitmap = BitmapFactory.decodeStream(in);
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (ProtocolException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return bitmap;
-        }
-    }
 }

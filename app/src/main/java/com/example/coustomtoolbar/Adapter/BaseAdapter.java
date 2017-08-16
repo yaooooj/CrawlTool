@@ -427,6 +427,11 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+                /*
+                if (layoutManager instanceof StaggeredGridLayoutManager){
+                    ((StaggeredGridLayoutManager) layoutManager).invalidateSpanAssignments();
+                }
+                */
                 int visibleItemCount = layoutManager.getChildCount();
                 int totalItemCount = layoutManager.getItemCount() - getHeaderViewCount();
                 Log.e(TAG, "onScrollStateChanged: " + visibleItemCount +" + " + totalItemCount + " + " + lastVisibleItem );
