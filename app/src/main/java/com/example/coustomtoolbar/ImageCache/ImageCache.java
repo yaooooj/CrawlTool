@@ -16,7 +16,7 @@ import android.util.Log;
 import android.util.LruCache;
 import android.widget.ImageView;
 
-import com.example.coustomtoolbar.Fragment.Fragment2;
+
 import com.jakewharton.disklrucache.DiskLruCache;
 
 import java.io.BufferedInputStream;
@@ -28,15 +28,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
+
 
 /**
  * Created by SEELE on 2017/7/25.
@@ -55,6 +51,9 @@ public class ImageCache {
     private int height;
     private Context mContext;
     private static DownloadBitmapExecutor executor1;
+    private ImageDispatcher mImageDispatcher;
+
+
     private ImageView mImageView = null;
     private Handler mHandler = new Handler(Looper.getMainLooper()){
         @Override
@@ -100,7 +99,7 @@ public class ImageCache {
             Log.e(TAG, "ImageCache: " +  "getInstanceExecutor");
             executor1 = DownloadBitmapExecutor.getInstanceExecutor();
         }
-
+        mImageDispatcher = new ImageDispatcher();
 
     }
     public static ImageCache getInstance(Context context){
@@ -139,7 +138,23 @@ public class ImageCache {
         else {
             //new BitmapTask(url,imageView).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,url);
             //getBitmapFromNetWork(url,imageView);
-            executor1.execute(url);
+            //executor1.execute(url);
+            mImageDispatcher.enqueue(new ImageAsycCall(new ImageCallback() {
+                @Override
+                public void OnSuccess(final Bitmap bitmap, final String url) {
+
+                }
+
+                @Override
+                public void OnFailure(String url) {
+
+                }
+
+                @Override
+                public void OnLoading(Bitmap bitmap, String url) {
+
+                }
+            },url));
             /*
             executor1.setShowImage(new DownloadBitmapExecutor.ShowImage1() {
                 @Override

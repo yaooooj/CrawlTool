@@ -38,6 +38,9 @@ public class DownloadBitmapExecutor {
     private static final long keepAliveTime = 10;
     private static final TimeUnit TIME_UNIT = TimeUnit.SECONDS;
     private static final BlockingQueue<Runnable> sWorkQueues = new LinkedBlockingQueue<>(10);
+
+
+
     private static DownloadBitmapExecutor sDownloadBitmapExecutor = null;
     private static final ThreadPoolExecutor executor = new ThreadPoolExecutor(
             corePoolSize,maxPoolSize,keepAliveTime,TIME_UNIT,sWorkQueues);
@@ -148,15 +151,7 @@ public class DownloadBitmapExecutor {
                 con.connect();
                 InputStream in = con.getInputStream();
                 bitmap = BitmapFactory.decodeStream(in);
-                /*
-                Message msg = new Handler(Looper.getMainLooper()).obtainMessage();
-                msg.what = SUCCESS;
-                if (bitmap != null){
-                    msg.obj = bitmap;
-                    Log.e(TAG, "call: " + "_______________" );
-                }
-                msg.sendToTarget();
-                */
+
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (ProtocolException e) {
