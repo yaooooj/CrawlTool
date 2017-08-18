@@ -25,6 +25,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by yaojian on 2017/8/1.
@@ -49,7 +50,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     private boolean showFooter = false;
     private boolean showHeader = false;
     private boolean loading;
-
+    private List<Integer> mHeight = new ArrayList<>();
     private int width;
     private int height;
     private OnItemClickListener mOnItemClickListener;
@@ -59,13 +60,17 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
 
     public BaseAdapter(Context context,int layoutResId, List<T> data,RecyclerView recyclerView) {
         mContext = context;
-        mData = data == null ? new ArrayList<T>() : data;
-        if (layoutResId != 0 ){
-            this.layoutResId = layoutResId;
-        }
         if (recyclerView != null){
             this.recyclerView = recyclerView;
         }
+
+        mData = data == null ? new ArrayList<T>() : data;
+
+        initScreenWidth(context);
+        if (layoutResId != 0 ){
+            this.layoutResId = layoutResId;
+        }
+
         headerViews = new SparseIntArray();
         footerViews = new SparseIntArray();
         loadingViews = new SparseIntArray();
@@ -198,13 +203,33 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     private boolean isEmpty(){
         return getRealItemCount() == 1;
     }
-    public int  getScreenWidth(Context context){
 
+    public void initScreenWidth(Context context){
+        int spanCount = 1;
+        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+        if (layoutManager instanceof StaggeredGridLayoutManager){
+            spanCount = ((StaggeredGridLayoutManager) layoutManager).getSpanCount();
+        }
         DisplayMetrics displayMetrics  = context.getResources().getDisplayMetrics();
-        width = displayMetrics.widthPixels;
-        height = displayMetrics.heightPixels;
-        Log.e(TAG, "getScreenWidth: "+ width );
+        width = displayMetrics.widthPixels / spanCount;
+        height = displayMetrics.heightPixels / spanCount - 200;
+
+    }
+
+    public int getWidth() {
         return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
     }
 
     @Override
@@ -248,6 +273,12 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
             }
             else {
 
+                ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
+                if (params instanceof StaggeredGridLayoutManager.LayoutParams){
+                    params.width = getWidth();
+                    params.height = getHeight();
+                    holder.itemView.setLayoutParams(params);
+                }
                 holder.itemView.setOnClickListener(this);
                 holder.itemView.setOnLongClickListener(this);
                 holder.itemView.setTag(holder.getAdapterPosition() - getHeaderViewCount());

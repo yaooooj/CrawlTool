@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
@@ -19,18 +18,11 @@ import android.view.ViewGroup;
 
 import com.example.coustomtoolbar.Adapter.MyAdapter2;
 import com.example.coustomtoolbar.Bean.PictureBean;
-import com.example.coustomtoolbar.ImageCache.DownloadBitmapExecutor;
 import com.example.coustomtoolbar.ImageCache.ImageUrl;
 import com.example.coustomtoolbar.NetUtil.OkHttp3Util;
 import com.example.coustomtoolbar.R;
-import com.example.coustomtoolbar.RecyclerViewUtil.LoadMode;
-import com.example.coustomtoolbar.RecyclerViewUtil.LoadMoreScrollListener;
 import com.example.coustomtoolbar.RecyclerViewUtil.SpaceDecoration;
-import com.jakewharton.disklrucache.DiskLruCache;
 
-import java.io.BufferedInputStream;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -85,7 +77,6 @@ public class Fragment2 extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.layout_fragment_1,container,false);
-       // executor = DownloadBitmapExecutor.getInstanceExecutor();
         initData();
         //RecyclerView
         if (okHttp3Util == null){

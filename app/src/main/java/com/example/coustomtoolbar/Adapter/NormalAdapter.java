@@ -35,13 +35,13 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
     public NormalAdapter(Context context, int layoutResId, List<String> data, RecyclerView recyclerView) {
         super(context, layoutResId, data, recyclerView);
         this.recyclerView = recyclerView;
-        getScreenWidth(context);
+        getScreenWidth1(context);
         mImageCache = ImageCache.getInstance(context);
 
     }
 
 
-    public int  getScreenWidth(Context context){
+    public int  getScreenWidth1(Context context){
         DisplayMetrics displayMetrics  = context.getResources().getDisplayMetrics();
         int count = 1;
         RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
@@ -64,11 +64,9 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
                 }
             });
         }else {
+
             ImageView imageView = holder.getView(R.id.fragment2_image);
-            ViewGroup.LayoutParams params = imageView.getLayoutParams();
-            params.width = width;
-            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            imageView.setLayoutParams(params);
+
             holder.setImageView(imageView,R.mipmap.ic_favorite_black_24dp);
 
             imageView.setTag(s);

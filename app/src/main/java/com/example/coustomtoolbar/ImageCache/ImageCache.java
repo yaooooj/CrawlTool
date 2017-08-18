@@ -5,12 +5,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
-import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
@@ -25,10 +20,7 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ExecutionException;
@@ -40,65 +32,20 @@ import java.util.concurrent.ExecutionException;
 
 public class ImageCache {
     private static final String TAG = "ImageCache";
-    public static ImageCache mImageCache;
+    private static ImageCache mImageCache;
     private  LruCache<String,Bitmap> mLruCache;
     private com.jakewharton.disklrucache.DiskLruCache diskLruCache = null;
     private int MaxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
     private int cacheSize = MaxMemory / 8;
-    private BitmapFactory.Options options1 = new BitmapFactory.Options();
+    private ImageDiskLruCache imageDiskLru;
     private int maxWidth;
     private int width;
     private int height;
-    private Context mContext;
-    private static DownloadBitmapExecutor executor1;
     private ImageDispatcher mImageDispatcher;
-
-
-    private ImageView mImageView = null;
-    private Handler mHandler = new Handler(Looper.getMainLooper()){
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what){
-                case 1:
-                    Log.e(TAG, "handleMessage: " + "FAILED FAILED  FAILED FAILED FAILED" );
-                    if (msg.obj != null){
-                        Log.e(TAG, "handleMessage: " + "FAILED FAILED  FAILED FAILED FAILED" );
-
-                    }
-                    break;
-                case 2:
-                    Log.e(TAG, "handleMessage: " + "FAILED FAILED  FAILED FAILED FAILED" );
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
-
     private ImageCache(Context context) {
-        mContext = context;
+
         getScreenWidth(context);
-        mLruCache = new LruCache<String, Bitmap>(cacheSize){
-            @Override
-            protected int sizeOf(String key, Bitmap bitmap) {
-                return bitmap.getByteCount() / 1024;
-            }
-        };
-        File cacheDir = getDiskLruCacheDir(context,"bitmap");
-        if (cacheDir.exists()){
-            cacheDir.mkdirs();
-        }
-        try {
-            diskLruCache = com.jakewharton.disklrucache.DiskLruCache
-                    .open(cacheDir,getAppVersion(context),1,100 * 1024 * 1024);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (executor1 == null){
-            Log.e(TAG, "ImageCache: " +  "getInstanceExecutor");
-            executor1 = DownloadBitmapExecutor.getInstanceExecutor();
-        }
+        imageDiskLru = ImageDiskLruCache.getImageDiskLruInstance(context);
         mImageDispatcher = new ImageDispatcher();
 
     }
@@ -109,15 +56,6 @@ public class ImageCache {
         return mImageCache;
     }
 
-    private void addBitmapToMemoryCache(String key, Bitmap bitmap){
-        if (getBitmapFromCache(key) == null){
-            mLruCache.put(key,bitmap);
-        }
-    }
-    private Bitmap getBitmapFromCache(String key){
-        Log.e(TAG, "getBitmapFromCache: " + "form memory cache " );
-        return mLruCache.get(key);
-    }
     public void   getScreenWidth(Context context){
         DisplayMetrics displayMetrics  = context.getResources().getDisplayMetrics();
         width = displayMetrics.widthPixels / 3;
@@ -127,22 +65,23 @@ public class ImageCache {
         this.maxWidth = maxWidth;
     }
 
-
     public void showImage(final ImageView imageView, String url) throws ExecutionException, InterruptedException {
 
-        if (getBitmapFromCache(url) != null){
+        if (imageDiskLru.getBitmapFromCache(url) != null){
             if (imageView.getTag() == url){
-                imageView.setImageBitmap(getBitmapFromCache(url));
+                imageView.setImageBitmap(imageDiskLru.getBitmapFromCache(url));
             }
         }
         else {
             //new BitmapTask(url,imageView).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,url);
             //getBitmapFromNetWork(url,imageView);
             //executor1.execute(url);
-            mImageDispatcher.enqueue(new ImageAsycCall(new ImageCallback() {
+            mImageDispatcher.enqueue(new ImageAsyncCall(imageDiskLru, url, new ImageCallback() {
                 @Override
-                public void OnSuccess(final Bitmap bitmap, final String url) {
-
+                public void OnSuccess(Bitmap bitmap, String url) {
+                    if (imageView.getTag() == url){
+                        imageView.setImageBitmap(bitmap);
+                    }
                 }
 
                 @Override
@@ -151,247 +90,14 @@ public class ImageCache {
                 }
 
                 @Override
-                public void OnLoading(Bitmap bitmap, String url) {
+                public void OnLoading(String url) {
 
                 }
-            },url));
-            /*
-            executor1.setShowImage(new DownloadBitmapExecutor.ShowImage1() {
-                @Override
-                public void show(Bitmap bitmap, String url) {
-                    if (imageView.getTag() == url){
-                        imageView.setImageBitmap(bitmap);
-                    }
-
-                }
-            });
-            */
+            }));
         }
     }
 
-    private void getBitmapFromNetWork(final String url, final ImageView imageView){
-        /*Bitmap bitmap = null;
-        //bitmap = executor.submit(new DownBitmap1(url,imageView));
-        try {
-
-            bitmap = executor1.submitCallable(new DownBitmap1(url,imageView));
-
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        if (bitmap != null){
-            Log.e(TAG, "getBitmapFromNetWork: ");
-        }*/
-        //executor.submitTask(new DownBitmap1(url,imageView));
-    }
-
-    private Bitmap getBitmapFromDiskLruCache(String url){
-        DiskLruCache.Snapshot snapshot = null;
-        FileInputStream fileInput;
-        BufferedInputStream in = null;
-        FileDescriptor descriptor = null;
-        Bitmap bitmap = null;
-        String key = hashKeyForDisk(url);
-        try {
-            snapshot = diskLruCache.get(key);
-            if (snapshot != null){
-                fileInput = (FileInputStream) snapshot.getInputStream(0);
-                descriptor = fileInput.getFD();
-                //in = new BufferedInputStream(snapshot.getInputStream(0),8 * 1024);
-                //bitmap = BitmapFactory.decodeStream(in);
-            }
-
-            if (descriptor != null){
-                Log.e(TAG, "getBitmapFromDiskLruCache: "+ "Load from disk " );
-                bitmap = decodeSampleBitmapFromResource(descriptor,width,height);
-                //bitmap = BitmapFactory.decodeFileDescriptor(descriptor);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return bitmap;
-    }
-
-    private File getDiskLruCacheDir(Context context,String uniqueName){
-        String cacheDir;
-
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
-                || !Environment.isExternalStorageRemovable()){
-            cacheDir = context.getExternalCacheDir().getPath();
-        }else {
-            cacheDir = context.getCacheDir().getPath();
-        }
-        return new File(cacheDir + File.separator + uniqueName);
-    }
-
-    private int getAppVersion(Context context){
-        try {
-            PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(),0);
-            return info.versionCode;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        return 1;
-    }
-
-    public String hashKeyForDisk(String key){
-        String cacheKey = null;
-
-        try {
-            final MessageDigest messageDigest = MessageDigest.getInstance("MD5");
-            messageDigest.update(key.getBytes());
-            cacheKey = bytesToHexString(messageDigest.digest());
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return cacheKey;
-    }
-
-    private String bytesToHexString(byte[] bytes){
-        StringBuilder stringBuilder = new StringBuilder();
-        for (byte aByte : bytes) {
-            String hex = Integer.toHexString(0xFF & aByte);
-            if (hex.length() == 1) {
-                stringBuilder.append("0");
-            }
-            stringBuilder.append(hex);
-        }
-        return stringBuilder.toString();
-    }
-
-    private void addBitmapToDiskLurCache(BufferedInputStream in,String url) throws IOException {
-
-        OutputStream outputStream= null;
-        //BufferedOutputStream bufferedOutputStream;
-        try {
-            String key = hashKeyForDisk(url);
-            com.jakewharton.disklrucache.DiskLruCache.Editor editor = diskLruCache.edit(key);
-            if (editor != null){
-                outputStream = editor.newOutputStream(0);
-                if (cacheToDisk(in,outputStream)){
-                    editor.commit();
-                } else {
-                    editor.abort();
-                }
-            }
-            diskLruCache.flush();
-        } catch (IOException e) {
-            if (outputStream != null){
-                outputStream.close();
-            }
-            e.printStackTrace();
-        }
-    }
-    private boolean cacheToDisk(BufferedInputStream in,OutputStream outputStream){
-        BufferedOutputStream bufferedOutputStream = null;
-        int b;
-        try {
-            bufferedOutputStream = new BufferedOutputStream(outputStream);
-            while ((b = in.read()) != -1){
-                bufferedOutputStream.write(b);
-            }
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }finally {
-            try {
-                bufferedOutputStream.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return false;
-    }
-    private  class BitmapTask extends AsyncTask<String, Void, Bitmap> {
-        private int reqWidth;
-        private String url;
-        private ImageView imageView;
-
-        public BitmapTask(String url,ImageView imageView) {
-            this.url = url;
-            this.imageView = imageView;
-        }
-
-        @Override
-        protected Bitmap doInBackground(String... strings) {
-            Bitmap bitmap = null;
-            if (getBitmapFromDiskLruCache(url) != null){
-                bitmap = getBitmapFromDiskLruCache(url);
-            }else {
-                try {
-                    bitmap = getBitMapFromNetWork(url);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            return bitmap;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            if (imageView.getTag() == url){
-                if (bitmap != null){
-
-                    addBitmapToMemoryCache(url,bitmap);
-                    imageView.setImageBitmap(bitmap);
-                    imageView.getMaxWidth();
-
-                }
-            }
-        }
-        private Bitmap getBitMapFromNetWork(String url) throws IOException{
-            Bitmap bitmap = null;
-            HttpURLConnection con = null;
-            FileInputStream fileInputStream;
-            FileDescriptor descriptor = null;
-            BufferedInputStream inputStream = null;
-            String key = hashKeyForDisk(url);
-            try {
-                URL imageUrl = new URL(url);
-                con = (HttpURLConnection) imageUrl.openConnection();
-                con.setRequestMethod("GET");
-                con.setConnectTimeout(5000);
-                con.setDoInput(true);
-                con.connect();
-                InputStream in = con.getInputStream();
-                inputStream = new BufferedInputStream(in);
-
-                addBitmapToDiskLurCache(inputStream,url);
-                DiskLruCache.Snapshot snapshot = diskLruCache.get(key);
-
-                if (snapshot != null){
-                    fileInputStream = (FileInputStream) snapshot.getInputStream(0);
-                    //InputStream inBitmap = snapshot.getInputStream(0);
-                    descriptor = fileInputStream.getFD();
-                }
-
-                if (descriptor != null){
-                    //bitmap = BitmapFactory.decodeFileDescriptor(descriptor);
-                    //return BitmapFactory.decodeFileDescriptor(descriptor,null,options1);
-                    return getBitmapFromDiskLruCache(url);
-                    //return bitmap;
-                }
-                }finally {
-                    if (con != null) {
-                        con.disconnect();
-                    }
-                    try {
-                        if (inputStream != null) {
-                            inputStream.close();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            return null;
-        }
-    }
-
-     private  Bitmap decodeSampleBitmapFromResource(FileDescriptor in, int reqWidth,int height){
+    private  Bitmap decodeSampleBitmapFromResource(FileDescriptor in, int reqWidth,int height){
         final BitmapFactory.Options options = new BitmapFactory.Options();
 
         options.inJustDecodeBounds = true;
@@ -400,13 +106,13 @@ public class ImageCache {
         options.inSampleSize = calculateInSampleSize(options,reqWidth,height);
 
         options.inJustDecodeBounds = true;
-         BitmapFactory.decodeFileDescriptor(in,null,options);
+        BitmapFactory.decodeFileDescriptor(in,null,options);
 
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeFileDescriptor(in,null,options);
     }
     private  int calculateInSampleSize(BitmapFactory.Options options,
-                                            int reqWidth,int reqHeight){
+                                       int reqWidth,int reqHeight){
 
         final int width = options.outWidth;
         final int height = options.outHeight;
@@ -424,7 +130,4 @@ public class ImageCache {
         }
         return inSampleSize;
     }
-
-
-
 }

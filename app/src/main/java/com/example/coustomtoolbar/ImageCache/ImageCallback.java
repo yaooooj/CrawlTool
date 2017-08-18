@@ -1,6 +1,7 @@
 package com.example.coustomtoolbar.ImageCache;
 
 import android.graphics.Bitmap;
+import android.widget.ImageView;
 
 /**
  * Created by SEELE on 2017/8/17.
@@ -8,9 +9,9 @@ import android.graphics.Bitmap;
 
 public interface ImageCallback {
 
-    void OnSuccess(Bitmap bitmap,String url);
+    void OnSuccess(Bitmap bitmap, String url);
 
     void OnFailure(String url);
 
-    void OnLoading(Bitmap bitmap,String url);
+    void OnLoading(String url);
 }
