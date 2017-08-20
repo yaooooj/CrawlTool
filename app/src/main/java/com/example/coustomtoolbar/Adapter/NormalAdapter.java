@@ -71,7 +71,6 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
 
             imageView.setTag(s);
             if (isFirstLoadImage()){
-                Log.e(TAG, "bindingItemView: " + "FirstLoadImage" );
                 try {
                     mImageCache.showImage(imageView,s);
                 } catch (ExecutionException e) {
@@ -80,6 +79,7 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
                     e.printStackTrace();
                 }
             }else {
+                Log.e(TAG, "bindingItemView: " + "Second Load Image" );
                 showImage.setShowImage(imageView,s);
             }
 

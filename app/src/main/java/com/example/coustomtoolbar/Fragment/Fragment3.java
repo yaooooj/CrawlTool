@@ -81,7 +81,7 @@ public class Fragment3 extends Fragment {
                              @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.layout_fragment_3,null);
         Log.e(TAG, "onCreateView: " );
-        imageCache = ImageCache.getInstance(getContext());
+        imageCache = ImageCache.getInstance(getContext().getApplicationContext());
         if (okHttp3Util == null){
             okHttp3Util = new OkHttp3Util(getContext());
         }
@@ -148,12 +148,6 @@ public class Fragment3 extends Fragment {
                 });
             }
         });
-        boolean handler1 = new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-            }
-        }, 1000);
         return view;
     }
     public void initSwipeRefreshLayout(){

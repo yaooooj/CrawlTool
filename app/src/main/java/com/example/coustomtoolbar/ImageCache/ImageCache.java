@@ -68,6 +68,7 @@ public class ImageCache {
     public void showImage(final ImageView imageView, String url) throws ExecutionException, InterruptedException {
 
         if (imageDiskLru.getBitmapFromCache(url) != null){
+            Log.e(TAG, "showImage: " + "fro cache" );
             if (imageView.getTag() == url){
                 imageView.setImageBitmap(imageDiskLru.getBitmapFromCache(url));
             }
@@ -80,6 +81,7 @@ public class ImageCache {
                 @Override
                 public void OnSuccess(Bitmap bitmap, String url) {
                     if (imageView.getTag() == url){
+                        //imageDiskLru.addBitmapToMemoryCache(url,bitmap);
                         imageView.setImageBitmap(bitmap);
                     }
                 }

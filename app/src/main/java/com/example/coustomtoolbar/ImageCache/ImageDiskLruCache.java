@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ImageDiskLruCache {
 
+    private static final String TAG = "ImageDiskLruCache";
 
     private DiskLruCache diskLruCache;
     private Context context;
@@ -118,8 +119,9 @@ public class ImageDiskLruCache {
         }
         return stringBuilder.toString();
     }
-    public void addBitmapToMemoryCache(String key, Bitmap bitmap){
+    synchronized void addBitmapToMemoryCache(String key, Bitmap bitmap){
         if (getBitmapFromCache(key) == null){
+            //Log.e(TAG, "addBitmapToMemoryCache: " + "add to memory cache" );
             mLruCache.put(key,bitmap);
         }
     }
@@ -127,7 +129,7 @@ public class ImageDiskLruCache {
 
         return mLruCache.get(key);
     }
-    public void addBitmapToDiskLurCache(BufferedInputStream in, String url) throws IOException {
+    synchronized void addBitmapToDiskLurCache(BufferedInputStream in, String url) throws IOException {
 
         OutputStream outputStream= null;
         //BufferedOutputStream bufferedOutputStream;
@@ -150,13 +152,14 @@ public class ImageDiskLruCache {
             e.printStackTrace();
         }
     }
-    public Bitmap getBitmapFromDiskLruCache(String url){
+    synchronized Bitmap getBitmapFromDiskLruCache(String url){
+        String key = hashKeyForDisk(url);
+
         DiskLruCache.Snapshot snapshot = null;
-        FileInputStream fileInput;
+        FileInputStream fileInput = null;
         BufferedInputStream in = null;
         FileDescriptor descriptor = null;
         Bitmap bitmap = null;
-        String key = hashKeyForDisk(url);
         try {
             snapshot = diskLruCache.get(key);
             if (snapshot != null){
@@ -171,6 +174,18 @@ public class ImageDiskLruCache {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }finally {
+            if (fileInput != null){
+                try {
+                    fileInput.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (snapshot != null){
+                snapshot.close();
+            }
+
         }
         return bitmap;
     }

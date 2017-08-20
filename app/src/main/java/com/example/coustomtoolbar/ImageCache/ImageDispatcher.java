@@ -4,6 +4,7 @@ import android.util.Log;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -31,8 +32,8 @@ public class ImageDispatcher {
 
     private synchronized ExecutorService executorService() {
         if (executorService == null) {
-            executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60, TimeUnit.SECONDS,
-                    new SynchronousQueue<Runnable>(), Util.threadFactory("OkHttp Dispatcher", false));
+            executorService = new ThreadPoolExecutor(coreCount, Integer.MAX_VALUE, 60, TimeUnit.SECONDS,
+                    new SynchronousQueue<Runnable>(), Util.threadFactory("Image Load Dispatcher", false));
         }
         return executorService;
     }
@@ -57,13 +58,32 @@ public class ImageDispatcher {
     }
 
     public void finish(ImageAsyncCall call){
-        finished(runningAsyncCalls,call);
+        finished(runningAsyncCalls,call,true);
     }
 
-    private  <T> void finished(Deque<T> deque,T call){
+    private  <T> void finished(Deque<T> deque,T call,Boolean promoteCalls){
         synchronized (this){
-            Log.e(TAG, "finished: " + "finished finished finished " );
-            deque.remove(call);
+            //Log.e(TAG, "finished: " + "finished finished finished " );
+            if (!deque.remove(call)) return;
+            if (promoteCalls){
+                PromoteCalls();
+            }
+
+        }
+    }
+
+    private void PromoteCalls(){
+        if (runningAsyncCalls.size() > maxRequests) return;
+        if (readyAsyncCalls.isEmpty()) return;
+
+        for (Iterator<ImageAsyncCall> i = readyAsyncCalls.iterator();i.hasNext();){
+            ImageAsyncCall call = i.next();
+            if (runningAsyncCalls.size() < maxRequests ){
+                i.remove();
+                runningAsyncCalls.add(call);
+                executorService.execute(call);
+            }
+            if (runningAsyncCalls.size() >= maxRequests) return;
         }
     }
 }

@@ -26,25 +26,17 @@ import java.security.NoSuchAlgorithmException;
 
 public class ImageAsyncCall implements Runnable {
     private static final String TAG = "ImageAsyncCall";
-    private ImageCallback mImageCallback;
+    private static ImageCallback mImageCallback;
     private String url;
     private ImageDiskLruCache cache;
+    private ImageView mImageView;
     private ImageDispatcher dispatcher = new ImageDispatcher();
-    private Handler handlerBitmap = new Handler(Looper.getMainLooper()){
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            if (msg.obj != null){
-                mImageCallback.OnSuccess((Bitmap) msg.obj,url);
-            }else {
-               mImageCallback.OnFailure(url);
-            }
-        }
-    };
+    private ImageIntentHandler sHandler;
     public ImageAsyncCall(ImageDiskLruCache cache, String url, ImageCallback imageCallback ){
         mImageCallback = imageCallback;
         this.url = url;
         this.cache = cache;
+
     }
 
     public String getUrl(){
@@ -53,15 +45,15 @@ public class ImageAsyncCall implements Runnable {
 
     @Override
     public void run() {
-        Bitmap bitmap = null;
         HttpURLConnection con = null;
+        BufferedInputStream in = null;
         try {
             if (cache.getBitmapFromDiskLruCache(url) != null){
-                bitmap = cache.getBitmapFromDiskLruCache(url);
-                if (bitmap != null){
-                    cache.addBitmapToMemoryCache(url,bitmap);
-                    Message message = handlerBitmap.obtainMessage();
-                    message.obj = bitmap;
+                Bitmap bitmap1 = cache.getBitmapFromDiskLruCache(url);
+                if (bitmap1 != null){
+                    Log.e(TAG, "run: " + "from disk memory" );
+                    Message message = getHandler().obtainMessage(
+                            1,new ImageAscynTaskResult<Bitmap>(this,bitmap1));
                     message.sendToTarget();
                 }
             }else {
@@ -71,17 +63,20 @@ public class ImageAsyncCall implements Runnable {
                 con.setConnectTimeout(5000);
                 con.setDoInput(true);
                 con.connect();
-                BufferedInputStream in  = new BufferedInputStream(con.getInputStream());
+                in = new BufferedInputStream(con.getInputStream());
                 //bitmap = BitmapFactory.decodeStream(in);
                 cache.addBitmapToDiskLurCache(in,url);
-                bitmap = cache.getBitmapFromDiskLruCache(url);
-                if (bitmap != null){
-                    cache.addBitmapToMemoryCache(url,bitmap);
-                    Message message = handlerBitmap.obtainMessage();
-                    message.obj = bitmap;
+
+                Bitmap bitmap2 = cache.getBitmapFromDiskLruCache(url);
+                if (bitmap2 != null){
+                    //cache.addBitmapToMemoryCache(url,bitmap2);
+                    Log.e(TAG, "run: " + "from network" );
+                    Message message = getHandler().obtainMessage(
+                            1,new ImageAscynTaskResult<Bitmap>(this,bitmap2));
                     message.sendToTarget();
                 }
             }
+
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (ProtocolException e) {
@@ -89,8 +84,57 @@ public class ImageAsyncCall implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }finally {
-            Log.e(TAG, "run: " +"finish finish");
+            if (in != null){
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
             dispatcher.finish(this);
+        }
+    }
+
+    private Handler getHandler(){
+        synchronized (ImageAsyncCall.class){
+            if (sHandler == null){
+                sHandler =  new ImageIntentHandler(url);
+            }
+        }
+        return sHandler;
+    }
+    private static class ImageIntentHandler extends Handler{
+        private String url;
+        public ImageIntentHandler(String url) {
+            super(Looper.getMainLooper());
+            this.url = url;
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            ImageAscynTaskResult<?> result = (ImageAscynTaskResult<?>) msg.obj;
+            super.handleMessage(msg);
+            switch (msg.what){
+                case 1:
+                    if (msg.obj != null){
+                        mImageCallback.OnSuccess((Bitmap) result.data[0],url);
+                    }else {
+                        mImageCallback.OnFailure(url);
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+        }
+    }
+    private  class ImageAscynTaskResult<T>{
+        private ImageAsyncCall imageAscynCall;
+        private T[] data;
+
+        public ImageAscynTaskResult(ImageAsyncCall imageAscynCall, T... data) {
+            this.imageAscynCall = imageAscynCall;
+            this.data = data;
         }
     }
 }
