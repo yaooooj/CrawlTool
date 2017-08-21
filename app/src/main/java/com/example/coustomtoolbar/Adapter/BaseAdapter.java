@@ -98,8 +98,8 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         notifyDataSetChanged();
     }
     public void addData(List<T> datas){
-        for (T data:datas){
-            mData.add(data);
+        for ( int i = 0;i < datas.size(); i++){
+            mData.add(datas.get(i));
         }
         notifyDataSetChanged();
     }

@@ -104,6 +104,9 @@ public class Coordinator extends AppCompatActivity {
     }
 
 
-
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        finish();
+    }
 }

@@ -12,19 +12,16 @@ import java.util.List;
  * Created by SEELE on 2017/8/3.
  */
 
-public class MainAdapter extends BaseAdapter<Integer,BaseViewHolder> {
+public class MainAdapter extends BaseAdapter<String,BaseViewHolder> {
 
 
-    public MainAdapter(Context context, int layoutResId, List<Integer> data, RecyclerView recyclerView) {
+    public MainAdapter(Context context, int layoutResId, List<String> data, RecyclerView recyclerView) {
         super(context, layoutResId, data, recyclerView);
     }
 
     @Override
-    public void bindingItemView(Context context, BaseViewHolder holder, Integer integer) {
-
-        holder.setImageViewResource(R.id.image_main,integer);
-        //holder.setTextView(R.id.button_card_view,holder.getAdapterPosition()+ "");
-
-
+    public void bindingItemView(Context context, BaseViewHolder holder, String s) {
+        //holder.setImageViewResource(R.id.image_main,integer);
+        holder.setTextView(R.id.image_text,s);
     }
 }

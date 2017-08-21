@@ -107,7 +107,7 @@ public class DBManager {
         }
     }
 
-    public void addCateory(String string){
+    public void addCategory(String string){
         SQLiteDatabase db = new SQLiteDbHelper(context).getReadableDatabase();
         db.beginTransaction();
         try{
