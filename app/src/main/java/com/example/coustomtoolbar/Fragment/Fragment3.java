@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.coustomtoolbar.Adapter.BaseAdapter;
 import com.example.coustomtoolbar.Adapter.NormalAdapter;
 import com.example.coustomtoolbar.Bean.PictureBean;
@@ -100,7 +101,7 @@ public class Fragment3 extends Fragment {
                 new DividerItemDecoration(getContext(),DividerItemDecoration.VERTICAL));
 
         adapter = new NormalAdapter(
-                getContext(),R.layout.fragment2_item_,stringList,recyclerView);
+                getActivity().getApplicationContext(),R.layout.fragment2_item_,stringList,recyclerView);
 
         //adapter.setEmptyView(R.layout.empty_layout);
         adapter.setHeaderViewList(R.layout.footer_add_more);
@@ -178,7 +179,7 @@ public class Fragment3 extends Fragment {
         if (stringList == null){
             stringList = new ArrayList<>();
         }
-        imageCache = ImageCache.getInstance(getContext());
+        imageCache = ImageCache.getInstance(getActivity().getApplicationContext());
         imageCache.setMaxWidth(1080 / 3);
         //urls = imageUrl.getBitmapList();
         /*
@@ -248,13 +249,12 @@ public class Fragment3 extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         Log.e(TAG, "onDestroy: " );
-
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        Log.e(TAG, "onDetach: " );
+
     }
 
     @Override

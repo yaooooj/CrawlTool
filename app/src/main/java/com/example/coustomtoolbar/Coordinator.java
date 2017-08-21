@@ -13,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.example.coustomtoolbar.Fragment.Fragment1;
 import com.example.coustomtoolbar.Fragment.Fragment2;
@@ -31,6 +32,7 @@ public class Coordinator extends AppCompatActivity {
     private List<Fragment> mFragment;
     private ScreenUtil screenUtil = new ScreenUtil();
     private Toolbar toolbar;
+    private ImageView finishView;
 
 
     @Override
@@ -41,6 +43,13 @@ public class Coordinator extends AppCompatActivity {
         screenUtil.setColor(Color.parseColor("#f19388"));
         screenUtil.StatusView(getWindow());
         toolbar = (Toolbar)findViewById(R.id.toolbar_coordinator);
+        finishView = (ImageView)findViewById(R.id.finish);
+        finishView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         initData();
 
         findViewById(R.id.float_btn).setOnClickListener(new View.OnClickListener() {

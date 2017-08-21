@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.coustomtoolbar.ImageCache.ImageCache;
 import com.example.coustomtoolbar.R;
 
@@ -69,8 +70,10 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
 
             holder.setImageView(imageView,R.mipmap.ic_favorite_black_24dp);
 
-            imageView.setTag(s);
+            //imageView.setTag(s);
             if (isFirstLoadImage()){
+                Glide.with(context).load(s).into(imageView);
+                /*
                 try {
                     mImageCache.showImage(imageView,s);
                 } catch (ExecutionException e) {
@@ -78,9 +81,11 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                */
             }else {
-                Log.e(TAG, "bindingItemView: " + "Second Load Image" );
-                showImage.setShowImage(imageView,s);
+                //Log.e(TAG, "bindingItemView: " + "Second Load Image" );
+                //showImage.setShowImage(imageView,s);
+                Glide.with(context).load(s).into(imageView);
             }
 
         }

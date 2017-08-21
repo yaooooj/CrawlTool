@@ -1,5 +1,6 @@
 package com.example.coustomtoolbar.ImageCache;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -12,6 +13,7 @@ import android.util.LruCache;
 import android.widget.ImageView;
 
 
+import com.bumptech.glide.Glide;
 import com.jakewharton.disklrucache.DiskLruCache;
 
 import java.io.BufferedInputStream;
@@ -42,8 +44,9 @@ public class ImageCache {
     private int width;
     private int height;
     private ImageDispatcher mImageDispatcher;
+    private Context context;
     private ImageCache(Context context) {
-
+        this.context = context;
         getScreenWidth(context);
         imageDiskLru = ImageDiskLruCache.getImageDiskLruInstance(context);
         mImageDispatcher = new ImageDispatcher();
@@ -74,9 +77,14 @@ public class ImageCache {
             }
         }
         else {
+            Glide.with(context)
+                    .load(url)
+                    .into(imageView);
+
             //new BitmapTask(url,imageView).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,url);
             //getBitmapFromNetWork(url,imageView);
             //executor1.execute(url);
+            /*
             mImageDispatcher.enqueue(new ImageAsyncCall(imageDiskLru, url, new ImageCallback() {
                 @Override
                 public void OnSuccess(Bitmap bitmap, String url) {
@@ -96,6 +104,7 @@ public class ImageCache {
 
                 }
             }));
+            */
         }
     }
 

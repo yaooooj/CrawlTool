@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.coustomtoolbar.ImageCache.ImageCache;
 import com.example.coustomtoolbar.R;
 
@@ -139,14 +140,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
             ((MyViewHolder) holder).imageView.setImageResource(R.mipmap.ic_favorite_black_24dp);
             final String url  = datas.get(position);
-            ((MyViewHolder) holder).imageView.setTag(url);
-            try {
-                imageCache.showImage(((MyViewHolder) holder).imageView,datas.get(position));
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            Glide.with(context).load(url).into(((MyViewHolder) holder).imageView);
         }
 
     }

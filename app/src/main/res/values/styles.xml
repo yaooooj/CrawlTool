@@ -9,7 +9,7 @@
     </style>
 
     <style name="AppTheme" parent="@style/BaseTheme">
-
+        <item name="android:windowTranslucentStatus">true</item>
     </style>
 
     <style name="Base" parent="Base.Theme.AppCompat.Light.DarkActionBar">

@@ -112,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
         mAdapter = new MainAdapter(this,R.layout.main_base_layout,bitmaps,mRecyclerView);
         mRecyclerView.setAdapter(mAdapter);
+        //mAdapter.setHeaderViewList();
         mAdapter.setOnItemClickListener(new BaseAdapter.OnItemClickListener() {
             @Override
             public void onClick(View view, int position) {
@@ -169,6 +170,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intentActivity(SettingActivity.class);
                 break;
             case R.id.favorite:
+                intentActivity(LikeActivity.class);
                 break;
             case R.id.setting:
                 intentActivity(SettingActivity.class);
