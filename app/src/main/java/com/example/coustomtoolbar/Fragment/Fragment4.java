@@ -12,18 +12,22 @@ import com.example.coustomtoolbar.R;
 import com.google.android.gms.plus.PlusOneButton;
 
 
-public class PlusOneFragment extends Fragment {
+public class Fragment4 extends Fragment {
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ARG_PARAM1 = "name";
+    private static final String ARG_PARAM2 = "id";
     private String mParam1;
     private String mParam2;
-    private PlusOneButton mPlusOneButton;
-
-
-    public PlusOneFragment() {
+    private  int page = 2;
+    private  int type = 4001;
+    private static final String APIKEY = "42731";
+    private static final String APISECRET = "96039fbf84ee42afaad5d66f14159c31";
+    private final String URL_PICTURE = "http://route.showapi.com/852-2?page="+ page +
+            "&showapi_appid="+APIKEY+"&type="+type+"&showapi_sign="+APISECRET;
+    public Fragment4() {
         // Required empty public constructor
     }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

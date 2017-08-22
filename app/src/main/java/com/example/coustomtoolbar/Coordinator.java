@@ -10,21 +10,17 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.example.coustomtoolbar.Fragment.Fragment1;
 import com.example.coustomtoolbar.Fragment.Fragment2;
 import com.example.coustomtoolbar.Fragment.Fragment3;
-import com.example.coustomtoolbar.Fragment.PlusOneFragment;
+import com.example.coustomtoolbar.Fragment.Fragment4;
 import com.example.coustomtoolbar.Util.ScreenUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observer;
-import java.util.logging.Handler;
 
 public class Coordinator extends AppCompatActivity {
     private String TAG = "Coordinator";
@@ -77,7 +73,7 @@ public class Coordinator extends AppCompatActivity {
         mFragment.add(new Fragment1());
         mFragment.add(new Fragment2());
         mFragment.add(new Fragment3());
-        mFragment.add(new PlusOneFragment());
+        mFragment.add(new Fragment4());
     }
 
     private class ViewPagerAdapter extends FragmentPagerAdapter{

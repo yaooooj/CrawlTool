@@ -38,29 +38,24 @@ public class Fragment1 extends Fragment{
     private MyAdapter adapter;
     private SwipeRefreshLayout refreshLayout;
     private View view;
-    private Response response;
-    private Gson gson;
     private OkHttp3Util okHttp3Util;
-    private List<String> bitmapList;
-    private Bitmap bitmap;
-    private PictureBean pictureBean;
-    private ImageCache imageCache;
-    private static int page = 2;
-    private static int type = 4001;
+    private static final String ARG_PARAM1 = "name";
+    private static final String ARG_PARAM2 = "id";
+    private String mParam1;
+    private String mParam2;
+    private static final int page = 1;
     private static final String APIKEY = "42731";
     private static final String APISECRET = "96039fbf84ee42afaad5d66f14159c31";
-    private static final String URL_PICTURE = "http://route.showapi.com/852-2?page="+ page +
-            "&showapi_appid="+APIKEY+"&type="+type+"&showapi_sign="+APISECRET;
-    private static final String URLTest = "https://api.github.com/gists/c2a7c39532239ff261be";
-    private static final String APPCODE = "a2e7ba852ad505736d69a6e05f49d1ed";
-    private static final String URL  = "http://route.showapi.com/852-1?&showapi_appid="+APIKEY+"&showapi_sign="+APISECRET;
+    //private final String URL_PICTURE = "http://route.showapi.com/852-2?page="+ page +
+    //        "&showapi_appid="+APIKEY+"&type="+mParam2+"&showapi_sign="+APISECRET;
+
     private ImageUrl imageUrl;
     private Handler handler2 = new Handler(){
         @Override
         public void handleMessage(final Message msg) {
             switch (msg.what ){
                 case 1:
-                    pictureBean = (PictureBean)msg.obj;
+                    PictureBean pictureBean = (PictureBean)msg.obj;
                     Log.e(TAG, "onResponse: "+  pictureBean.getShowapi_res_body().getPagebean().getAllNum() );
                     imageUrl = new ImageUrl(pictureBean);
                     break;
@@ -69,6 +64,25 @@ public class Fragment1 extends Fragment{
             }
         }
     };
+
+    public Fragment1() {
+        //Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mParam1 = getArguments().getString(ARG_PARAM1);
+        mParam2 = getArguments().getString(ARG_PARAM2);
+        Log.e(TAG, "onCreate: "+ mParam2 +" "+ mParam1  );
+        String URL_PICTURE = "http://route.showapi.com/852-2?page="+ page +
+                "&showapi_appid="+APIKEY+"&type="+mParam2+"&showapi_sign="+APISECRET;
+        if (okHttp3Util == null){
+            okHttp3Util = new OkHttp3Util(getContext());
+        }
+        okHttp3Util.executeGet(URL_PICTURE,handler2, PictureBean.class,1);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -76,12 +90,8 @@ public class Fragment1 extends Fragment{
         view = inflater.inflate(R.layout.layout_fragment_1,container,false);
         initData();
         //RecyclerView
-        if (okHttp3Util == null){
-            okHttp3Util = new OkHttp3Util(getContext());
-        }
-        okHttp3Util.executeGet(URL_PICTURE,handler2, PictureBean.class,1);
-
         initSwipeRefreshLayout();
+
         RecyclerView rv = (RecyclerView)view.findViewById(R.id.rv);
        adapter = new MyAdapter(getActivity(),mData);
         RecyclerView.LayoutManager layoutManager =
@@ -90,8 +100,6 @@ public class Fragment1 extends Fragment{
         rv.setAdapter(adapter);
         rv.setItemAnimator(new DefaultItemAnimator());
         rv.addItemDecoration(new SpaceDecoration(5,5));
-
-
         return view;
     }
     public void initSwipeRefreshLayout(){
@@ -101,17 +109,13 @@ public class Fragment1 extends Fragment{
             @Override
             public void onRefresh() {
                 imageUrl.praserUrl();
-               updata(imageUrl.getBitmapList());
+                updata(imageUrl.getBitmapList());
             }
         });
     }
 
     public void initData(){
         mData = new ArrayList<>();
-        gson = new Gson();
-        bitmapList = new ArrayList<>();
-        imageCache = ImageCache.getInstance(getContext());
-        imageCache.setMaxWidth(1080 / 3);
 
     }
 
@@ -122,11 +126,11 @@ public class Fragment1 extends Fragment{
             for (int i =0; i < 40;i++){
                 adapter.addItem(bitmap1.get(i));
             }
-
         }
     }
 
-
-
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
 }

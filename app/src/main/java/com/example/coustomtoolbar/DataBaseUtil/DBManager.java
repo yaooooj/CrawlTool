@@ -142,6 +142,19 @@ public class DBManager {
         }
         return cursor;
     }
+
+    public Cursor queryCategoryId(String tableName,String columnName,String where){
+        SQLiteDatabase db = new SQLiteDbHelper(context).getReadableDatabase();
+        Cursor cursor;
+        db.beginTransaction();
+        try {
+            cursor = db.rawQuery("select "+ tableName + " from " + columnName + " where "+ where,null);
+            db.setTransactionSuccessful();
+        }finally {
+            db.endTransaction();
+        }
+        return cursor;
+    }
 }
 
 

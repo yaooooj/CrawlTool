@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,6 +21,7 @@ import com.example.coustomtoolbar.Adapter.BaseAdapter;
 import com.example.coustomtoolbar.Adapter.MainAdapter;
 import com.example.coustomtoolbar.Bean.AllCategory;
 import com.example.coustomtoolbar.Bean.ConcreteCategory;
+import com.example.coustomtoolbar.Bean.PassCategory;
 import com.example.coustomtoolbar.Bean.PictureCategory;
 import com.example.coustomtoolbar.DataBaseUtil.DBManager;
 import com.example.coustomtoolbar.DataBaseUtil.SQLiteDbHelper;
@@ -32,7 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
-    private String TAG = "MainActivity1";
+    private static final String TAG = "MainActivity1";
+    private static final int NULL_BUNDLE = -1;
     private Toolbar mToolbar;
     private boolean isShowToolbar = true;
     private DBManager dbManager;
@@ -145,17 +148,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View view, int position) {
                 Toast.makeText(MainActivity.this,"this " + position,Toast.LENGTH_SHORT).show();
-                switch (position){
-                    case 1:
-                        Bundle bundle = new Bundle();
-                        //bundle.putParcelable("category",getConcreteCategory());
-                        intentActivity(FragmentTestActivity.class);
-                        break;
-                    default:
-                        break;
-                }
+                intentActivity(FragmentTestActivity.class,position);
                 if (position == 0){
-                    intentActivity(Coordinator.class);
+                    intentActivity(Coordinator.class,NULL_BUNDLE);
                 }
             }
         });
@@ -184,9 +179,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         editor.apply();
     }
 
-
-    public void intentActivity(Class activity){
+    public void intentActivity(Class activity,int position){
         Intent intent = new Intent(MainActivity.this,activity);
+        if (position != -1){
+            Bundle bundle = new Bundle();
+            //bundle.putParcelable("category",getConcreteCategory(position));
+            bundle.putParcelableArrayList(
+                    "category", (ArrayList<? extends Parcelable>) getConcreteCategory(position));
+            intent.putExtra("intentBundle",bundle);
+        }
         startActivity(intent);
     }
 
@@ -194,31 +195,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.nvg:
-                intentActivity(SettingActivity.class);
+                intentActivity(SettingActivity.class,NULL_BUNDLE);
                 break;
             case R.id.favorite:
-                intentActivity(LikeActivity.class);
+                intentActivity(LikeActivity.class,NULL_BUNDLE);
                 break;
             case R.id.setting:
-                intentActivity(SettingActivity.class);
+                intentActivity(SettingActivity.class,NULL_BUNDLE);
             default:
                 break;
         }
 
     }
 
-    public ConcreteCategory getConcreteCategory(){
-        ConcreteCategory category = null;
-        Cursor cursor = dbManager.queryCategory(SQLiteDbHelper.TABLE_ALL_CATEGORY,"category");
+    public List<PassCategory> getConcreteCategory(int id){
+        final int realId1 = id * 1000;
+        final int realId2 = id * 1000 + 999;
+        PassCategory category = null;
+        List<PassCategory> mCategory = new ArrayList<>();
+        Cursor cursor = dbManager.queryCategoryId(
+                "category_id,category_name",SQLiteDbHelper.TABLE_CONCRETE_CATEGORY,"category_id > " + realId1 + " and category_id < " + realId2);
         while (cursor.moveToNext()){
-            category = new ConcreteCategory();
+            Log.e(TAG, "getConcreteCategory: " + cursor.getString(cursor.getColumnIndex("category_id")));
+            Log.e(TAG, "getConcreteCategory: " +  cursor.getString(cursor.getColumnIndex("category_name")));
+            category = new PassCategory();
             category.setId(cursor.getString(cursor.getColumnIndex("category_id")));
             category.setName(cursor.getString(cursor.getColumnIndex("category_name")));
+            mCategory.add(category);
         }
-
         cursor.close();
         if (category != null){
-            return category;
+            return mCategory;
         }
         return  null;
     }
