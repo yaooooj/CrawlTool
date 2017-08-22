@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.example.coustomtoolbar.Adapter.MyAdapter;
+import com.example.coustomtoolbar.Adapter.NormalAdapter;
 import com.example.coustomtoolbar.Bean.PictureBean;
 import com.example.coustomtoolbar.ImageCache.ImageCache;
 import com.example.coustomtoolbar.ImageCache.ImageUrl;
@@ -35,7 +36,7 @@ import okhttp3.Response;
 public class Fragment1 extends Fragment{
     private static final String TAG = "Fragment1";
     private List<String> mData;
-    private MyAdapter adapter;
+    private NormalAdapter adapter;
     private SwipeRefreshLayout refreshLayout;
     private View view;
     private OkHttp3Util okHttp3Util;
@@ -93,10 +94,13 @@ public class Fragment1 extends Fragment{
         initSwipeRefreshLayout();
 
         RecyclerView rv = (RecyclerView)view.findViewById(R.id.rv);
-       adapter = new MyAdapter(getActivity(),mData);
-        RecyclerView.LayoutManager layoutManager =
-                new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);
-        rv.setLayoutManager(layoutManager);
+        adapter = new NormalAdapter(
+                getContext().getApplicationContext(),R.layout.fragment2_item_,mData,rv);
+
+        rv.setLayoutManager(
+                new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
+        );
+
         rv.setAdapter(adapter);
         rv.setItemAnimator(new DefaultItemAnimator());
         rv.addItemDecoration(new SpaceDecoration(5,5));
@@ -124,7 +128,7 @@ public class Fragment1 extends Fragment{
         if (bitmap1 != null){
             Log.e(TAG, "updata: " + bitmap1.size() );
             for (int i =0; i < 40;i++){
-                adapter.addItem(bitmap1.get(i));
+                //adapter.addItem(bitmap1.get(i));
             }
         }
     }

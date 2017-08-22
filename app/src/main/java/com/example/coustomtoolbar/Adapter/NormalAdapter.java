@@ -65,27 +65,18 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
                 }
             });
         }else {
-
             ImageView imageView = holder.getView(R.id.fragment2_image);
-
             holder.setImageView(imageView,R.mipmap.ic_favorite_black_24dp);
 
-            //imageView.setTag(s);
             if (isFirstLoadImage()){
-                Glide.with(context).load(s).into(imageView);
-                /*
-                try {
-                    mImageCache.showImage(imageView,s);
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                */
+                Glide.with(context)
+
+                        .load(s)
+                        .into(imageView);
+
             }else {
-                //Log.e(TAG, "bindingItemView: " + "Second Load Image" );
-                //showImage.setShowImage(imageView,s);
                 Glide.with(context).load(s).into(imageView);
+
             }
 
         }

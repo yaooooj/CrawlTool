@@ -46,17 +46,20 @@ public class Fragment3 extends Fragment {
     private NormalAdapter adapter;
     private OkHttp3Util okHttp3Util;
     private PictureBean pictureBean;
-    private ImageCache imageCache;
+
     private ImageUrl imageUrl;
     private List<String> urls;
     int count = 0;
-    private int pageItem = 10;
+
+    private static final String ARG_PARAM1 = "name";
+    private static final String ARG_PARAM2 = "id";
+    private String mParam1;
+    private String mParam2;
     private static int page = 2;
     private static int type = 4001;
 
     private static final String APIKEY = "42731";
     private static final String APISECRET = "96039fbf84ee42afaad5d66f14159c31";
-    private static final String URL_PICTURE = "http://route.showapi.com/852-2?page="+ page + "&showapi_appid="+APIKEY+"&type="+type+"&showapi_sign="+APISECRET;
     Handler handler3 = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -67,26 +70,42 @@ public class Fragment3 extends Fragment {
                     Log.e(TAG, "onResponse: "+  pictureBean.getShowapi_res_body().getPagebean().getAllNum() );
                     imageUrl = new ImageUrl(pictureBean);
                     urls = imageUrl.getBitmapList();
-
                     adapter.setFirstLoadImage(true);
-                    updata();
+                    //updata();
                     break;
                 default:
                     break;
             }
         }
     };
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mParam1 = getArguments().getString(ARG_PARAM1);
+        mParam2 = getArguments().getString(ARG_PARAM2);
+        Log.e(TAG, "onCreate: "+ mParam2 +" "+ mParam1  );
+        String URL_PICTURE = "http://route.showapi.com/852-2?page="+ page +
+                "&showapi_appid="+APIKEY+"&type="+mParam2+"&showapi_sign="+APISECRET;
+        if (okHttp3Util == null){
+            okHttp3Util = new OkHttp3Util(getContext());
+        }
+        okHttp3Util.executeGet(URL_PICTURE,handler3, PictureBean.class,2);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.layout_fragment_3,null);
         Log.e(TAG, "onCreateView: " );
+        /*
         imageCache = ImageCache.getInstance(getContext().getApplicationContext());
         if (okHttp3Util == null){
             okHttp3Util = new OkHttp3Util(getContext());
         }
         okHttp3Util.executeGet(URL_PICTURE,handler3, PictureBean.class,2);
+        */
         initData();
         initSwipeRefreshLayout();
         recyclerView = (RecyclerView) view.findViewById(R.id.rv);
@@ -101,7 +120,7 @@ public class Fragment3 extends Fragment {
                 new DividerItemDecoration(getContext(),DividerItemDecoration.VERTICAL));
 
         adapter = new NormalAdapter(
-                getActivity().getApplicationContext(),R.layout.fragment2_item_,stringList,recyclerView);
+                getActivity().getApplicationContext(),R.layout.fragment2_item_,urls,recyclerView);
 
         //adapter.setEmptyView(R.layout.empty_layout);
         adapter.setHeaderViewList(R.layout.footer_add_more);
@@ -127,13 +146,14 @@ public class Fragment3 extends Fragment {
         adapter.setLoadMoreListener(new BaseAdapter.OnLoadMoreListener() {
             @Override
             public void loadMore() {
-                updata();
+                //updata();
             }
 
             @Override
             public void setImage() {
                 //updata();
                 adapter.setFirstLoadImage(false);
+                /*
                 adapter.setShowImage(new NormalAdapter.ShowImage() {
                     @Override
                     public void setShowImage(ImageView image, String url) {
@@ -147,6 +167,7 @@ public class Fragment3 extends Fragment {
                         }
                     }
                 });
+                */
             }
         });
         return view;
@@ -157,7 +178,7 @@ public class Fragment3 extends Fragment {
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                updata();
+                //updata();
             }
         });
     }
@@ -170,7 +191,6 @@ public class Fragment3 extends Fragment {
                 count++;
                 //Log.e(TAG, "updata: " + urls.get(count) );
             }
-           // count += getPageItem();
             Log.e(TAG, "updata: " + count);
         }
 
@@ -179,8 +199,7 @@ public class Fragment3 extends Fragment {
         if (stringList == null){
             stringList = new ArrayList<>();
         }
-        imageCache = ImageCache.getInstance(getActivity().getApplicationContext());
-        imageCache.setMaxWidth(1080 / 3);
+
         //urls = imageUrl.getBitmapList();
         /*
         for ( int i = 0; i < 20;i++){
@@ -190,13 +209,7 @@ public class Fragment3 extends Fragment {
         */
     }
 
-    public int getPageItem() {
-        return pageItem;
-    }
 
-    public void setPageItem(int pageItem) {
-        this.pageItem = pageItem;
-    }
 
 
     @Override
@@ -205,12 +218,7 @@ public class Fragment3 extends Fragment {
         Log.e(TAG, "onAttach: ");
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
 
-        Log.e(TAG, "onCreate: " );
-    }
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);

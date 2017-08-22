@@ -14,6 +14,7 @@ import android.widget.ImageView;
 
 import com.example.coustomtoolbar.Bean.PassCategory;
 import com.example.coustomtoolbar.Fragment.Fragment1;
+import com.example.coustomtoolbar.Fragment.Fragment3;
 import com.example.coustomtoolbar.Fragment.Fragment4;
 import com.example.coustomtoolbar.Util.ScreenUtil;
 
@@ -67,7 +68,8 @@ public class FragmentTestActivity extends AppCompatActivity {
     public Fragment putArgumentsToFragment(String key,String id){
         Bundle bundleToFragment = new Bundle();
         //Fragment4 fragment = new Fragment4();
-        Fragment1 fragment = new Fragment1();
+        //Fragment1 fragment = new Fragment1();
+        Fragment3 fragment = new Fragment3();
         bundleToFragment.putString("name",key);
         bundleToFragment.putString("id",id);
         fragment.setArguments(bundleToFragment);

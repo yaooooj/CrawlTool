@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.coustomtoolbar.Adapter.BaseAdapter;
 import com.example.coustomtoolbar.Adapter.MainAdapter;
 import com.example.coustomtoolbar.Bean.AllCategory;
@@ -96,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         okHttp3Util = new OkHttp3Util(getApplicationContext());
         pictureCategory = new ArrayList<>();
         gson = new Gson();
+        //Glide.get(getApplicationContext()).onConfigurationChanged();
         firstTimeInit();
     }
 
