@@ -5,6 +5,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -76,7 +77,7 @@ public class FragmentTestActivity extends AppCompatActivity {
         return fragment;
     }
 
-    private class ViewPagerTestAdapter extends FragmentPagerAdapter {
+    private class ViewPagerTestAdapter extends FragmentStatePagerAdapter {
         private List<Fragment> fragments;
         ViewPagerTestAdapter(FragmentManager fm, List<Fragment> fragment) {
             super(fm);

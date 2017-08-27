@@ -37,7 +37,7 @@ import java.util.concurrent.ExecutionException;
  * Created by yaojian on 2017/6/23.
  */
 
-public class Fragment3 extends Fragment {
+public class Fragment3 extends ImageFragment {
     private static final String TAG = "Fragment3";
     RecyclerView recyclerView;
     private List<String> stringList;
@@ -60,6 +60,8 @@ public class Fragment3 extends Fragment {
 
     private static final String APIKEY = "42731";
     private static final String APISECRET = "96039fbf84ee42afaad5d66f14159c31";
+    private static String URL_PICTURE;
+
     Handler handler3 = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -82,15 +84,16 @@ public class Fragment3 extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         mParam1 = getArguments().getString(ARG_PARAM1);
         mParam2 = getArguments().getString(ARG_PARAM2);
         Log.e(TAG, "onCreate: "+ mParam2 +" "+ mParam1  );
-        String URL_PICTURE = "http://route.showapi.com/852-2?page="+ page +
+        URL_PICTURE = "http://route.showapi.com/852-2?page="+ page +
                 "&showapi_appid="+APIKEY+"&type="+mParam2+"&showapi_sign="+APISECRET;
         if (okHttp3Util == null){
             okHttp3Util = new OkHttp3Util(getContext());
         }
-        okHttp3Util.executeGet(URL_PICTURE,handler3, PictureBean.class,2);
+        Log.e(TAG, "onCreate: " + mParam2 + " " + getUserVisibleHint() );
     }
 
     @Nullable
@@ -98,18 +101,12 @@ public class Fragment3 extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.layout_fragment_3,null);
-        Log.e(TAG, "onCreateView: " );
-        /*
-        imageCache = ImageCache.getInstance(getContext().getApplicationContext());
-        if (okHttp3Util == null){
-            okHttp3Util = new OkHttp3Util(getContext());
-        }
-        okHttp3Util.executeGet(URL_PICTURE,handler3, PictureBean.class,2);
-        */
+        Log.e(TAG, "onCreateView: " + mParam2 + " " + getUserVisibleHint()  );
+
         initData();
         initSwipeRefreshLayout();
-        recyclerView = (RecyclerView) view.findViewById(R.id.rv);
 
+        recyclerView = (RecyclerView) view.findViewById(R.id.rv);
         //recyclerView.setLayoutManager(
        //         new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
         StaggeredGridLayoutManager layoutManager =
@@ -153,21 +150,7 @@ public class Fragment3 extends Fragment {
             public void setImage() {
                 //updata();
                 adapter.setFirstLoadImage(false);
-                /*
-                adapter.setShowImage(new NormalAdapter.ShowImage() {
-                    @Override
-                    public void setShowImage(ImageView image, String url) {
-                        try {
-                            Log.e(TAG, "setShowImage: " );
-                            imageCache.showImage(image,url);
-                        } catch (ExecutionException e) {
-                            e.printStackTrace();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                */
+
             }
         });
         return view;
@@ -182,31 +165,12 @@ public class Fragment3 extends Fragment {
             }
         });
     }
-    public void updata(){
-        refreshLayout.setRefreshing(false);
-        //List<String> urls = imageUrl.getBitmapList();
-        if (urls != null){
-            for ( int i = 0; i < 30;i++){
-                adapter.addData(urls.get(count));
-                count++;
-                //Log.e(TAG, "updata: " + urls.get(count) );
-            }
-            Log.e(TAG, "updata: " + count);
-        }
 
-    }
     public void initData(){
         if (stringList == null){
             stringList = new ArrayList<>();
         }
 
-        //urls = imageUrl.getBitmapList();
-        /*
-        for ( int i = 0; i < 20;i++){
-            stringList.add(urls.get(count));
-            count++;
-        }
-        */
     }
 
 
@@ -215,7 +179,7 @@ public class Fragment3 extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        Log.e(TAG, "onAttach: ");
+        Log.e(TAG, "onAttach: "+ mParam2);
     }
 
 
@@ -227,36 +191,36 @@ public class Fragment3 extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        Log.e(TAG, "onStart: " );
+        Log.e(TAG, "onStart: "+ mParam2 + " " + getUserVisibleHint() );
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.e(TAG, "onResume: " );
+        Log.e(TAG, "onResume: " + mParam2 + " " + getUserVisibleHint() );
     }
     @Override
     public void onPause() {
         super.onPause();
-        Log.e(TAG, "onPause: " );
+        Log.e(TAG, "onPause: " + mParam2 + " " + getUserVisibleHint() );
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        Log.e(TAG, "onStop: " );
+        Log.e(TAG, "onStop: "+ mParam2 + " " + getUserVisibleHint()  );
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.e(TAG, "onDestroyView: " );
+        Log.e(TAG, "onDestroyView: " + mParam2 + " " + getUserVisibleHint()  );
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.e(TAG, "onDestroy: " );
+        Log.e(TAG, "onDestroy: "+ mParam2  + " " + getUserVisibleHint()  );
     }
 
     @Override
@@ -266,7 +230,9 @@ public class Fragment3 extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
+    protected void load() {
+        Log.e(TAG, "load: " + "visible to init data"  + " " + getUserVisibleHint()  );
+
+       // okHttp3Util.executeGet(URL_PICTURE,handler3, PictureBean.class,2);
     }
 }
