@@ -5,25 +5,19 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.util.TimeUtils;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.example.coustomtoolbar.Adapter.BaseAdapter;
 import com.example.coustomtoolbar.Adapter.NormalAdapter;
 import com.example.coustomtoolbar.Bean.PictureBean;
-import com.example.coustomtoolbar.ImageCache.ImageCache;
 import com.example.coustomtoolbar.ImageCache.ImageUrl;
 import com.example.coustomtoolbar.R;
 import com.example.coustomtoolbar.RecyclerViewUtil.LoadMode;
@@ -31,13 +25,12 @@ import com.example.coustomtoolbar.NetUtil.OkHttp3Util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by yaojian on 2017/6/23.
  */
 
-public class Fragment3 extends ImageFragment {
+public class Fragment3 extends BaseFragment {
     private static final String TAG = "Fragment3";
     RecyclerView recyclerView;
     private List<String> stringList;
@@ -61,8 +54,7 @@ public class Fragment3 extends ImageFragment {
     private static final String APIKEY = "42731";
     private static final String APISECRET = "96039fbf84ee42afaad5d66f14159c31";
     private static String URL_PICTURE;
-
-    Handler handler3 = new Handler(){
+    private Handler handler3 = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -73,13 +65,16 @@ public class Fragment3 extends ImageFragment {
                     imageUrl = new ImageUrl(pictureBean);
                     urls = imageUrl.getBitmapList();
                     adapter.setFirstLoadImage(true);
-                    //updata();
+
+                    updata();
                     break;
                 default:
                     break;
             }
+
         }
     };
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -90,9 +85,7 @@ public class Fragment3 extends ImageFragment {
         Log.e(TAG, "onCreate: "+ mParam2 +" "+ mParam1  );
         URL_PICTURE = "http://route.showapi.com/852-2?page="+ page +
                 "&showapi_appid="+APIKEY+"&type="+mParam2+"&showapi_sign="+APISECRET;
-        if (okHttp3Util == null){
-            okHttp3Util = new OkHttp3Util(getContext());
-        }
+
         Log.e(TAG, "onCreate: " + mParam2 + " " + getUserVisibleHint() );
     }
 
@@ -116,8 +109,7 @@ public class Fragment3 extends ImageFragment {
         recyclerView.addItemDecoration(
                 new DividerItemDecoration(getContext(),DividerItemDecoration.VERTICAL));
 
-        adapter = new NormalAdapter(
-                getActivity().getApplicationContext(),R.layout.fragment2_item_,urls,recyclerView);
+        adapter = new NormalAdapter(getActivity().getApplicationContext(),R.layout.fragment2_item_,urls,recyclerView);
 
         //adapter.setEmptyView(R.layout.empty_layout);
         adapter.setHeaderViewList(R.layout.footer_add_more);
@@ -139,20 +131,6 @@ public class Fragment3 extends ImageFragment {
             }
         });
 
-        adapter.setLoadMode(LoadMode.PULLUP);
-        adapter.setLoadMoreListener(new BaseAdapter.OnLoadMoreListener() {
-            @Override
-            public void loadMore() {
-                //updata();
-            }
-
-            @Override
-            public void setImage() {
-                //updata();
-                adapter.setFirstLoadImage(false);
-
-            }
-        });
         return view;
     }
     public void initSwipeRefreshLayout(){
@@ -173,66 +151,35 @@ public class Fragment3 extends ImageFragment {
 
     }
 
-
-
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        Log.e(TAG, "onAttach: "+ mParam2);
-    }
-
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        Log.e(TAG, "onActivityCreated: " );
-    }
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.e(TAG, "onStart: "+ mParam2 + " " + getUserVisibleHint() );
+    private void updata(){
+        if (urls != null){
+            adapter.addData(urls);
+        }
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        Log.e(TAG, "onResume: " + mParam2 + " " + getUserVisibleHint() );
-    }
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.e(TAG, "onPause: " + mParam2 + " " + getUserVisibleHint() );
+    protected void onFragmentVisibleChange(boolean isVisible) {
+
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        Log.e(TAG, "onStop: "+ mParam2 + " " + getUserVisibleHint()  );
+    public void onFragmentFirstVisible() {
+        if (okHttp3Util == null){
+            okHttp3Util = new OkHttp3Util(getContext());
+        }
+        okHttp3Util.executeGet(URL_PICTURE,handler3, PictureBean.class,2);
+
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.e(TAG, "onDestroyView: " + mParam2 + " " + getUserVisibleHint()  );
+        Log.e(TAG, "onDestroyView: " );
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.e(TAG, "onDestroy: "+ mParam2  + " " + getUserVisibleHint()  );
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-    }
-
-    @Override
-    protected void load() {
-        Log.e(TAG, "load: " + "visible to init data"  + " " + getUserVisibleHint()  );
-
-       // okHttp3Util.executeGet(URL_PICTURE,handler3, PictureBean.class,2);
+        Log.e(TAG, "onDestroy: " );
     }
 }

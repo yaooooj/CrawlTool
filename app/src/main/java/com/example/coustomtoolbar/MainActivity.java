@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,9 +17,15 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.GlideBuilder;
+import com.bumptech.glide.MemoryCategory;
+import com.bumptech.glide.load.engine.cache.DiskCache;
+import com.bumptech.glide.load.engine.cache.DiskLruCacheWrapper;
+import com.bumptech.glide.load.engine.cache.MemorySizeCalculator;
 import com.example.coustomtoolbar.Adapter.BaseAdapter;
 import com.example.coustomtoolbar.Adapter.MainAdapter;
 import com.example.coustomtoolbar.Bean.AllCategory;
@@ -31,8 +39,11 @@ import com.example.coustomtoolbar.Util.ScreenUtil;
 import com.facebook.stetho.Stetho;
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.graphics.Color.TRANSPARENT;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private static final String TAG = "MainActivity1";
@@ -53,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private AllCategory allCategory;
     private List<String> pictureCategory;
     private Cursor cursor;
+    private GlideBuilder builder;
 
     private Handler handler = new Handler(){
         @Override
@@ -80,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Stetho.initializeWithDefaults(this);
         initStatusColor();
         initDataBase();
+        initGlide();
         initToolbar(isShowToolbar);
         initImageView();
         initRecycler();
@@ -89,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void initStatusColor(){
         ScreenUtil screenUtil = new ScreenUtil();
         //screenUtil.setColor(Color.parseColor("#dedede"));
-        screenUtil.setColor(Color.TRANSPARENT);
+        screenUtil.setColor(TRANSPARENT);
         screenUtil.StatusView(getWindow());
     }
     private void initDataBase(){
@@ -99,6 +112,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         gson = new Gson();
         //Glide.get(getApplicationContext()).onConfigurationChanged();
         firstTimeInit();
+    }
+
+    private void initGlide(){
+
+
     }
 
     private void initToolbar(boolean  isShowToolbar){
@@ -128,9 +146,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
     public void initImageView(){
+        LinearLayout layout = (LinearLayout)findViewById(R.id.tab_layout);
+        //layout.setAlpha((float) 0.0);
+        //layout.setBackgroundColor(Color.parseColor("#00000000"));
         imageView1 = (ImageView)findViewById(R.id.nvg);
         imageView2 = (ImageView)findViewById(R.id.favorite);
         imageView3 = (ImageView)findViewById(R.id.setting);
+
+        //imageView1.setBackgroundColor(Color.parseColor("#10000000"));
+        //imageView2.setAlpha((float) 0.0);
         imageView3.setOnClickListener(this);
         imageView2.setOnClickListener(this);
         imageView1.setOnClickListener(this);

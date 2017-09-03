@@ -14,6 +14,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/BaseTheme">
+
         <activity
             android:name=".MainActivity"
             android:theme="@style/BaseTheme">
@@ -44,6 +45,7 @@
             android:exported="true"/>
 
         <receiver
+
             android:name=".BroadcastManager.AlarmReceiver"
             android:enabled="true"
             android:exported="true"/>

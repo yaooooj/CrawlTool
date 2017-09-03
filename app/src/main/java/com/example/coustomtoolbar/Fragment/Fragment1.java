@@ -95,7 +95,7 @@ public class Fragment1 extends Fragment{
 
         RecyclerView rv = (RecyclerView)view.findViewById(R.id.rv);
         adapter = new NormalAdapter(
-                getContext().getApplicationContext(),R.layout.fragment2_item_,mData,rv);
+                getContext(),R.layout.fragment2_item_,mData,rv);
 
         rv.setLayoutManager(
                 new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)

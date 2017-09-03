@@ -1,6 +1,7 @@
 package com.example.coustomtoolbar.Adapter;
 
 import android.content.Context;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 
 import com.example.coustomtoolbar.R;
@@ -19,7 +20,9 @@ public class CollapsingAdapter extends BaseAdapter<String,BaseViewHolder> {
     }
 
     @Override
-    public void bindingItemView(Context context, BaseViewHolder holder, String s) {
-            holder.setTextView(R.id.like_text_view,s);
+    public void bingingItemView(BaseViewHolder holder, String s) {
+        holder.setTextView(R.id.like_text_view,s);
     }
+
+
 }

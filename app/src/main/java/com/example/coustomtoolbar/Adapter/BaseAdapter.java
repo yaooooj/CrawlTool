@@ -1,23 +1,18 @@
 package com.example.coustomtoolbar.Adapter;
 
+import android.app.Activity;
 import android.content.Context;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.support.v7.widget.ViewStubCompat;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-
-import com.example.coustomtoolbar.R;
 import com.example.coustomtoolbar.RecyclerViewUtil.LoadMode;
-import com.example.coustomtoolbar.RecyclerViewUtil.LoadMoreScrollListener;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -25,7 +20,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+
 
 /**
  * Created by yaojian on 2017/8/1.
@@ -37,6 +32,8 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     private List<T> mData;
     private int layoutResId;
     private Context mContext;
+    private Activity mActivity;
+    private Fragment mFragment;
     private SparseIntArray headerViews;
     private SparseIntArray footerViews;
     private SparseIntArray loadingViews;
@@ -46,27 +43,27 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     private int firstVisibleItem;
     private int lastVisibleItem;
     private RecyclerView recyclerView;
-
     private boolean showFooter = false;
     private boolean showHeader = false;
     private boolean loading;
     private List<Integer> mHeight = new ArrayList<>();
-    private int width;
-    private int height;
     private OnItemClickListener mOnItemClickListener;
     private OnItemLongClickListener mOnItemLongClickListener;
     private OnLoadMoreListener mOnLoadMoreListener;
 
 
     public BaseAdapter(Context context,int layoutResId, List<T> data,RecyclerView recyclerView) {
+        this(layoutResId, data, recyclerView);
         mContext = context;
+    }
+
+    public BaseAdapter(int layoutResId, List<T> data,RecyclerView recyclerView){
         if (recyclerView != null){
             this.recyclerView = recyclerView;
         }
 
         mData = data == null ? new ArrayList<T>() : data;
 
-        initScreenWidth(context);
         if (layoutResId != 0 ){
             this.layoutResId = layoutResId;
         }
@@ -74,15 +71,16 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         headerViews = new SparseIntArray();
         footerViews = new SparseIntArray();
         loadingViews = new SparseIntArray();
-
     }
 
-    public BaseAdapter(Context context, List<T> data,RecyclerView recyclerView) {
-        this(context,0,data,recyclerView);
+    public BaseAdapter(Activity activity,int layoutResId,List<T> data,RecyclerView recyclerView){
+        this(layoutResId, data, recyclerView);
+        this.mActivity = activity;
     }
 
-    public BaseAdapter(Context context,int layoutResId,RecyclerView recyclerView) {
-        this(context,layoutResId,null,recyclerView);
+    public BaseAdapter(Fragment fragment,int layoutResId,List<T> data,RecyclerView recyclerView){
+        this(layoutResId, data, recyclerView);
+        this.mFragment = fragment;
     }
 
     public LoadMode getLoadMode() {
@@ -204,33 +202,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         return getRealItemCount() == 1;
     }
 
-    public void initScreenWidth(Context context){
-        int spanCount = 1;
-        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-        if (layoutManager instanceof StaggeredGridLayoutManager){
-            spanCount = ((StaggeredGridLayoutManager) layoutManager).getSpanCount();
-        }
-        DisplayMetrics displayMetrics  = context.getResources().getDisplayMetrics();
-        width = displayMetrics.widthPixels / spanCount;
-        height = displayMetrics.heightPixels / spanCount - 200;
 
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
-    }
 
     @Override
     public K onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -260,7 +232,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         int viewType = holder.getItemViewType();
         if (isEmpty()){
          if ( viewType == ViewType.TYPE_EMPTY){
-             bindingItemView(mContext,holder,null);
+             bingingItemView(holder,null);
          }
         }else {
 
@@ -273,16 +245,10 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
             }
             else {
 
-                ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
-                if (params instanceof StaggeredGridLayoutManager.LayoutParams){
-                    params.width = getWidth();
-                    params.height = getHeight();
-                    holder.itemView.setLayoutParams(params);
-                }
                 holder.itemView.setOnClickListener(this);
                 holder.itemView.setOnLongClickListener(this);
                 holder.itemView.setTag(holder.getAdapterPosition() - getHeaderViewCount());
-                bindingItemView(mContext,holder,mData.get(position - getHeaderViewCount()));
+                bingingItemView(holder,mData.get(position - getHeaderViewCount()));
             }
         }
 
@@ -520,8 +486,10 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         }
         return last;
     }
-    public abstract void bindingItemView(Context context, BaseViewHolder holder, T t );
 
+
+
+    public  abstract void bingingItemView(BaseViewHolder holder, T t );
 
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {

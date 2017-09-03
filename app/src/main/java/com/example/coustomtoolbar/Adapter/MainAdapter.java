@@ -2,6 +2,7 @@ package com.example.coustomtoolbar.Adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 
 import com.example.coustomtoolbar.R;
@@ -20,8 +21,9 @@ public class MainAdapter extends BaseAdapter<String,BaseViewHolder> {
     }
 
     @Override
-    public void bindingItemView(Context context, BaseViewHolder holder, String s) {
-        //holder.setImageViewResource(R.id.image_main,integer);
+    public void bingingItemView(BaseViewHolder holder, String s) {
         holder.setTextView(R.id.image_text,s);
     }
+
+
 }
