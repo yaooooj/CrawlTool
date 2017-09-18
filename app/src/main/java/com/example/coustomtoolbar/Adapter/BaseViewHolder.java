@@ -10,9 +10,9 @@ import android.widget.TextView;
  * Created by yaojian on 2017/8/1.
  */
 
-public class BaseViewHolder extends RecyclerView.ViewHolder {
-    SparseArray<View> mViews;
-    View mItemView;
+class BaseViewHolder extends RecyclerView.ViewHolder {
+    private SparseArray<View> mViews;
+    private View mItemView;
     private String tag;
     public BaseViewHolder(View itemView) {
         super(itemView);
@@ -20,12 +20,13 @@ public class BaseViewHolder extends RecyclerView.ViewHolder {
         mViews = new SparseArray<>();
     }
 
-    public <T extends View> T getView(int viewResId){
+    public  <T extends View> T getView(int viewResId){
         View view = mViews.get(viewResId);
         if (view == null){
             view = mItemView.findViewById(viewResId);
             mViews.put(viewResId,view);
         }
+
         return (T)view;
     }
     public BaseViewHolder setTextView(int resId,CharSequence text){

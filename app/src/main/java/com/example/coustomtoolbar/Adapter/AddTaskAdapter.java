@@ -97,6 +97,7 @@ public class AddTaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public String getTextView(){
         return text;
     }
+
     private void isFocus(EditText editText){
         if (!editText.isFocused()){
             //请求获取焦点

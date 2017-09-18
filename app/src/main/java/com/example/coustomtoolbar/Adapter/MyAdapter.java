@@ -3,6 +3,7 @@ package com.example.coustomtoolbar.Adapter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.DisplayMetrics;
@@ -14,6 +15,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.coustomtoolbar.ImageCache.GlideApp;
 import com.example.coustomtoolbar.ImageCache.ImageCache;
 import com.example.coustomtoolbar.R;
 
@@ -36,47 +39,31 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     public static final int ITEM_TYPE_FOOTER = 2;
     private int mHeaderCount = 1;
     private int mFooterCount = 1;
-    private int width;
-    private int height;
-    private boolean overScreenHeight;
-    private ImageCache imageCache;
+
+    private Fragment mFragment;
 
 
     public MyAdapter(Context context, List<String> data) {
         this.context = context;
         datas = data;
         heights = new ArrayList<>();
-        getScreenWidth(context);
-        imageCache = ImageCache.getInstance(context);
 
     }
-    public int  getScreenWidth(Context context){
-
-        DisplayMetrics displayMetrics  = context.getResources().getDisplayMetrics();
-        width = displayMetrics.widthPixels;
-        height = displayMetrics.heightPixels;
-        Log.e(TAG, "getScreenWidth: "+ width );
-        return width;
-    }
-
-    public boolean isOverScreenHeight() {
-        return overScreenHeight;
-    }
-
-    public void setOverScreenHeight(boolean overScreenHeight) {
-        this.overScreenHeight = overScreenHeight;
-    }
-    public void computeImageheight(){
+    public MyAdapter(Fragment fragment,List<String> data){
+        mFragment = fragment;
+        datas = data;
+        heights = new ArrayList<>();
 
     }
+
+
     public void addItem(String url){
         if (datas == null ){
             datas = new ArrayList<>();
         }
         datas.add(url);
-        //notifyItemInserted(datas.size()-1);
         notifyDataSetChanged();
-        //itemCount++;
+
     }
     public void removeItem(int position){
         if (datas == null || datas.isEmpty()){
@@ -110,7 +97,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(context);
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         if (viewType == ITEM_TYPE_FOOTER){
             return new MyAdapter.MyFooterVIewHolder(
                     inflater.inflate(R.layout.footer_add_more,parent,false)
@@ -124,23 +111,18 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
-        int screenSize = width / 2;
+
 
         if (holder instanceof MyAdapter.MyFooterVIewHolder){
 
         } else if (holder instanceof MyAdapter.MyViewHolder){
 
-            ViewGroup.LayoutParams params = ((MyViewHolder) holder).imageView.getLayoutParams();
-            params.width =  screenSize;
-            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            //params.height = heights.get(position);
-            ((MyViewHolder) holder).imageView.setMaxWidth(screenSize);
-            ((MyViewHolder) holder).imageView.setMaxHeight((int)(screenSize * 5));
-            ((MyViewHolder) holder).imageView.setLayoutParams(params);
+            ImageView imageView  = ((MyViewHolder) holder).imageView;
 
-            ((MyViewHolder) holder).imageView.setImageResource(R.mipmap.ic_favorite_black_24dp);
-            final String url  = datas.get(position);
-            Glide.with(context).load(url).into(((MyViewHolder) holder).imageView);
+            GlideApp.with(mFragment)
+                    .load(datas.get(position))
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(imageView);
         }
 
     }
@@ -150,18 +132,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         return datas.size() ;
     }
 
-    @Override
-    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
-        super.onViewAttachedToWindow(holder);
-        ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
-        if (lp != null && lp instanceof StaggeredGridLayoutManager.LayoutParams){
-            StaggeredGridLayoutManager.LayoutParams p = (StaggeredGridLayoutManager.LayoutParams)lp;
-            if (isLoadMore(holder.getLayoutPosition())){
-                p.setFullSpan(true);
-            }
 
-        }
-    }
     public boolean isLoadMore(int position){
         return position >= getContentItemCount();
     }

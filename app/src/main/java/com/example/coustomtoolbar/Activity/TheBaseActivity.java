@@ -1,7 +1,9 @@
-package com.example.coustomtoolbar;
+package com.example.coustomtoolbar.Activity;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import com.example.coustomtoolbar.R;
 
 public class TheBaseActivity extends AppCompatActivity {
 

@@ -99,7 +99,7 @@ public class Fragment2 extends Fragment {
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                Future<Bitmap> bitmap = null;
+                Future<Bitmap> bitmap;
                 for (int i = 0 ;i < 10;i ++){
                     bitmap = executor.submit(new DownBitmap(imageUrl.getBitmapList().get(i)));
                     try {

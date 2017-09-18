@@ -1,4 +1,4 @@
-package com.example.coustomtoolbar;
+package com.example.coustomtoolbar.Activity;
 
 import android.graphics.Color;
 import android.support.design.widget.Snackbar;
@@ -17,6 +17,7 @@ import com.example.coustomtoolbar.Fragment.Fragment1;
 import com.example.coustomtoolbar.Fragment.Fragment2;
 import com.example.coustomtoolbar.Fragment.Fragment3;
 import com.example.coustomtoolbar.Fragment.Fragment4;
+import com.example.coustomtoolbar.R;
 import com.example.coustomtoolbar.Util.ScreenUtil;
 
 import java.util.ArrayList;

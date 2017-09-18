@@ -18,6 +18,10 @@ allprojects {
         maven {
             url 'http://www.idescout.com/maven/repo/'
         }
+        maven {
+            url "https://raw.github.com/bmob/bmob-android-sdk/master"
+        }
+
     }
 }
 

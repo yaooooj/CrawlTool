@@ -1,5 +1,6 @@
 package com.example.coustomtoolbar.Adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v4.app.Fragment;
@@ -16,8 +17,8 @@ import java.util.List;
 public class MainAdapter extends BaseAdapter<String,BaseViewHolder> {
 
 
-    public MainAdapter(Context context, int layoutResId, List<String> data, RecyclerView recyclerView) {
-        super(context, layoutResId, data, recyclerView);
+    public MainAdapter(Activity activity, int layoutResId, List<String> data, RecyclerView recyclerView) {
+        super(activity, layoutResId, data, recyclerView);
     }
 
     @Override

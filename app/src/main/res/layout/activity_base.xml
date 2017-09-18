@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.example.coustomtoolbar.BaseActivity">
+    tools:context="com.example.coustomtoolbar.Activity.BaseActivity">
     <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -27,7 +27,7 @@
                     android:clipToPadding="true"
                     android:fitsSystemWindows="true"
                     app:layout_scrollFlags="scroll|enterAlways"
-                    app:popupTheme="@style/BaseTheme.PopupOverlay" />
+                     />
         </android.support.design.widget.AppBarLayout>
 
 

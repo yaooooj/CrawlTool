@@ -9,13 +9,11 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.example.coustomtoolbar.Adapter.BaseTaskAdapter;
-import com.example.coustomtoolbar.BaseActivity;
-import com.example.coustomtoolbar.MyService;
+import com.example.coustomtoolbar.Activity.BaseActivity;
+import com.example.coustomtoolbar.Activity.MyService;
 import com.example.coustomtoolbar.R;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class AlarmReceiver extends BroadcastReceiver {
     private static final String TAG = "AlarmReceiver";

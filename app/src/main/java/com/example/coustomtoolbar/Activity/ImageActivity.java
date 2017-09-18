@@ -1,10 +1,10 @@
-package com.example.coustomtoolbar;
+package com.example.coustomtoolbar.Activity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -14,16 +14,16 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.example.coustomtoolbar.Bean.PassCategory;
-import com.example.coustomtoolbar.Fragment.Fragment1;
 import com.example.coustomtoolbar.Fragment.Fragment3;
-import com.example.coustomtoolbar.Fragment.Fragment4;
+import com.example.coustomtoolbar.R;
 import com.example.coustomtoolbar.Util.ScreenUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FragmentTestActivity extends AppCompatActivity {
-    private static final String TAG = "FragmentTestActivity";
+public class ImageActivity extends AppCompatActivity implements
+        Fragment3.OnFragmentInteractionListener {
+    private static final String TAG = "ImageActivity";
     private ScreenUtil screenUtil = new ScreenUtil();
     private List<Fragment> mFragments;
     private List<PassCategory> categories = null;
@@ -76,6 +76,18 @@ public class FragmentTestActivity extends AppCompatActivity {
         fragment.setArguments(bundleToFragment);
         return fragment;
     }
+
+    @Override
+    public void onFragmentInteraction(View view, int position, int resId) {
+        if (resId == R.id.zoom_fragment){
+            Log.e(TAG, "onFragmentInteraction: " + "go to" );
+            Intent intent = new Intent(ImageActivity.this,ZoomActivity.class);
+            startActivity(intent);
+        }
+    }
+
+
+
 
     private class ViewPagerTestAdapter extends FragmentStatePagerAdapter {
         private List<Fragment> fragments;

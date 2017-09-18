@@ -2,5 +2,7 @@
 <resources>
     <style name="AppTheme" parent="@style/BaseTheme">
         <item name="android:windowTranslucentStatus">true</item>
+        <!--透明导航栏-->
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
 </resources>

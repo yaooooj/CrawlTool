@@ -1,4 +1,4 @@
-package com.example.coustomtoolbar;
+package com.example.coustomtoolbar.Activity;
 
 
 import android.app.AlarmManager;
@@ -12,9 +12,12 @@ import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
+import com.example.coustomtoolbar.Activity.BaseActivity;
 import com.example.coustomtoolbar.Bean.TaskModel;
 import com.example.coustomtoolbar.BroadcastManager.AlarmReceiver;
 import com.example.coustomtoolbar.DataBaseUtil.DBManager;
+import com.example.coustomtoolbar.R;
 import com.example.coustomtoolbar.Util.SystemTime;
 import java.util.ArrayList;
 import java.util.List;

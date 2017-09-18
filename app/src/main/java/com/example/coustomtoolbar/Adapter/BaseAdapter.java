@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
@@ -21,6 +20,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.security.auth.login.LoginException;
+
 
 /**
  * Created by yaojian on 2017/8/1.
@@ -31,9 +32,6 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     private static final String TAG = "BaseAdapter";
     private List<T> mData;
     private int layoutResId;
-    private Context mContext;
-    private Activity mActivity;
-    private Fragment mFragment;
     private SparseIntArray headerViews;
     private SparseIntArray footerViews;
     private SparseIntArray loadingViews;
@@ -51,13 +49,15 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     private OnItemLongClickListener mOnItemLongClickListener;
     private OnLoadMoreListener mOnLoadMoreListener;
 
+    private Context context;
+
 
     public BaseAdapter(Context context,int layoutResId, List<T> data,RecyclerView recyclerView) {
         this(layoutResId, data, recyclerView);
-        mContext = context;
+        this.context = context;
     }
 
-    public BaseAdapter(int layoutResId, List<T> data,RecyclerView recyclerView){
+    public BaseAdapter(int layoutResId, List<T> data,RecyclerView recyclerView)  {
         if (recyclerView != null){
             this.recyclerView = recyclerView;
         }
@@ -65,7 +65,10 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         mData = data == null ? new ArrayList<T>() : data;
 
         if (layoutResId != 0 ){
+            Log.e(TAG, "BaseAdapter: " + "have a  layout" );
             this.layoutResId = layoutResId;
+        }else {
+            Log.e(TAG, "BaseAdapter: " + "no layout" );
         }
 
         headerViews = new SparseIntArray();
@@ -75,12 +78,11 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
 
     public BaseAdapter(Activity activity,int layoutResId,List<T> data,RecyclerView recyclerView){
         this(layoutResId, data, recyclerView);
-        this.mActivity = activity;
+
     }
 
-    public BaseAdapter(Fragment fragment,int layoutResId,List<T> data,RecyclerView recyclerView){
+    public BaseAdapter(Fragment fragment, int layoutResId, List<T> data, RecyclerView recyclerView){
         this(layoutResId, data, recyclerView);
-        this.mFragment = fragment;
     }
 
     public LoadMode getLoadMode() {
@@ -111,7 +113,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
 
     public void remove(int position){
         mData.remove(position);
-        //int internalPosition = mData.size() + getHeaderViewCount();
+
         int internalPosition = mData.size();
         notifyItemRemoved(internalPosition);
         notifyItemRangeChanged(internalPosition,mData.size() - internalPosition);
@@ -176,7 +178,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         return showFooter;
     }
 
-    public void setShowFooter(boolean showFooter) {
+    public void showFooter(boolean showFooter) {
         this.showFooter = showFooter;
     }
 
@@ -194,12 +196,12 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
 
     public void setLoading(boolean loading) {
         this.loading = loading;
-        setShowFooter(true);
+        showFooter(true);
         notifyItemInserted(getRealItemCount() + getHeaderViewCount() +1);
     }
 
     private boolean isEmpty(){
-        return getRealItemCount() == 1;
+        return getRealItemCount() == 0;
     }
 
 
@@ -209,19 +211,24 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         //Log.e(TAG, "onCreateViewHolder: " + viewType );
         K baseViewHolder = null;
         if (headerViews.get(viewType) != 0){
+            Log.e(TAG, "onCreateViewHolder: " + "header" );
             baseViewHolder = createBaseViewHolder(parent,headerViews.get(viewType));
         }else if (footerViews.get(viewType) != 0){
             if (!isLoading()){
+                Log.e(TAG, "onCreateViewHolder: " + "footer" );
                 baseViewHolder = createBaseViewHolder(parent,footerViews.get(viewType));
             }
 
         }else if (viewType == ViewType.TYPE_EMPTY){
+            Log.e(TAG, "onCreateViewHolder: " + "empty" );
             baseViewHolder = createBaseViewHolder(parent,getEmptyView());
         }else if (viewType == ViewType.TYPE_LOADING){
             if (isLoading()){
+                Log.e(TAG, "onCreateViewHolder: " + "loading" );
                 baseViewHolder = createBaseViewHolder(parent,loadingViews.get(0));
             }
         }else {
+            Log.e(TAG, "onCreateViewHolder: " + "normal" );
             baseViewHolder = onCreateDefViewHolder(parent, viewType);
         }
         return baseViewHolder;
@@ -293,7 +300,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
                 return headerViews.keyAt(position);
             }else if (isFooter(position)){
                 if (isLoading()){
-                    Log.e(TAG, "getItemViewType: " + "Loading" );
+
                     return ViewType.TYPE_LOADING;
                 }else {
                     Log.e(TAG, "getItemViewType: " + "Footer");
@@ -304,6 +311,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
             }
         }
     }
+
 
     @Override
     public void onViewAttachedToWindow(K holder) {
@@ -342,12 +350,25 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
 
     protected K onCreateDefViewHolder(ViewGroup parent, int viewType) {
         int layoutId = layoutResId;
-
+        if (layoutResId == 0){
+            Log.e(TAG, "createBaseViewHolder: " + 1);
+            return null;
+        }
         return createBaseViewHolder(parent, layoutId);
     }
 
     protected K createBaseViewHolder(ViewGroup parent, int layoutResId) {
-        return createBaseViewHolder(LayoutInflater.from(parent.getContext()).inflate(layoutResId,parent,false));
+        LayoutInflater inflate = LayoutInflater.from(parent.getContext());
+        View view = null;
+        if (layoutResId != 0){
+            view = inflate.inflate(layoutResId,parent,false);
+        }else {
+            Log.e(TAG, "createBaseViewHolder: " + 2);
+            return null;
+        }
+
+
+        return createBaseViewHolder(view);
     }
 
     /**
@@ -418,6 +439,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         }
         return null;
     }
+    /*
     public void setLoadMoreListener(final OnLoadMoreListener onLoadMoreListener){
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -428,7 +450,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
                 if (layoutManager instanceof StaggeredGridLayoutManager){
                     ((StaggeredGridLayoutManager) layoutManager).invalidateSpanAssignments();
                 }
-                */
+
                 int visibleItemCount = layoutManager.getChildCount();
                 int totalItemCount = layoutManager.getItemCount() - getHeaderViewCount();
                 Log.e(TAG, "onScrollStateChanged: " + visibleItemCount +" + " + totalItemCount + " + " + lastVisibleItem );
@@ -468,6 +490,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
             }
         });
     }
+    */
     public int getFirstPosition(int[] position){
         int first = position[0];
         for (int value : position){

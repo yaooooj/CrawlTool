@@ -9,7 +9,6 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
@@ -33,7 +32,8 @@ public class OkHttp3Util {
     public static final String URL = "http://route.showapi.com/852-1?showapi_appid=" + APIKEY + "&showapi_sign=" + APISECRET;
     private OkHttpClient client;
     private GsonUtil gson;
-    private String response;
+    private OnOkHttpResponse mOkHttpResponse;
+
     private Context mContext;
     private Interceptor mInterceptor = new Interceptor() {
         @Override
@@ -60,7 +60,7 @@ public class OkHttp3Util {
     public void executeGet(String url, final Handler handler, final Class<?> claszz, final int flag) {
 
 
-        File httpCacheDirectory  = new File(mContext.getCacheDir(),"response");
+        File httpCacheDirectory  = new File(mContext.getCacheDir(),"mOkHttpResponse");
         Cache cache = new Cache(httpCacheDirectory,10 * 1024 * 1024);
 
         CacheControl cacheControl1 = new CacheControl.Builder()
@@ -130,6 +130,16 @@ public class OkHttp3Util {
                 
             }
         });
+    }
+
+    public void setOkHttpResponse(OnOkHttpResponse okHttpResponse){
+        this.mOkHttpResponse = okHttpResponse;
+    }
+
+    public interface OnOkHttpResponse{
+        void OnSuccess(Response response);
+        void OnFailure();
+
     }
 }
 

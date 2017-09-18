@@ -36,7 +36,7 @@ import okhttp3.Response;
 public class Fragment1 extends Fragment{
     private static final String TAG = "Fragment1";
     private List<String> mData;
-    private NormalAdapter adapter;
+    private MyAdapter adapter;
     private SwipeRefreshLayout refreshLayout;
     private View view;
     private OkHttp3Util okHttp3Util;
@@ -44,11 +44,11 @@ public class Fragment1 extends Fragment{
     private static final String ARG_PARAM2 = "id";
     private String mParam1;
     private String mParam2;
-    private static final int page = 1;
+    private static final int page = 4;
     private static final String APIKEY = "42731";
     private static final String APISECRET = "96039fbf84ee42afaad5d66f14159c31";
-    //private final String URL_PICTURE = "http://route.showapi.com/852-2?page="+ page +
-    //        "&showapi_appid="+APIKEY+"&type="+mParam2+"&showapi_sign="+APISECRET;
+    private final String URL_PICTURE = "http://route.showapi.com/852-2?page="+ page +
+            "&showapi_appid="+APIKEY+"&type="+4001+"&showapi_sign="+APISECRET;
 
     private ImageUrl imageUrl;
     private Handler handler2 = new Handler(){
@@ -59,6 +59,7 @@ public class Fragment1 extends Fragment{
                     PictureBean pictureBean = (PictureBean)msg.obj;
                     Log.e(TAG, "onResponse: "+  pictureBean.getShowapi_res_body().getPagebean().getAllNum() );
                     imageUrl = new ImageUrl(pictureBean);
+                    updata(imageUrl.getBitmapList());
                     break;
                 default:
                     break;
@@ -73,11 +74,13 @@ public class Fragment1 extends Fragment{
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        /*
         mParam1 = getArguments().getString(ARG_PARAM1);
         mParam2 = getArguments().getString(ARG_PARAM2);
         Log.e(TAG, "onCreate: "+ mParam2 +" "+ mParam1  );
         String URL_PICTURE = "http://route.showapi.com/852-2?page="+ page +
                 "&showapi_appid="+APIKEY+"&type="+mParam2+"&showapi_sign="+APISECRET;
+                */
         if (okHttp3Util == null){
             okHttp3Util = new OkHttp3Util(getContext());
         }
@@ -91,12 +94,11 @@ public class Fragment1 extends Fragment{
         view = inflater.inflate(R.layout.layout_fragment_1,container,false);
         initData();
         //RecyclerView
-        initSwipeRefreshLayout();
+
 
         RecyclerView rv = (RecyclerView)view.findViewById(R.id.rv);
-        adapter = new NormalAdapter(
-                getContext(),R.layout.fragment2_item_,mData,rv);
-
+        //adapter = new MyAdapter(getContext(),mData);
+        adapter = new MyAdapter(this,mData);
         rv.setLayoutManager(
                 new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
         );
@@ -104,6 +106,7 @@ public class Fragment1 extends Fragment{
         rv.setAdapter(adapter);
         rv.setItemAnimator(new DefaultItemAnimator());
         rv.addItemDecoration(new SpaceDecoration(5,5));
+        initSwipeRefreshLayout();
         return view;
     }
     public void initSwipeRefreshLayout(){
@@ -112,7 +115,6 @@ public class Fragment1 extends Fragment{
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                imageUrl.praserUrl();
                 updata(imageUrl.getBitmapList());
             }
         });
@@ -124,13 +126,15 @@ public class Fragment1 extends Fragment{
     }
 
     public void updata(List<String> bitmap1){
-        refreshLayout.setRefreshing(false);
+
         if (bitmap1 != null){
             Log.e(TAG, "updata: " + bitmap1.size() );
             for (int i =0; i < 40;i++){
-                //adapter.addItem(bitmap1.get(i));
+                Log.e(TAG, "updata: " + bitmap1.get(i) );
+                adapter.addItem(bitmap1.get(i));
             }
         }
+        refreshLayout.setRefreshing(false);
     }
 
     @Override

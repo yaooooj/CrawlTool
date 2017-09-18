@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.coustomtoolbar.ImageCache.GlideApp;
 import com.example.coustomtoolbar.ImageCache.ImageCache;
@@ -32,7 +33,14 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
     private Context mContext;
     private boolean firstLoadImage = true;
     private RecyclerView recyclerView = null;
+    private LoadMoreListener loadMoreListener;
 
+    public NormalAdapter(Fragment fragment, int layoutResId, List<String> data, RecyclerView recyclerView) {
+        super(fragment, layoutResId, data, recyclerView);
+        this.fragment = fragment;
+    }
+
+    /*
     public NormalAdapter(Context context, int layoutResId, List<String> data, RecyclerView recyclerView) {
         super(context, layoutResId, data, recyclerView);
         this.mContext = context;
@@ -40,13 +48,10 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
         getScreenWidth1(context);
     }
 
-    /*
-    public NormalAdapter(Fragment fragment, int layoutResId, List<String> data, RecyclerView recyclerView) {
-        super(fragment, layoutResId, data, recyclerView);
 
 
-    }
-       */
+     */
+
     @Override
     public void bingingItemView(BaseViewHolder holder, String s) {
         if (holder.getItemViewType() == ViewType.TYPE_EMPTY){
@@ -57,9 +62,15 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
                 }
             });
         }else {
+
             ImageView imageView = holder.getView(R.id.fragment2_image);
-            //holder.setImageView(imageView,R.mipmap.ic_favorite_black_24dp);
-            loadImage(mContext,imageView,s);
+            //Log.e(TAG, "bingingItemView: " +  s);
+            if (isFirstLoadImage()){
+                loadImage(imageView,s);
+            }else {
+                loadMoreListener.loadMore(imageView,s);
+            }
+
 
         }
     }
@@ -80,7 +91,7 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
 
 
 
-    public boolean isFirstLoadImage() {
+    private boolean isFirstLoadImage() {
         return firstLoadImage;
     }
 
@@ -89,9 +100,19 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
     }
 
 
-    private void loadImage(Context context,ImageView imageView,String s) {
-        GlideApp.with(context)
+    public void setLoadMoreListener(LoadMoreListener loadMoreListener){
+        this.loadMoreListener = loadMoreListener;
+    }
+
+
+    public interface LoadMoreListener{
+        void loadMore(ImageView imageView,String s);
+    }
+
+    public void loadImage(ImageView imageView,String s) {
+        GlideApp.with(fragment)
                 .load(s)
+                .placeholder(R.mipmap.ic_favorite_border_black_24dp)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .centerCrop()
                 .dontAnimate()

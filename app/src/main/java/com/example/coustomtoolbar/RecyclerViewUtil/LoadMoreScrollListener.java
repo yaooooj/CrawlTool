@@ -19,6 +19,7 @@ public abstract class LoadMoreScrollListener extends RecyclerView.OnScrollListen
     private int firstVisibleItem;
     private int lastVisibleItem;
     private boolean isLoading = false;
+    private int span = 0;
 
     private OnLoadMoreListener mOnLoadMoreListener;
 
@@ -34,15 +35,23 @@ public abstract class LoadMoreScrollListener extends RecyclerView.OnScrollListen
         RecyclerView.Adapter adapter = recyclerView.getAdapter();
         int visibleItemCount = layoutManager.getChildCount();
         int totalItemCount = layoutManager.getItemCount();
-        Log.e(TAG, "onScrollStateChanged: "  + visibleItemCount +" + " + totalItemCount );
+        int count = adapter.getItemCount();
+        Log.e(TAG, "onScrollStateChanged: "  + visibleItemCount +" + " + totalItemCount + "  + " + lastVisibleItem);
         if (LoadMode.PULLUP == mode){
             if ( newState == RecyclerView.SCROLL_STATE_IDLE ) {
                         onLoadMore();
 
             }else if (newState == RecyclerView.SCROLL_STATE_DRAGGING){
-                if (totalItemCount - lastVisibleItem == 0){
-                    onDraggerLoadMore();
+                if (span != 0){
+                    if (totalItemCount - lastVisibleItem <= span){
+                        onDraggerLoadMore();
+                    }
+                }else {
+                    if (totalItemCount - lastVisibleItem == 0){
+                        onDraggerLoadMore();
+                    }
                 }
+
             }
         }
     }
@@ -60,13 +69,16 @@ public abstract class LoadMoreScrollListener extends RecyclerView.OnScrollListen
                 firstVisibleItem = ((GridLayoutManager) layoutManager).findFirstVisibleItemPosition();
                 lastVisibleItem = ((GridLayoutManager) layoutManager).findLastVisibleItemPosition();
             } else if (layoutManager instanceof StaggeredGridLayoutManager) {
-                int[] positions = new int[((StaggeredGridLayoutManager) layoutManager).getSpanCount()];
+                span = ((StaggeredGridLayoutManager) layoutManager).getSpanCount();
+                int[] positions = new int[span];
                 // ((StaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(positions);
                 firstVisibleItem = getFirstPosition(((StaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(positions));
+
                 lastVisibleItem = getLastPosition(((StaggeredGridLayoutManager) layoutManager).findLastVisibleItemPositions(positions));
             }
         }
     }
+
 
     public int getFirstPosition(int[] position){
         int first = position[0];

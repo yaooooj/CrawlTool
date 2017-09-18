@@ -1,10 +1,12 @@
 package com.example.coustomtoolbar.Fragment;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
@@ -13,15 +15,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.coustomtoolbar.Adapter.BaseAdapter;
 import com.example.coustomtoolbar.Adapter.NormalAdapter;
 import com.example.coustomtoolbar.Bean.PictureBean;
+import com.example.coustomtoolbar.ImageCache.GlideApp;
 import com.example.coustomtoolbar.ImageCache.ImageUrl;
 import com.example.coustomtoolbar.R;
 import com.example.coustomtoolbar.RecyclerViewUtil.LoadMode;
 import com.example.coustomtoolbar.NetUtil.OkHttp3Util;
+import com.example.coustomtoolbar.RecyclerViewUtil.LoadMoreScrollListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,18 +43,23 @@ public class Fragment3 extends BaseFragment {
     private View view;
     private SwipeRefreshLayout refreshLayout;
     private NormalAdapter adapter;
+    private StaggeredGridLayoutManager layoutManager;
+    private OnFragmentInteractionListener mListener;
+
     private OkHttp3Util okHttp3Util;
     private PictureBean pictureBean;
 
     private ImageUrl imageUrl;
     private List<String> urls;
-    int count = 0;
+
+    int count = 20;
+    int realCount=0;
 
     private static final String ARG_PARAM1 = "name";
     private static final String ARG_PARAM2 = "id";
     private String mParam1;
     private String mParam2;
-    private static int page = 2;
+    private static int page = 1;
     private static int type = 4001;
 
     private static final String APIKEY = "42731";
@@ -64,9 +75,8 @@ public class Fragment3 extends BaseFragment {
                     Log.e(TAG, "onResponse: "+  pictureBean.getShowapi_res_body().getPagebean().getAllNum() );
                     imageUrl = new ImageUrl(pictureBean);
                     urls = imageUrl.getBitmapList();
-                    adapter.setFirstLoadImage(true);
-
                     updata();
+                    adapter.setLoading(false);
                     break;
                 default:
                     break;
@@ -77,16 +87,35 @@ public class Fragment3 extends BaseFragment {
 
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mParam1 = getArguments().getString(ARG_PARAM1);
         mParam2 = getArguments().getString(ARG_PARAM2);
         Log.e(TAG, "onCreate: "+ mParam2 +" "+ mParam1  );
-        URL_PICTURE = "http://route.showapi.com/852-2?page="+ page +
-                "&showapi_appid="+APIKEY+"&type="+mParam2+"&showapi_sign="+APISECRET;
+
 
         Log.e(TAG, "onCreate: " + mParam2 + " " + getUserVisibleHint() );
+    }
+
+    public String urls(){
+
+        URL_PICTURE = "http://route.showapi.com/852-2?page="+ page +
+                "&showapi_appid="+APIKEY+"&type="+mParam2+"&showapi_sign="+APISECRET;
+        page++;
+
+        return URL_PICTURE;
     }
 
     @Nullable
@@ -100,28 +129,52 @@ public class Fragment3 extends BaseFragment {
         initSwipeRefreshLayout();
 
         recyclerView = (RecyclerView) view.findViewById(R.id.rv);
-        //recyclerView.setLayoutManager(
-       //         new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
-        StaggeredGridLayoutManager layoutManager =
-                new StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL);
-        //layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
+
+        layoutManager = new StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL);
+
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.addItemDecoration(
                 new DividerItemDecoration(getContext(),DividerItemDecoration.VERTICAL));
 
-        adapter = new NormalAdapter(getActivity().getApplicationContext(),R.layout.fragment2_item_,urls,recyclerView);
+        //adapter = new NormalAdapter(getActivity().getApplicationContext(),R.layout.fragment2_item_,urls,recyclerView);
 
-        //adapter.setEmptyView(R.layout.empty_layout);
-        adapter.setHeaderViewList(R.layout.footer_add_more);
+        //dapter = new NormalAdapter(this,R.layout.fragment2_item_,urls,recyclerView);
+        adapter = new NormalAdapter(this,R.layout.fragment2_item_,stringList,recyclerView);
+
+        adapter.setEmptyView(R.layout.empty_layout);
+        //adapter.setHeaderViewList(R.layout.footer_add_more);
         adapter.setFooterViewList(R.layout.footer_no_more_data);
-        adapter.setLoadingView(R.layout.layout_loading);
+        //adapter.setLoadingView(R.layout.layout_loading);
         recyclerView.setAdapter(adapter);
 
+        recyclerView.addOnScrollListener(new LoadMoreScrollListener(LoadMode.PULLUP) {
+            @Override
+            public void onLoadMore() {
+                adapter.setLoadMoreListener(new NormalAdapter.LoadMoreListener() {
+                    @Override
+                    public void loadMore(ImageView imageView, String s) {
+                        adapter.loadImage(imageView,s);
+                    }
+                });
+            }
+            @Override
+            public void onDraggerLoadMore() {
+
+                    if (adapter.isShowFooter()){
+                        pullData();
+                    }else {
+                        updata();
+                    }
+
+            }
+        });
         adapter.setOnItemClickListener(new BaseAdapter.OnItemClickListener() {
             @Override
             public void onClick(View view, int position) {
                 Toast.makeText(getContext(),"item click " + position,Toast.LENGTH_SHORT).show();
-                //adapter.updataData(position,"new data");
+
+                mListener.onFragmentInteraction(view,position,R.id.zoom_fragment);
+
             }
         });
         adapter.setOnItemLongClickListener(new BaseAdapter.OnItemLongClickListener() {
@@ -139,7 +192,7 @@ public class Fragment3 extends BaseFragment {
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                //updata();
+                pullData();
             }
         });
     }
@@ -151,12 +204,41 @@ public class Fragment3 extends BaseFragment {
 
     }
 
-    private void updata(){
-        if (urls != null){
-            adapter.addData(urls);
+    private void pullData(){
+        if (okHttp3Util == null){
+            okHttp3Util = new OkHttp3Util(getContext());
         }
+        okHttp3Util.executeGet(urls(),handler3, PictureBean.class,2);
     }
+    public void updata(){
 
+        List<String> urls = imageUrl.getBitmapList();
+        //List<String> updataList = new ArrayList<>();
+        if (urls != null){
+            if (realCount < urls.size()){
+
+                for (int i = realCount;i < realCount + count;i++){
+                    adapter.addData(urls.get(i));
+                }
+            }else {
+                for (int i = realCount;i < urls.size();i++){
+                    adapter.addData(urls.get(i));
+                }
+            }
+
+            if (realCount + count < urls.size() -1){
+                realCount = realCount + count;
+            }else {
+                Log.e(TAG, "updata: " + realCount + "  +  " + urls.size() );
+                adapter.showFooter(true);
+                adapter.setLoading(true);
+
+            }
+        }
+
+
+        refreshLayout.setRefreshing(false);
+    }
     @Override
     protected void onFragmentVisibleChange(boolean isVisible) {
 
@@ -164,11 +246,20 @@ public class Fragment3 extends BaseFragment {
 
     @Override
     public void onFragmentFirstVisible() {
-        if (okHttp3Util == null){
-            okHttp3Util = new OkHttp3Util(getContext());
-        }
-        okHttp3Util.executeGet(URL_PICTURE,handler3, PictureBean.class,2);
+        pullData();
 
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.e(TAG, "onPause: " );
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.e(TAG, "onStop: " );
     }
 
     @Override
@@ -181,5 +272,11 @@ public class Fragment3 extends BaseFragment {
     public void onDestroy() {
         super.onDestroy();
         Log.e(TAG, "onDestroy: " );
+    }
+
+
+    public interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onFragmentInteraction(View view, int position,int resId);
     }
 }

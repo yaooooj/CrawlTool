@@ -4,8 +4,14 @@
 
     <!-- To access Google+ APIs: -->
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <!-- 获取GSM（2g）、WCDMA（联通3g）等网络状态的信息 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- 获取wifi网络状态的信息 -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <!-- 允许读取手机状态 用于创建BmobInstallation -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application
         android:allowBackup="true"
@@ -13,10 +19,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/BaseTheme">
-
+        android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".Activity.MainActivity"
             android:theme="@style/BaseTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -25,35 +30,36 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ImageActivity"
-            android:theme="@style/AppTheme"/>
+            android:name=".Activity.Coordinator"
+            android:theme="@style/BaseTheme">
+        </activity>
         <activity
-            android:name=".Coordinator"
-            android:theme="@style/BaseTheme"/>
-        <activity
-            android:name=".BaseActivity"
+            android:name=".Activity.BaseActivity"
             android:label="@string/title_activity_base"
             android:launchMode="singleTask"
             android:theme="@style/BaseTheme"/>
         <activity
-            android:name=".AddTaskActivity"
+            android:name=".Activity.AddTaskActivity"
             android:theme="@style/BaseTheme"/>
 
         <service
-            android:name=".MyService"
+            android:name=".Activity.MyService"
             android:enabled="true"
             android:exported="true"/>
 
         <receiver
-
             android:name=".BroadcastManager.AlarmReceiver"
             android:enabled="true"
             android:exported="true"/>
 
-        <activity android:name=".TheBaseActivity"/>
-        <activity android:name=".SettingActivity"/>
-        <activity android:name=".LikeActivity"/>
-        <activity android:name=".FragmentTestActivity">
+        <activity android:name=".Activity.TheBaseActivity"/>
+        <activity android:name=".Activity.SettingActivity"/>
+        <activity android:name=".Activity.LikeActivity"/>
+        <activity android:name=".Activity.ImageActivity">
+        </activity>
+        <activity android:name=".Activity.LoginActivity">
+        </activity>
+        <activity android:name=".Activity.ZoomActivity">
         </activity>
     </application>
 

@@ -1,4 +1,4 @@
-package com.example.coustomtoolbar;
+package com.example.coustomtoolbar.Activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +23,7 @@ import com.example.coustomtoolbar.Adapter.AddTaskAdapter;
 import com.example.coustomtoolbar.Bean.CardViewBean;
 import com.example.coustomtoolbar.Bean.TaskModel;
 import com.example.coustomtoolbar.DataBaseUtil.DBManager;
+import com.example.coustomtoolbar.R;
 import com.example.coustomtoolbar.RecyclerViewUtil.DividerItemDecoration;
 import com.example.coustomtoolbar.Util.ScreenUtil;
 import com.example.coustomtoolbar.Util.SystemTime;

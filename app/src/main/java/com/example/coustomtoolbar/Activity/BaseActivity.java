@@ -1,4 +1,4 @@
-package com.example.coustomtoolbar;
+package com.example.coustomtoolbar.Activity;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -15,9 +15,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+
 import com.example.coustomtoolbar.Adapter.BaseTaskAdapter;
 import com.example.coustomtoolbar.Bean.TaskModel;
 import com.example.coustomtoolbar.DataBaseUtil.DBManager;
+import com.example.coustomtoolbar.R;
 import com.example.coustomtoolbar.Util.ScreenUtil;
 
 import java.util.ArrayList;

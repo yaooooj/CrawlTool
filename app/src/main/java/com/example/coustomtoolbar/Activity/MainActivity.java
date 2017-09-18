@@ -1,14 +1,13 @@
-package com.example.coustomtoolbar;
+package com.example.coustomtoolbar.Activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
+import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,28 +19,25 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.GlideBuilder;
-import com.bumptech.glide.MemoryCategory;
-import com.bumptech.glide.load.engine.cache.DiskCache;
-import com.bumptech.glide.load.engine.cache.DiskLruCacheWrapper;
-import com.bumptech.glide.load.engine.cache.MemorySizeCalculator;
 import com.example.coustomtoolbar.Adapter.BaseAdapter;
-import com.example.coustomtoolbar.Adapter.MainAdapter;
+import com.example.coustomtoolbar.Adapter.MainAdapter1;
 import com.example.coustomtoolbar.Bean.AllCategory;
-import com.example.coustomtoolbar.Bean.ConcreteCategory;
 import com.example.coustomtoolbar.Bean.PassCategory;
 import com.example.coustomtoolbar.Bean.PictureCategory;
 import com.example.coustomtoolbar.DataBaseUtil.DBManager;
 import com.example.coustomtoolbar.DataBaseUtil.SQLiteDbHelper;
 import com.example.coustomtoolbar.NetUtil.OkHttp3Util;
+import com.example.coustomtoolbar.R;
 import com.example.coustomtoolbar.Util.ScreenUtil;
 import com.facebook.stetho.Stetho;
 import com.google.gson.Gson;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import cn.bmob.v3.Bmob;
+import cn.bmob.v3.BmobConfig;
 
 import static android.graphics.Color.TRANSPARENT;
 
@@ -58,14 +54,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView imageView2;
     private ImageView imageView3;
     private RecyclerView mRecyclerView;
-    private MainAdapter mAdapter;
+    //private MainAdapter mAdapter;
+    private MainAdapter1 mAdapter;
     private OkHttp3Util okHttp3Util;
     private Gson gson;
     private AllCategory allCategory;
     private List<String> pictureCategory;
     private Cursor cursor;
     private GlideBuilder builder;
-
+    private AlertDialog dialog;
+    private View view;
+    private SharedPreferences.Editor editor;
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -73,7 +72,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             allCategory = picture.getShowapi_res_body();
             for (int i = 0;i < allCategory.getList().size();i++ ){
                 dbManager.addCategory(allCategory.getList().get(i).getName());
-                //pictureCategory.add(allCategory.getList().get(i).getName());
+
+                //updata the main activity recycler data
                 mAdapter.addData(allCategory.getList().get(i).getName());
                 for (int j =0;j < allCategory.getList().get(i).getList().size();j++){
                     dbManager.addConcreteCategory(new String[] {
@@ -82,15 +82,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     );
                 }
             }
-        //mAdapter.addData(pictureCategory);
+
+            dialog.dismiss();
+            writeInitParamsToSharePreferences();
         }
     };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        view = View.inflate(this,R.layout.layout_alert_dialog,null);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        PreferenceManager.setDefaultValues(this,R.xml.argument1,false);
+        //第二：自v3.4.7版本开始,设置BmobConfig,允许设置请求超时时间、文件分片上传时每片的大小、文件的过期时间(单位为秒)，
+        BmobConfig config =new BmobConfig.Builder(this)
+        ////设置appkey
+        .setApplicationId("565a11c9e57a1f1a61b20d5fb2d08134")
+        ////请求超时时间（单位为秒）：默认15s
+        .setConnectTimeout(30)
+        ////文件分片上传时每片的大小（单位字节），默认512*1024
+        .setUploadBlockSize(1024*1024)
+        ////文件的过期时间(单位为秒)：默认1800s
+        .setFileExpiration(2500)
+        .build();
+        Bmob.initialize(config);
+
         Stetho.initializeWithDefaults(this);
         initStatusColor();
+        initShowDialog();
         initDataBase();
         initGlide();
         initToolbar(isShowToolbar);
@@ -99,12 +117,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //initData();
 
     }
+
     public void initStatusColor(){
         ScreenUtil screenUtil = new ScreenUtil();
         //screenUtil.setColor(Color.parseColor("#dedede"));
         screenUtil.setColor(TRANSPARENT);
         screenUtil.StatusView(getWindow());
     }
+
+    private void initShowDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        dialog = builder.create();
+
+        dialog.setView(view);
+        dialog.show();
+    }
+
     private void initDataBase(){
         dbManager = DBManager.Instence(MainActivity.this);
         okHttp3Util = new OkHttp3Util(getApplicationContext());
@@ -141,8 +169,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             cursor.close();
         }
-        //init recycler data,if first time activity this application
-
 
     }
     public void initImageView(){
@@ -167,14 +193,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         mRecyclerView = (RecyclerView)findViewById(R.id.main_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
-        mAdapter = new MainAdapter(this,R.layout.main_base_layout,pictureCategory,mRecyclerView);
+        mAdapter = new MainAdapter1(getApplicationContext(),R.layout.main_base_layout,pictureCategory,mRecyclerView);
         mRecyclerView.setAdapter(mAdapter);
         //mAdapter.setHeaderViewList();
+        mAdapter.setEmptyView(R.layout.empty_layout);
         mAdapter.setOnItemClickListener(new BaseAdapter.OnItemClickListener() {
             @Override
             public void onClick(View view, int position) {
                 Toast.makeText(MainActivity.this,"this " + position,Toast.LENGTH_SHORT).show();
-                intentActivity(FragmentTestActivity.class,position);
+                intentActivity(LikeActivity.class,position);
                 if (position == 0){
                     intentActivity(Coordinator.class,NULL_BUNDLE);
                 }
@@ -187,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         preference = getSharedPreferences("count",MODE_PRIVATE);
         count = preference.getInt("count",0);
         if (count == 0){
-            writeInitParamsToSharePreferences();
+
             okHttp3Util.executeGet(OkHttp3Util.URL,handler,PictureCategory.class,2);
             Log.e(TAG, "firstTimeInit: "+ "first init database" );
         }else {
@@ -196,11 +223,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 pictureCategory.add(cursor.getString(cursor.getColumnIndex("category")));
                 Log.e(TAG, "firstTimeInit: " + cursor.getString(cursor.getColumnIndex("category")) );
             }
+            dialog.dismiss();
             cursor.close();
         }
     }
     public void writeInitParamsToSharePreferences(){
-        SharedPreferences.Editor editor = preference.edit();
+        editor = preference.edit();
         editor.putInt("count",++count);
         editor.apply();
     }
@@ -221,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.nvg:
-                intentActivity(SettingActivity.class,NULL_BUNDLE);
+                intentActivity(LoginActivity.class,NULL_BUNDLE);
                 break;
             case R.id.favorite:
                 intentActivity(LikeActivity.class,NULL_BUNDLE);

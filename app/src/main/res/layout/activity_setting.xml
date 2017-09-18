@@ -1,57 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/setting"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.coustomtoolbar.SettingActivity"
+    android:fitsSystemWindows="true"
+    tools:context="com.example.coustomtoolbar.Activity.SettingActivity"
     android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
-
-        android:background="@color/colorPrimary">
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@mipmap/ic_arrow_back_white_24dp"/>
-        <android.support.design.widget.TabLayout
+        android:background="@color/colorCyan"
+        >
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <android.support.design.widget.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:overScrollMode="always"
-                android:text="sb"/>
-            <android.support.design.widget.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="sa"/>
-            <android.support.design.widget.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="sc"/>
-            <android.support.design.widget.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="sd"/>
-        </android.support.design.widget.TabLayout>
+            android:layout_height="match_parent"
+            android:text="Setting"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            />
     </android.support.v7.widget.Toolbar>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="400dp"
-        android:text="Setting"
-        android:textSize="24sp"
-        android:textColor="@android:color/black"
-        android:gravity="center"
-        />
-    <Button
-        android:id="@+id/setting_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="show"
-        />
+
 
 </LinearLayout>
