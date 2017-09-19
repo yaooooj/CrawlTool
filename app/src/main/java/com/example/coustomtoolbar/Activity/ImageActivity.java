@@ -78,15 +78,15 @@ public class ImageActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onFragmentInteraction(View view, int position, int resId) {
+    public void onFragmentInteraction(View view, List<String> url, int position) {
+        /*
         if (resId == R.id.zoom_fragment){
             Log.e(TAG, "onFragmentInteraction: " + "go to" );
             Intent intent = new Intent(ImageActivity.this,ZoomActivity.class);
             startActivity(intent);
         }
+        */
     }
-
-
 
 
     private class ViewPagerTestAdapter extends FragmentStatePagerAdapter {

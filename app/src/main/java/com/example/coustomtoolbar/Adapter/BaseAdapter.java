@@ -45,7 +45,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     private boolean showHeader = false;
     private boolean loading;
     private List<Integer> mHeight = new ArrayList<>();
-    private OnItemClickListener mOnItemClickListener;
+    private OnItemClickListener<T> mOnItemClickListener;
     private OnItemLongClickListener mOnItemLongClickListener;
     private OnLoadMoreListener mOnLoadMoreListener;
 
@@ -264,7 +264,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     @Override
     public void onClick(View view) {
         if (mOnItemClickListener != null){
-            mOnItemClickListener.onClick(view, (int) view.getTag());
+            mOnItemClickListener.onClick(view, mData,(int) view.getTag());
         }
     }
 
@@ -515,7 +515,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
     public  abstract void bingingItemView(BaseViewHolder holder, T t );
 
 
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+    public void setOnItemClickListener(OnItemClickListener<T> onItemClickListener) {
         mOnItemClickListener = onItemClickListener;
     }
 
@@ -525,8 +525,8 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
 
 
 
-    public interface OnItemClickListener{
-        void onClick(View view,int position);
+    public interface OnItemClickListener<M>{
+        void onClick(View view,List<M> url,int position);
     }
     public interface  OnItemLongClickListener{
         void onLongClick(View view,int position);

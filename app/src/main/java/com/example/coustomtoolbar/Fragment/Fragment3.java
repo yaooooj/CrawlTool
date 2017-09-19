@@ -168,15 +168,15 @@ public class Fragment3 extends BaseFragment {
 
             }
         });
-        adapter.setOnItemClickListener(new BaseAdapter.OnItemClickListener() {
+        adapter.setOnItemClickListener(new BaseAdapter.OnItemClickListener<String>() {
             @Override
-            public void onClick(View view, int position) {
+            public void onClick(View view, List<String> url, int position) {
                 Toast.makeText(getContext(),"item click " + position,Toast.LENGTH_SHORT).show();
 
-                mListener.onFragmentInteraction(view,position,R.id.zoom_fragment);
-
+                mListener.onFragmentInteraction(view,url,position);
             }
         });
+
         adapter.setOnItemLongClickListener(new BaseAdapter.OnItemLongClickListener() {
             @Override
             public void onLongClick(View view, int position) {
@@ -253,30 +253,30 @@ public class Fragment3 extends BaseFragment {
     @Override
     public void onPause() {
         super.onPause();
-        Log.e(TAG, "onPause: " );
+        Log.e(TAG, "onPause: "+mParam2 +" "+ mParam1 );
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        Log.e(TAG, "onStop: " );
+        Log.e(TAG, "onStop: " +mParam2 +" "+ mParam1);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.e(TAG, "onDestroyView: " );
+        Log.e(TAG, "onDestroyView: "+mParam2 +" "+ mParam1);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.e(TAG, "onDestroy: " );
+        Log.e(TAG, "onDestroy: "+mParam2 +" "+ mParam1);
     }
 
 
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(View view, int position,int resId);
+        void onFragmentInteraction(View view,List<String> url, int position);
     }
 }

@@ -197,9 +197,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mRecyclerView.setAdapter(mAdapter);
         //mAdapter.setHeaderViewList();
         mAdapter.setEmptyView(R.layout.empty_layout);
-        mAdapter.setOnItemClickListener(new BaseAdapter.OnItemClickListener() {
+        mAdapter.setOnItemClickListener(new BaseAdapter.OnItemClickListener<String>() {
             @Override
-            public void onClick(View view, int position) {
+            public void onClick(View view, List<String> url, int position) {
                 Toast.makeText(MainActivity.this,"this " + position,Toast.LENGTH_SHORT).show();
                 intentActivity(LikeActivity.class,position);
                 if (position == 0){

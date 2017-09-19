@@ -1,5 +1,6 @@
 package com.example.coustomtoolbar.Activity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Parcelable;
@@ -31,6 +32,7 @@ public class LikeActivity extends AppCompatActivity implements
     private ScreenUtil screenUtil = new ScreenUtil();
     private List<Fragment> mFragments;
     private List<PassCategory> categories = null;
+    private LikeFragment likeFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +41,7 @@ public class LikeActivity extends AppCompatActivity implements
 
         initData();
 
-        LikeFragment likeFragment = new LikeFragment();
+        likeFragment = new LikeFragment();
         Bundle bundleToLikeFragment = new Bundle();
 
         bundleToLikeFragment.putParcelableArrayList("category",
@@ -72,12 +74,24 @@ public class LikeActivity extends AppCompatActivity implements
 
     }
 
+
     @Override
-    public void onFragmentInteraction(View view, int position, int resId) {
+    public void onFragmentInteraction(View view, List<String> url, int position) {
+        Bundle bundle = new Bundle();
+        bundle.putInt("position",position);
+        //bundle.putParcelableArrayList("urls",(ArrayList<? extends Parcelable>)url);
+        bundle.putStringArrayList("urls", (ArrayList<String>) url);
+        Intent intent = new Intent(this,ZoomActivity.class);
+        intent.putExtra("bundle",bundle);
+        startActivity(intent);
+        /*
         ZoomFragment zoomFragment = new ZoomFragment();
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.like_activtiy,zoomFragment)
+                .add(R.id.like_activtiy,zoomFragment)
+                .hide(likeFragment)
                 .addToBackStack(null)
+                .show(zoomFragment)
                 .commit();
+                */
     }
 }

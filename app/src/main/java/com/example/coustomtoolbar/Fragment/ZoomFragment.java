@@ -8,9 +8,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.coustomtoolbar.Adapter.BaseAdapter;
 import com.example.coustomtoolbar.R;
+
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,14 +32,15 @@ public class ZoomFragment extends BaseFragment{
     private static final String ARG_PARAM2 = "param2";
 
     // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private int position;
+    private List<String> urls;
 
     private OnFragmentInteractionListener mListener;
 
     public ZoomFragment() {
         // Required empty public constructor
     }
+
 
     /**
      * Use this factory method to create a new instance of
@@ -59,9 +63,10 @@ public class ZoomFragment extends BaseFragment{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e(TAG, "onCreate: " +  "zoom fragment"  );
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            position = getArguments().getInt("position");
+            urls = getArguments().getStringArrayList("urls");
         }
     }
 
@@ -69,7 +74,10 @@ public class ZoomFragment extends BaseFragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_zoom, container, false);
+        View view = inflater.inflate(R.layout.fragment_zoom, container, false);
+        TextView textView = (TextView) view.findViewById(R.id.zoom_text);
+        textView.setText("find text view");
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -100,13 +108,13 @@ public class ZoomFragment extends BaseFragment{
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.e(TAG, "onDestroyView: " );
+        Log.e(TAG, "onDestroyView: " + "zoom fragment" );
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.e(TAG, "onDestroy: " );
+        Log.e(TAG, "onDestroy: " + "zoom fragment" );
     }
 
     /**
