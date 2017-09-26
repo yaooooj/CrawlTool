@@ -1,5 +1,6 @@
 package com.example.coustomtoolbar.Adapter;
 
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.View;
@@ -52,5 +53,9 @@ class BaseViewHolder extends RecyclerView.ViewHolder {
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    public ViewPager setViewPager(int resId){
+        return getView(resId);
     }
 }

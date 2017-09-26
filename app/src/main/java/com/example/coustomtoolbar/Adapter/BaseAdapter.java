@@ -123,6 +123,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
 
         if (view != 0){
             headerViews.put(headerViews.size() + ViewType.TYPE_HEADER,view);
+            notifyDataSetChanged();
         }
     }
 
@@ -246,7 +247,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
             if (isFooter(position)){
 
             }else if (isHeader(position)){
-
+                bingingItemView(holder,null);
             }else if (holder.getItemViewType() == ViewType.TYPE_LOADING){
 
             }

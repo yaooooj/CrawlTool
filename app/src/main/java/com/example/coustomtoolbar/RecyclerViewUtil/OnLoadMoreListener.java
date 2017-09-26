@@ -6,5 +6,5 @@ package com.example.coustomtoolbar.RecyclerViewUtil;
 
 public interface OnLoadMoreListener {
 
-    public void loadMore();
+    void loadMore();
 }

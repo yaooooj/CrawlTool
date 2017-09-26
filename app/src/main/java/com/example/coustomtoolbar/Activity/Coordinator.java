@@ -14,7 +14,6 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.example.coustomtoolbar.Fragment.Fragment1;
-import com.example.coustomtoolbar.Fragment.Fragment2;
 import com.example.coustomtoolbar.Fragment.Fragment3;
 import com.example.coustomtoolbar.Fragment.Fragment4;
 import com.example.coustomtoolbar.R;
@@ -38,7 +37,7 @@ public class Coordinator extends AppCompatActivity {
         setContentView(R.layout.activity_coordinator);
 
         screenUtil.setColor(Color.parseColor("#f19388"));
-        screenUtil.StatusView(getWindow());
+        screenUtil.setStatusView(getWindow());
         toolbar = (Toolbar)findViewById(R.id.toolbar_coordinator);
         finishView = (ImageView)findViewById(R.id.finish);
         finishView.setOnClickListener(new View.OnClickListener() {
@@ -72,7 +71,7 @@ public class Coordinator extends AppCompatActivity {
     public void initData(){
         mFragment = new ArrayList<>();
         mFragment.add(new Fragment1());
-        mFragment.add(new Fragment2());
+       ;
         mFragment.add(new Fragment3());
         mFragment.add(new Fragment4());
     }

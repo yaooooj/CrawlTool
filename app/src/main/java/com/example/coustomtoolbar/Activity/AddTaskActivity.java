@@ -89,7 +89,7 @@ public class AddTaskActivity extends AppCompatActivity implements View.OnClickLi
     public void initStatusColor(){
         screenUtil = new ScreenUtil();
         screenUtil.setColor(Color.parseColor("#f19388"));
-        screenUtil.StatusView(getWindow());
+        screenUtil.setStatusView(getWindow());
         Log.e("BaseActivity","has been execute");
     }
     public void initToolbar(){
@@ -244,11 +244,8 @@ public class AddTaskActivity extends AppCompatActivity implements View.OnClickLi
             return super.dispatchTouchEvent(ev);
         }
 
-        if (getWindow().superDispatchTouchEvent(ev)){
-            return true;
-        }
+        return getWindow().superDispatchTouchEvent(ev);
 
-        return false;
     }
     public boolean isShouldHideInput(View v,MotionEvent e){
 
@@ -259,12 +256,7 @@ public class AddTaskActivity extends AppCompatActivity implements View.OnClickLi
             int top = leftop[1];
             int bottom = top + v.getHeight();
             int right = left + v.getWidth();
-            if (e.getX() > left && e.getX() <right && e.getY() > top && e.getY() < bottom){
-                return false;
-            }
-            else {
-                return true;
-            }
+            return !(e.getX() > left && e.getX() < right && e.getY() > top && e.getY() < bottom);
         }
         return false;
     }

@@ -1,12 +1,10 @@
 package com.example.coustomtoolbar.Fragment;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
@@ -18,11 +16,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.coustomtoolbar.Adapter.BaseAdapter;
-import com.example.coustomtoolbar.Adapter.NormalAdapter;
+import com.example.coustomtoolbar.Adapter.ImageAdapter;
 import com.example.coustomtoolbar.Bean.PictureBean;
-import com.example.coustomtoolbar.ImageCache.GlideApp;
 import com.example.coustomtoolbar.ImageCache.ImageUrl;
 import com.example.coustomtoolbar.R;
 import com.example.coustomtoolbar.RecyclerViewUtil.LoadMode;
@@ -42,7 +38,7 @@ public class Fragment3 extends BaseFragment {
     private List<String> stringList;
     private View view;
     private SwipeRefreshLayout refreshLayout;
-    private NormalAdapter adapter;
+    private ImageAdapter adapter;
     private StaggeredGridLayoutManager layoutManager;
     private OnFragmentInteractionListener mListener;
 
@@ -136,10 +132,10 @@ public class Fragment3 extends BaseFragment {
         recyclerView.addItemDecoration(
                 new DividerItemDecoration(getContext(),DividerItemDecoration.VERTICAL));
 
-        //adapter = new NormalAdapter(getActivity().getApplicationContext(),R.layout.fragment2_item_,urls,recyclerView);
+        //adapter = new ImageAdapter(getActivity().getApplicationContext(),R.layout.fragment2_item_,urls,recyclerView);
 
-        //dapter = new NormalAdapter(this,R.layout.fragment2_item_,urls,recyclerView);
-        adapter = new NormalAdapter(this,R.layout.fragment2_item_,stringList,recyclerView);
+        //dapter = new ImageAdapter(this,R.layout.fragment2_item_,urls,recyclerView);
+        adapter = new ImageAdapter(this,R.layout.fragment2_item_,stringList,recyclerView);
 
         adapter.setEmptyView(R.layout.empty_layout);
         //adapter.setHeaderViewList(R.layout.footer_add_more);
@@ -150,7 +146,7 @@ public class Fragment3 extends BaseFragment {
         recyclerView.addOnScrollListener(new LoadMoreScrollListener(LoadMode.PULLUP) {
             @Override
             public void onLoadMore() {
-                adapter.setLoadMoreListener(new NormalAdapter.LoadMoreListener() {
+                adapter.setLoadMoreListener(new ImageAdapter.LoadMoreListener() {
                     @Override
                     public void loadMore(ImageView imageView, String s) {
                         adapter.loadImage(imageView,s);

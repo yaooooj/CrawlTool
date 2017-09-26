@@ -119,7 +119,7 @@ public class BaseTaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 for (int i =0; i < mPositionList.size() ;i++){
 
                     //删除数据库中的数据
-                    String task_name = datas.get((int)mPositionList.get(i)).getTask_name();
+                    String task_name = datas.get(mPositionList.get(i)).getTask_name();
 
                     //删除显示列表中的数据
                     datas.remove((int)mPositionList.get(i));

@@ -60,7 +60,7 @@ public class BaseActivity extends AppCompatActivity {
 
     public void initStatusColor(){
         screenUtil.setColor(Color.parseColor("#f19388"));
-        screenUtil.StatusView(getWindow());
+        screenUtil.setStatusView(getWindow());
         Log.e("BaseActivity","has been execute");
     }
     public void initToolbar(){

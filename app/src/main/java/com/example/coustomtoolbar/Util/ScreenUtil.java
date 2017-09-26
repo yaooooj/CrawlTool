@@ -16,6 +16,8 @@ import android.widget.FrameLayout;
  */
  public class ScreenUtil {
     public int color;
+    private View statusBarView;
+    private ViewGroup decorViewGroup;
     public static int getStatusHeight(Context context){
         int statusHeight = -1;
         try{
@@ -38,10 +40,14 @@ import android.widget.FrameLayout;
         Log.e("ScreenUtil","StatusBarHeight = "+statusBarHeight);
         return statusBarHeight;
     }
-    public void StatusView(Window window){
+
+    private void createStausBarView(Window window){
         window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        ViewGroup decorViewGroup = (ViewGroup) window.getDecorView();
-        View statusBarView = new View(window.getContext());
+        decorViewGroup = (ViewGroup) window.getDecorView();
+        statusBarView = new View(window.getContext());
+    }
+    public void setStatusView(Window window){
+        createStausBarView(window);
         int statusBarHeight = getStatusBarHeight(window.getContext());
         FrameLayout.LayoutParams params = new FrameLayout.
                 LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,statusBarHeight);
@@ -49,6 +55,10 @@ import android.widget.FrameLayout;
         statusBarView.setLayoutParams(params);
         statusBarView.setBackgroundColor(color);
         decorViewGroup.addView(statusBarView);
+    }
+
+    public void removeStatusView(){
+        decorViewGroup.removeView(statusBarView);
     }
 
     public void setColor(int color){

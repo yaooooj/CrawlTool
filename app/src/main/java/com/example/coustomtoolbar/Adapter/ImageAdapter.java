@@ -25,8 +25,8 @@ import java.util.List;
  * Created by yaojian on 2017/8/1.
  */
 
-public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
-    private static final String TAG = "NormalAdapter";
+public class ImageAdapter extends BaseAdapter<String,BaseViewHolder>{
+    private static final String TAG = "ImageAdapter";
     private int width;
     private int height;
     private Fragment fragment;
@@ -35,13 +35,13 @@ public class NormalAdapter extends BaseAdapter<String,BaseViewHolder>{
     private RecyclerView recyclerView = null;
     private LoadMoreListener loadMoreListener;
 
-    public NormalAdapter(Fragment fragment, int layoutResId, List<String> data, RecyclerView recyclerView) {
+    public ImageAdapter(Fragment fragment, int layoutResId, List<String> data, RecyclerView recyclerView) {
         super(fragment, layoutResId, data, recyclerView);
         this.fragment = fragment;
     }
 
     /*
-    public NormalAdapter(Context context, int layoutResId, List<String> data, RecyclerView recyclerView) {
+    public ImageAdapter(Context context, int layoutResId, List<String> data, RecyclerView recyclerView) {
         super(context, layoutResId, data, recyclerView);
         this.mContext = context;
         this.recyclerView = recyclerView;

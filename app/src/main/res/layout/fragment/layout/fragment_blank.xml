@@ -1,0 +1,23 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             tools:context="com.example.coustomtoolbar.Fragment.BlankFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <com.example.coustomtoolbar.CoustomView.PullLayout
+        android:id="@+id/pull_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/blank_viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </android.support.v4.view.ViewPager>
+
+    </com.example.coustomtoolbar.CoustomView.PullLayout>
+
+
+</FrameLayout>

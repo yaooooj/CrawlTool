@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.example.coustomtoolbar.Bean.PassCategory;
@@ -39,7 +41,7 @@ public class LikeFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
 
     // TODO: Rename and change types of parameters
-    private String mParam1;
+    private List<PassCategory> mParam1 = null;
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
@@ -63,10 +65,11 @@ public class LikeFragment extends Fragment {
      * @return A new instance of fragment LikeFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static LikeFragment newInstance(String param1, String param2) {
+    public static LikeFragment newInstance(List<PassCategory> param1, String param2) {
         LikeFragment fragment = new LikeFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
+        args.putParcelableArrayList("category",
+                (ArrayList<? extends Parcelable>) param1);
         args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
@@ -77,7 +80,7 @@ public class LikeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             categories = getArguments().getParcelableArrayList("category");
-            mParam1 = getArguments().getString(ARG_PARAM1);
+
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
         mFragments = new ArrayList<>();
@@ -92,8 +95,6 @@ public class LikeFragment extends Fragment {
 
     public Fragment putArgumentsToFragment(String key,String id){
         Bundle bundleToFragment = new Bundle();
-        //Fragment4 fragment = new Fragment4();
-        //Fragment1 fragment = new Fragment1();
         Fragment3 fragment = new Fragment3();
         bundleToFragment.putString("name",key);
         bundleToFragment.putString("id",id);
@@ -106,8 +107,8 @@ public class LikeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_like, container, false);
-        screenUtil.setColor(Color.parseColor("#f19388"));
-        screenUtil.StatusView(getActivity().getWindow());
+        //screenUtil.setColor(Color.parseColor("#f19388"));
+        //screenUtil.setStatusView(getActivity().getWindow());
 
         ImageView mImageView = (ImageView)view.findViewById(R.id.like_image_view);
         mImageView.setOnClickListener(new View.OnClickListener() {

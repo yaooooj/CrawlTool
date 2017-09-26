@@ -1,6 +1,5 @@
 package com.example.coustomtoolbar.Fragment;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,19 +14,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.example.coustomtoolbar.Adapter.MyAdapter;
-import com.example.coustomtoolbar.Adapter.NormalAdapter;
 import com.example.coustomtoolbar.Bean.PictureBean;
-import com.example.coustomtoolbar.ImageCache.ImageCache;
 import com.example.coustomtoolbar.ImageCache.ImageUrl;
 import com.example.coustomtoolbar.R;
 import com.example.coustomtoolbar.NetUtil.OkHttp3Util;
 import com.example.coustomtoolbar.RecyclerViewUtil.SpaceDecoration;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import okhttp3.Response;
 
 /**
  * Created by yaojian on 2017/6/23.
