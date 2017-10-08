@@ -42,8 +42,8 @@ public class HeaderView extends FrameLayout implements PullHeader{
     }
 
     @Override
-    public void onRefreshCompleteScrolling(int scrollY, boolean isLoadSuccess) {
-        tvPullDown.setText(isLoadSuccess ? "刷新成功" : "刷新失败");
+    public void onRefreshCompleteScrolling(int scrollY, boolean isRefreshSuccess) {
+        tvPullDown.setText(isRefreshSuccess ? "刷新成功" : "刷新失败");
     }
 
     @Override

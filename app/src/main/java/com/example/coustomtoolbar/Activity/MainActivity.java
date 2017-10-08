@@ -122,8 +122,6 @@ public class MainActivity extends AppCompatActivity {
         initShowDialog();
         initDataBase();
         initGlide();
-        initToolbar();
-        initImageView();
         initRecycler();
         initHeaderViewPager();
         //initData();
@@ -140,7 +138,6 @@ public class MainActivity extends AppCompatActivity {
     private void initShowDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         dialog = builder.create();
-
         dialog.setView(view);
         dialog.show();
     }
@@ -160,31 +157,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void initToolbar() {
-
-    }
-
-    private void initData() {
-        while (true) {
-            cursor = dbManager.queryCategory(SQLiteDbHelper.TABLE_ALL_CATEGORY, "category");
-
-            while (cursor.moveToNext()) {
-                pictureCategory.add(cursor.getString(cursor.getColumnIndex("category")));
-                Log.e(TAG, "handleMessage: " + cursor.getString(cursor.getColumnIndex("category")));
-            }
-            mAdapter.addData(pictureCategory);
-
-            if (pictureCategory != null) {
-                break;
-            }
-            cursor.close();
-        }
-
-    }
-
-    public void initImageView() {
-
-    }
 
     public void initRecycler() {
         List<Integer> bitmaps = new ArrayList<>();

@@ -6,7 +6,7 @@ package com.example.coustomtoolbar.CoustomView;
 
 public interface OnPullListener {
 
-    void onRefresh();
+    boolean onRefresh();
 
-    void onLoadMore();
+    boolean onLoadMore();
 }
