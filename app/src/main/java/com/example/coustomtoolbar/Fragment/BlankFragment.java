@@ -5,9 +5,11 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
@@ -19,6 +21,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.coustomtoolbar.Activity.MainActivity;
 import com.example.coustomtoolbar.Adapter.MainAdapter1;
+import com.example.coustomtoolbar.Adapter.SetWrapperAdapter;
 import com.example.coustomtoolbar.Adapter.ViewType;
 import com.example.coustomtoolbar.Bean.AllCategory;
 import com.example.coustomtoolbar.Bean.PictureCategory;
@@ -26,6 +29,7 @@ import com.example.coustomtoolbar.CoustomView.FooterView;
 import com.example.coustomtoolbar.CoustomView.HeaderView;
 import com.example.coustomtoolbar.CoustomView.FreshViewPager;
 import com.example.coustomtoolbar.CoustomView.OnPullListener;
+import com.example.coustomtoolbar.CoustomView.SetWrapperFragment;
 import com.example.coustomtoolbar.DataBaseUtil.DBManager;
 import com.example.coustomtoolbar.DataBaseUtil.SQLiteDbHelper;
 import com.example.coustomtoolbar.ImageCache.GlideApp;
@@ -90,7 +94,7 @@ public class BlankFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             final Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         dialogView = View.inflate(getActivity(), R.layout.layout_alert_dialog, null);
         View view  = inflater.inflate(R.layout.fragment_blank, container, false);
@@ -112,24 +116,23 @@ public class BlankFragment extends Fragment {
         pullLayout.addFooter(new FooterView(getContext()));
         pullLayout.addHeader(new HeaderView(getContext()));
 
+        ArrayList<String> data = new ArrayList<>();
+        data.add("Set Wrapper");
+        data.add("Set Lock Wrapper");
+        data.add("Set Both");
+
+
+
+
+
+
         pullLayout.setOnPullListener(new OnPullListener() {
             @Override
             public boolean onRefresh() {
-                if (dialog != null){
-                    dialog.show();
-                }else {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    })
-                            .setView(dialogView)
-                            .setCancelable(false);
-                    dialog = builder.create();
-                    dialog.show();
-                }
+                SetWrapperFragment setWrapperFragment = SetWrapperFragment.newInstence(123445,null);
+
+                setWrapperFragment.show(getFragmentManager(),"dialog");
+
                 return true;
             }
 
@@ -146,6 +149,18 @@ public class BlankFragment extends Fragment {
 
     }
 
+
+    public void showDialog(){
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        Fragment pre = getFragmentManager().findFragmentByTag("SetWrapperFragment");
+        if (pre != null){
+            ft.remove(pre);
+        }
+        ft.addToBackStack(null);
+
+        SetWrapperFragment setWrapperFragment = new SetWrapperFragment();
+        setWrapperFragment.show(ft,"SetWrapperFragment");
+    }
     private void initData() {
         dbManager = DBManager.Instence(getActivity());
         pictureCategory = new ArrayList<>();
