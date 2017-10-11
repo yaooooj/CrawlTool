@@ -20,6 +20,7 @@ public class SetWrapperAdapter extends BaseAdapter<String,BaseViewHolder> {
 
     @Override
     public void bingingItemView(BaseViewHolder holder, String s) {
+        holder.itemView.setBackgroundResource(R.drawable.item_selector);
         if (holder.getItemViewType() == ViewType.TYPE_ITEM){
             holder.setTextView(R.id.set_wrapper_item_textview,s);
         }

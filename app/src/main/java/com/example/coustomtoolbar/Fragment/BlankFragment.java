@@ -2,6 +2,7 @@ package com.example.coustomtoolbar.Fragment;
 
 
 import android.database.Cursor;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -14,8 +15,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.coustomtoolbar.Adapter.HomeActivityAdapter;
 import com.example.coustomtoolbar.Adapter.MainAdapter1;
 import com.example.coustomtoolbar.CoustomView.FooterView;
 import com.example.coustomtoolbar.CoustomView.HeaderView;
@@ -25,6 +28,7 @@ import com.example.coustomtoolbar.DataBaseUtil.DBManager;
 import com.example.coustomtoolbar.DataBaseUtil.SQLiteDbHelper;
 import com.example.coustomtoolbar.ImageCache.GlideApp;
 import com.example.coustomtoolbar.R;
+import com.example.coustomtoolbar.RecyclerViewUtil.SpaceDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +55,7 @@ public class BlankFragment extends Fragment {
     private List<String> pictureCategory;
     private Cursor cursor;
     private DBManager dbManager;
-    private MainAdapter1 mAdapter;
+    private HomeActivityAdapter mAdapter;
     public BlankFragment() {
         // Required empty public constructor
     }
@@ -89,31 +93,56 @@ public class BlankFragment extends Fragment {
         // Inflate the layout for this fragment
         dialogView = View.inflate(getActivity(), R.layout.layout_alert_dialog, null);
         View view  = inflater.inflate(R.layout.fragment_blank, container, false);
-        ViewPager viewPager = (ViewPager) view.findViewById(R.id.blank_viewpager);
-        MainViewPagerAdpter1 mainViewPagerAdpter1 = new MainViewPagerAdpter1();
-        viewPager.setAdapter(mainViewPagerAdpter1);
+        //ViewPager viewPager = (ViewPager) view.findViewById(R.id.blank_viewpager);
+       // MainViewPagerAdpter1 mainViewPagerAdpter1 = new MainViewPagerAdpter1();
+        //viewPager.setAdapter(mainViewPagerAdpter1);
 
-        ViewPager viewPager1 = (ViewPager) view.findViewById(R.id.blank_viewpager_1);
-        viewPager1.setAdapter(new MainViewPagerAdpter1());
 
         initData();
         final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.blank_recyclview);
-        mAdapter = new MainAdapter1(getActivity(), R.layout.main_base_layout,  pictureCategory, recyclerView);
+        mAdapter = new HomeActivityAdapter(BlankFragment.this,R.layout.main_base_layout,pictureCategory);
         recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
         recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setAdapter(mAdapter);
-        recyclerView.setVisibility(View.GONE);
+        //recyclerView.setVisibility(View.GONE);
+        recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                final int dividerLeft = 10;
+                final int dividerRight = 10;
+                final int dividerHeight = 10;
+
+                int childPosition = parent.getChildAdapterPosition(view);
+                RecyclerView.LayoutManager layoutManager = parent.getLayoutManager();
+                if (layoutManager instanceof  StaggeredGridLayoutManager){
+                    int spanCount = ((StaggeredGridLayoutManager)layoutManager).getSpanCount();
+                    if ((childPosition ) % 5 == 0){
+                        outRect.set(0,0,0,dividerHeight);
+                    }else if ((childPosition + 2) % spanCount == 0){
+                        outRect.set(dividerLeft,0,dividerRight,dividerHeight);
+                    }else {
+                        outRect.set(dividerLeft,0,0,dividerHeight);
+                    }
+
+                }
+
+            }
+        });
+
+        mAdapter.setOnItemClickListener(new HomeActivityAdapter.OnItemClickListener() {
+            @Override
+            public void onClick(List<String> url, int position) {
+                Toast.makeText(getContext(),"this is "  + position,Toast.LENGTH_SHORT).show();
+            }
+        });
+
         FreshViewPager pullLayout =(FreshViewPager)view.findViewById(R.id.fresh_layout);
         pullLayout.addFooter(new FooterView(getContext()));
         pullLayout.addHeader(new HeaderView(getContext()));
-
         ArrayList<String> data = new ArrayList<>();
         data.add("Set Wrapper");
         data.add("Set Lock Wrapper");
         data.add("Set Both");
-
-
-
 
 
 
@@ -129,7 +158,7 @@ public class BlankFragment extends Fragment {
 
             @Override
             public boolean onLoadMore() {
-               recyclerView.setVisibility(View.VISIBLE);
+               //recyclerView.setVisibility(View.VISIBLE);
                 return true;
             }
 

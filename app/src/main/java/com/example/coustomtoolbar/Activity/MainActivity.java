@@ -37,6 +37,7 @@ import com.example.coustomtoolbar.DataBaseUtil.SQLiteDbHelper;
 import com.example.coustomtoolbar.ImageCache.GlideApp;
 import com.example.coustomtoolbar.NetUtil.OkHttp3Util;
 import com.example.coustomtoolbar.R;
+import com.example.coustomtoolbar.RecyclerViewUtil.SpaceDecoration;
 import com.example.coustomtoolbar.Util.ScreenUtil;
 import com.facebook.stetho.Stetho;
 import com.google.gson.Gson;
@@ -168,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
                 new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
         mAdapter = new MainAdapter1(this, R.layout.main_base_layout, pictureCategory, mRecyclerView);
         mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addItemDecoration(new SpaceDecoration(this,SpaceDecoration.VERTICAL_LIST));
         //mAdapter.setHeaderViewList();
        // mAdapter.setHeaderViewList(R.layout.layout_main_image);
         mAdapter.setEmptyView(R.layout.empty_layout);

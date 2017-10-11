@@ -440,58 +440,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
         }
         return null;
     }
-    /*
-    public void setLoadMoreListener(final OnLoadMoreListener onLoadMoreListener){
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-                /*
-                if (layoutManager instanceof StaggeredGridLayoutManager){
-                    ((StaggeredGridLayoutManager) layoutManager).invalidateSpanAssignments();
-                }
 
-                int visibleItemCount = layoutManager.getChildCount();
-                int totalItemCount = layoutManager.getItemCount() - getHeaderViewCount();
-                Log.e(TAG, "onScrollStateChanged: " + visibleItemCount +" + " + totalItemCount + " + " + lastVisibleItem );
-                if (LoadMode.PULLUP == getLoadMode()){
-                    if ( newState == RecyclerView.SCROLL_STATE_IDLE ){
-                        onLoadMoreListener.setImage();
-                    }
-                    if (newState == RecyclerView.SCROLL_STATE_DRAGGING){
-                        if (totalItemCount - lastVisibleItem == 0){
-                            onLoadMoreListener.loadMore();
-                        }
-
-                    }
-                }
-
-            }
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-               // Log.e(TAG, "onScrolled: " + dx );
-                RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-                if (layoutManager != null) {
-                    if (layoutManager instanceof LinearLayoutManager) {
-                        firstVisibleItem = ((LinearLayoutManager) layoutManager).findFirstVisibleItemPosition();
-                        lastVisibleItem = ((LinearLayoutManager) layoutManager).findLastVisibleItemPosition();
-                    } else if (layoutManager instanceof GridLayoutManager) {
-                        firstVisibleItem = ((GridLayoutManager) layoutManager).findFirstVisibleItemPosition();
-                        lastVisibleItem = ((GridLayoutManager) layoutManager).findLastVisibleItemPosition();
-                    } else if (layoutManager instanceof StaggeredGridLayoutManager) {
-                        int[] positions = new int[((StaggeredGridLayoutManager) layoutManager).getSpanCount()];
-                        // ((StaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(positions);
-                        firstVisibleItem = getFirstPosition(((StaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(positions));
-                        lastVisibleItem = getLastPosition(((StaggeredGridLayoutManager) layoutManager).findLastVisibleItemPositions(positions));
-                    }
-                }
-            }
-        });
-    }
-    */
     public int getFirstPosition(int[] position){
         int first = position[0];
         for (int value : position){
@@ -528,6 +477,7 @@ public abstract class BaseAdapter<T,K extends BaseViewHolder> extends RecyclerVi
 
     public interface OnItemClickListener<M>{
         void onClick(View view,List<M> url,int position);
+
     }
     public interface  OnItemLongClickListener{
         void onLongClick(View view,int position);

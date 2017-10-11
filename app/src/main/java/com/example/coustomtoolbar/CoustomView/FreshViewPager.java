@@ -310,7 +310,7 @@ public  class FreshViewPager extends ViewGroup {
                     intercept = true;
                 }
             }else {
-                intercept = isChildBottom((ViewGroup) view);
+                intercept = isChildTop((ViewGroup) view);
             }
 
         }else {

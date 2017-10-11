@@ -99,7 +99,7 @@ public class Fragment1 extends Fragment{
 
         rv.setAdapter(adapter);
         rv.setItemAnimator(new DefaultItemAnimator());
-        rv.addItemDecoration(new SpaceDecoration(5,5));
+
         initSwipeRefreshLayout();
         return view;
     }

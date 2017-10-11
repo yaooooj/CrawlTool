@@ -12,11 +12,15 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.example.coustomtoolbar.Adapter.BaseAdapter;
 import com.example.coustomtoolbar.Adapter.SetWrapperAdapter;
 import com.example.coustomtoolbar.R;
+import com.example.coustomtoolbar.RecyclerViewUtil.SpaceDecoration;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by SEELE on 2017/10/9.
@@ -36,7 +40,7 @@ public  class SetWrapperFragment extends DialogFragment {
         }
     }
 
-    /*
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -46,11 +50,19 @@ public  class SetWrapperFragment extends DialogFragment {
         data.add("Set Lock Wrapper");
         data.add("Set Both");
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.wrapper_fragment_recyclerview);
+        SetWrapperAdapter adapter = new SetWrapperAdapter(this,R.layout.set_wrapper_item_layout,data,recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setAdapter(new SetWrapperAdapter(this,R.layout.set_wrapper_item_layout,data,recyclerView));
+        recyclerView.setAdapter(adapter);
+        recyclerView.addItemDecoration(new SpaceDecoration(getContext(),SpaceDecoration.VERTICAL_LIST));
+        adapter.setOnItemClickListener(new BaseAdapter.OnItemClickListener<String>() {
+            @Override
+            public void onClick(View view, List<String> url, int position) {
+                Toast.makeText(getContext(),"this is "+ position,Toast.LENGTH_SHORT).show();
+            }
+        });
         return view;
     }
-*/
+
 
 
     public static SetWrapperFragment newInstence(int title, RecyclerView recyclerView){
