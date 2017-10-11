@@ -14,7 +14,7 @@ import android.view.View;
  * Created by yaojian on 2017/7/3.
  */
 
-public class DividerItemDecoration extends RecyclerView.ItemDecoration {
+public class DividerItemDecoration   extends RecyclerView.ItemDecoration {
     private static final int[] ATTR = new int[]{
             android.R.attr.listDivider
     };
@@ -36,6 +36,14 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         this.orientation = orientation;
     }
 
+    @Override
+    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+        if (orientation == VERTICAL_LIST){
+            outRect.set(0,0,0,mDivider.getIntrinsicHeight());
+        }else {
+            outRect.set(0,0,0,mDivider.getIntrinsicWidth());
+        }
+    }
     @Override
     public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
 
@@ -79,12 +87,5 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         }
 
     }
-    @Override
-    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-        if (orientation == VERTICAL_LIST){
-            outRect.set(0,0,0,mDivider.getIntrinsicHeight());
-        }else {
-            outRect.set(0,0,0,mDivider.getIntrinsicWidth());
-        }
-    }
+
 }

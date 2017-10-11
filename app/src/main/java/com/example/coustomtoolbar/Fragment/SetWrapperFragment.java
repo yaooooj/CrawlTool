@@ -1,12 +1,11 @@
-package com.example.coustomtoolbar.CoustomView;
+package com.example.coustomtoolbar.Fragment;
 
 import android.app.Dialog;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AlertDialog;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
@@ -37,14 +36,11 @@ public  class SetWrapperFragment extends DialogFragment {
         }
     }
 
-
-
+    /*
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         View view = inflater.inflate(R.layout.set_wrapper_fragment_layout,container);
-
         ArrayList<String> data = new ArrayList<>();
         data.add("Set Wrapper");
         data.add("Set Lock Wrapper");
@@ -54,10 +50,10 @@ public  class SetWrapperFragment extends DialogFragment {
         recyclerView.setAdapter(new SetWrapperAdapter(this,R.layout.set_wrapper_item_layout,data,recyclerView));
         return view;
     }
+*/
 
 
-
-    public static SetWrapperFragment newInstence(int title,RecyclerView recyclerView){
+    public static SetWrapperFragment newInstence(int title, RecyclerView recyclerView){
         SetWrapperFragment setWrapperFragment = new SetWrapperFragment();
         Bundle args = new Bundle();
         args.putInt("title",title);
@@ -71,22 +67,12 @@ public  class SetWrapperFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-
-
         int title = getArguments().getInt("title");
         RecyclerView recyclerView = getArguments().getParcelable("recycler");
-
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-
             builder.setTitle(" "  + title);
             builder.setView(recyclerView);
-
-
-
-
         return builder.create();
     }
-
     */
 }

@@ -19,8 +19,10 @@ import com.example.coustomtoolbar.R;
  */
 
 public class SettingFragment extends PreferenceFragment
-        implements Preference.OnPreferenceClickListener,Preference.OnPreferenceChangeListener,SharedPreferences.OnSharedPreferenceChangeListener{
-
+        implements
+        Preference.OnPreferenceClickListener,
+        Preference.OnPreferenceChangeListener,
+        SharedPreferences.OnSharedPreferenceChangeListener{
 
     private static final String TAG = "SettingFragment";
     private static final String KEY_AUTO_UPDATA = "pref_auto_updata";
@@ -29,23 +31,14 @@ public class SettingFragment extends PreferenceFragment
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.argument1);
-
-
-
-
         SharedPreferences sharePrf = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String syncConnef = sharePrf.getString(KEY_AUTO_UPDATA,"");
         //Log.e(TAG, "onCreate: " + syncConnef );
-
         ListPreference ls = (ListPreference) findPreference(KEY_AUTO_UPDATA);
         Preference prAccount = findPreference(KEY_ACCOUNT);
         prAccount.setOnPreferenceClickListener(this);
         ls.setOnPreferenceChangeListener(this);
-
-
     }
-
-
 
 
     @Override

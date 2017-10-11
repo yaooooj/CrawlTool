@@ -1,7 +1,6 @@
 package com.example.coustomtoolbar.Fragment;
 
 
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,27 +8,19 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.example.coustomtoolbar.Activity.MainActivity;
 import com.example.coustomtoolbar.Adapter.MainAdapter1;
-import com.example.coustomtoolbar.Adapter.SetWrapperAdapter;
-import com.example.coustomtoolbar.Adapter.ViewType;
-import com.example.coustomtoolbar.Bean.AllCategory;
-import com.example.coustomtoolbar.Bean.PictureCategory;
 import com.example.coustomtoolbar.CoustomView.FooterView;
 import com.example.coustomtoolbar.CoustomView.HeaderView;
 import com.example.coustomtoolbar.CoustomView.FreshViewPager;
 import com.example.coustomtoolbar.CoustomView.OnPullListener;
-import com.example.coustomtoolbar.CoustomView.SetWrapperFragment;
 import com.example.coustomtoolbar.DataBaseUtil.DBManager;
 import com.example.coustomtoolbar.DataBaseUtil.SQLiteDbHelper;
 import com.example.coustomtoolbar.ImageCache.GlideApp;
