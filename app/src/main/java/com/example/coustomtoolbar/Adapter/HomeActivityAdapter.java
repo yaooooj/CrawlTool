@@ -53,7 +53,7 @@ public class HomeActivityAdapter extends RecyclerView.Adapter implements View.On
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder viewHolder;
         if (viewType == 1){
-            viewHolder = new ViewPagerHoldeVew(inflate.inflate(R.layout.fragment_zoom,parent,false));
+            viewHolder = new ViewPagerHoldeVew(inflate.inflate(R.layout.blank_item2_layout,parent,false));
         }else {
             viewHolder = new ItemViewHolderView(inflate.inflate(layoutResId,parent,false));
         }
@@ -140,11 +140,11 @@ public class HomeActivityAdapter extends RecyclerView.Adapter implements View.On
 
         public ViewPagerHoldeVew(View itemView) {
             super(itemView);
-            mViewPager = (ViewPager) itemView.findViewById(R.id.zoom_viewpager);
+            mViewPager = (ViewPager) itemView.findViewById(R.id.blank_item_viewpager);
         }
     }
 
-    public static class ItemViewHolderView  extends RecyclerView.ViewHolder{
+    private class ItemViewHolderView  extends RecyclerView.ViewHolder{
         TextView mTextView;
         public ItemViewHolderView(View itemView) {
             super(itemView);
@@ -155,6 +155,7 @@ public class HomeActivityAdapter extends RecyclerView.Adapter implements View.On
     public interface OnItemClickListener{
         void onClick(List<String> url,int position);
     }
+
     public interface  OnItemLongClickListener{
         void onLongClick(View view,int position);
 

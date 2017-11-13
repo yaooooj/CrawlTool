@@ -20,6 +20,9 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.coustomtoolbar.CoustomView.FreshViewPager;
+import com.example.coustomtoolbar.CoustomView.HeaderView;
+import com.example.coustomtoolbar.CoustomView.OnPullListener;
 import com.example.coustomtoolbar.ImageCache.GlideApp;
 import com.example.coustomtoolbar.R;
 import com.example.coustomtoolbar.Util.ScreenUtil;
@@ -62,15 +65,15 @@ public class ZoomFragment extends BaseFragment{
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
+     * @param data Parameter 1.
      * @param param2 Parameter 2.
      * @return A new instance of fragment ZoomFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static ZoomFragment newInstance(List<String> param1, int param2) {
+    public static ZoomFragment newInstance(List<String> data, int param2) {
         ZoomFragment fragment = new ZoomFragment();
         Bundle args = new Bundle();
-        args.putStringArrayList("urls", (ArrayList<String>) param1);
+        args.putStringArrayList("urls", (ArrayList<String>) data);
         args.putInt("position", param2);
         fragment.setArguments(args);
         return fragment;
@@ -79,10 +82,8 @@ public class ZoomFragment extends BaseFragment{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e(TAG, "onCreate: " +  "zoom fragment"  );
         if (getArguments() != null) {
             initPosition = getArguments().getInt("position");
-
             if (getArguments().getStringArrayList("urls") != null){
                 urls = getArguments().getStringArrayList("urls");
             }
@@ -100,17 +101,31 @@ public class ZoomFragment extends BaseFragment{
         ///window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 
         ViewPager viewPager = (ViewPager) view.findViewById(R.id.zoom_viewpager);
-
         mViews = new ArrayList<>();
-        if (getActivity() == null){
-            Log.e(TAG, "onCreateView: " + " can't get acivity" );
-        }
         for (int i = 0;i < urls.size() - initPosition;i++){
             ImageView imageView = new ImageView(getActivity());
             mViews.add(imageView);
         }
-        Log.e(TAG, "onCreateView: " + mViews.size() );
         viewPager.setAdapter(new ZoomViewPagerAdapter(urls));
+
+
+        FreshViewPager freshViewPager = (FreshViewPager) view.findViewById(R.id.zoom_frashviewpager);
+        freshViewPager.addHeader(new HeaderView(getActivity()));
+        freshViewPager.setOnPullListener(new OnPullListener() {
+            @Override
+            public boolean onRefresh() {
+                SetWrapperFragment setWrapperFragment = SetWrapperFragment.newInstence("" + 123445,null);
+                setWrapperFragment.show(getFragmentManager(),"dialog");
+                return true;
+            }
+
+            @Override
+            public boolean onLoadMore() {
+                return false;
+            }
+        });
+
+
         return view;
     }
 

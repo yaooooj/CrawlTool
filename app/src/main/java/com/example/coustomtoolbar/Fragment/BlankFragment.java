@@ -149,7 +149,7 @@ public class BlankFragment extends Fragment {
         pullLayout.setOnPullListener(new OnPullListener() {
             @Override
             public boolean onRefresh() {
-                SetWrapperFragment setWrapperFragment = SetWrapperFragment.newInstence(123445,null);
+                SetWrapperFragment setWrapperFragment = SetWrapperFragment.newInstence("" +123445,null);
 
                 setWrapperFragment.show(getFragmentManager(),"dialog");
 

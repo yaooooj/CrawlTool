@@ -173,33 +173,26 @@ public  class FreshViewPager extends ViewGroup {
                 final float xDiff = Math.abs(x - mLastMotionX);
                 final float yDiff = Math.abs(y - mInitialMotionY);
                 if (y - mInitialMotionY > 20 && yDiff * 0.5f > xDiff ){
-                    Log.e(TAG, "onInterceptTouchEvent: " + " drag up" );
-                    View child = getFirstVisibleChild();
-                    if (child == null){
-                        intercept = false;
-                    } else {
 
-                        intercept = isTop(child);
+                    View child = getFirstVisibleChild();
+                    if (child != null && isTop(child)){
+                        intercept = true;
                     }
-                    /*
-                    else if (child instanceof ScrollView || child instanceof NestedScrollView){
-                         intercept = svPullDownIntercept(child);
-                    }
-                    */
+
                 }else if (mInitialMotionY - y > 20 && yDiff * 0.5f > xDiff){
-                    Log.e(TAG, "onInterceptTouchEvent: " + " drag down" );
+
                     View child = getLastVisibleChild();
-                    if (child == null){
-                        intercept = false;
-                    }else if (child instanceof ScrollView || child instanceof NestedScrollView){
-                        intercept = svPullUpIntercept(child);
+                    if (child != null && isBottom(child)){
+                        intercept = true;
                     }
+
                 }else {
-                    Log.e(TAG, "onInterceptTouchEvent: " + " not intercept" );
+
                     intercept = false;
                 }
                 break;
             case MotionEvent.ACTION_UP:
+
                 intercept = false;
                 break;
             default:
@@ -217,8 +210,9 @@ public  class FreshViewPager extends ViewGroup {
                 yDiff  = (int)( mLastMotionY - y);
                 mLastMotionY = y;
                 if (getScrollY() < 0){
+                    scrollBy(0, yDiff / 2);
                     if (header != null && header instanceof HeaderView){
-                        scrollBy(0, yDiff / 2);
+
                         if (Math.abs(getScrollY()) >  header.getMeasuredHeight()){
                             updateStatus(PullStatus.DOWN_AFTER);
                             mStatus = PullStatus.DOWN_AFTER;
@@ -226,10 +220,16 @@ public  class FreshViewPager extends ViewGroup {
                             updateStatus(PullStatus.DOWN_BEFORE);
                             mStatus = PullStatus.DOWN_BEFORE;
                         }
+                    }else {
+
+                        mStatus = PullStatus.DEFAULT;
                     }
                 }else {
-                    if (footer != null){
-                        scrollBy(0,yDiff / 2);
+
+                    scrollBy(0,yDiff / 2);
+
+                    if (footer != null && footer instanceof  FooterView){
+
                         if ( Math.abs(getScrollY()) >=  (bottomScroll + footer.getMeasuredHeight())){
                             updateStatus(PullStatus.UP_AFTER);
                             mStatus = PullStatus.UP_AFTER;
@@ -237,6 +237,10 @@ public  class FreshViewPager extends ViewGroup {
                             updateStatus(PullStatus.UP_BEFORE);
                             mStatus = PullStatus.UP_BEFORE;
                         }
+
+                    }else {
+
+                        mStatus = PullStatus.DEFAULT;
                     }
 
                 }
@@ -249,6 +253,9 @@ public  class FreshViewPager extends ViewGroup {
                 break;
             case MotionEvent.ACTION_UP:
                 switch (mStatus){
+                    case DEFAULT:
+                        scrolltoDefaultStatus(yDiff);
+                        break;
                     case DOWN_BEFORE:
                         scrolltoDefaultStatus(yDiff);
                         break;
@@ -336,24 +343,29 @@ public  class FreshViewPager extends ViewGroup {
     }
 
     private boolean isBottom(View view){
-
+        boolean intercept = false;
 
         if (view instanceof ViewGroup) {
 
-
-            if (view instanceof ScrollView) {
-                ScrollView scrollView = (ScrollView) view;
-                if (scrollView.getChildCount() > 0) {
-                    return scrollView.getScrollY() >= scrollView.getChildAt(0).getHeight() - scrollView.getHeight();
-                } else {
-                    return true;
+            if (view instanceof NestedScrollView){
+                NestedScrollView nestedScrollView = (NestedScrollView) view;
+                if (nestedScrollView.getScrollY() >= (nestedScrollView.getChildAt(0).getHeight() - nestedScrollView.getHeight())) {
+                    intercept = true;
                 }
-            } else {
-                return isChildBottom((ViewGroup) view);
+
+            }else if (view instanceof ScrollView){
+                ScrollView scrollView = (ScrollView) view;
+                if (scrollView.getScrollY() >= scrollView.getChildAt(0).getHeight() - scrollView.getHeight()){
+                    intercept = true;
+                }
+            }else {
+                intercept =  isChildBottom((ViewGroup) view);
             }
+
         } else {
-            return true;
+            intercept = false;
         }
+        return intercept;
     }
 
 
